@@ -2,33 +2,34 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>My Dark OS Room</title>
+  <title>My Messy Yellow Room</title>
   <link href="https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 
   <style>
-    /* === 🩸 기본 설정 === */
+    /* === 🩸 기본 설정 및 커서 === */
     body { 
         background-color: #000; color: #ccc;
-        font-family: 'Galmuri9', '궁서', serif; margin: 0; padding: 0; overflow: hidden; cursor: crosshair;
+        font-family: 'Galmuri9', '궁서', serif; margin: 0; padding: 0; overflow: hidden; 
+        cursor: url('https://cdn.pixabay.com/pixabay/img/cursor/crosshair.png'), crosshair; /* 십자 커서 */
     }
     
-    /* === 💻 좌측 윈도우 98 스타일 메뉴바 === */
+    /* === 💻 좌측 시스템 메뉴바 (슬림 버전) === */
     #left-taskbar {
         position: fixed; top: 0; left: 0; width: 80px; height: 100vh;
-        background: #008080; border-right: 3px solid #ccc; outline: 1px solid #000;
-        display: flex; flex-direction: column; align-items: center; padding-top: 20px; z-index: 500;
-        box-shadow: inset -2px -2px 0px rgba(0,0,0,0.5), inset 2px 2px 0px rgba(255,255,255,0.3);
+        background: #2c3e50; border-right: 3px solid #1a252f; outline: 1px solid #000;
+        display: flex; flex-direction: column; align-items: center; padding-top: 30px; z-index: 500;
+        box-shadow: inset -2px -2px 0px rgba(0,0,0,0.5), inset 2px 2px 0px rgba(255,255,255,0.1);
     }
     .task-icon {
-        width: 60px; height: 60px; margin-bottom: 20px; text-align: center; cursor: pointer;
-        font-size: 11px; color: #fff; font-weight: bold; text-shadow: 1px 1px 0px #000;
-        transition: 0.1s; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        width: 60px; height: 70px; margin-bottom: 25px; text-align: center; cursor: pointer;
+        font-size: 11px; color: #bdc3c7; font-weight: bold; text-shadow: 1px 1px 0px #000;
+        transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
-    .task-icon img { width: 35px; height: 35px; image-rendering: pixelated; margin-bottom: 5px; filter: drop-shadow(2px 2px 0px #000);}
-    .task-icon:active { transform: translate(2px, 2px); filter: brightness(0.7); }
-    .task-icon:hover { color: #ffeb3b; }
+    .task-icon img { width: 40px; height: 40px; margin-bottom: 8px; filter: drop-shadow(3px 3px 0px #000); transition: 0.2s;}
+    .task-icon:active img { transform: translate(2px, 2px); filter: brightness(0.7); }
+    .task-icon:hover { color: #f1c40f; } .task-icon:hover img { transform: scale(1.1); }
 
     /* === 🌌 차원(스크린) 컨테이너 === */
     #world-container {
@@ -37,364 +38,374 @@
     .world-view { display: none; width: 100%; height: 100%; position: relative; }
     .world-view.active { display: block; }
 
-    /* 1. Main OS (우주 로비) */
-    #view-os { 
-        background: #000080 url('https://www.transparenttextures.com/patterns/stardust.png'); 
-    }
-    .os-title { position: absolute; top: 30%; width: 100%; text-align: center; color: #00ff00; font-family: '궁서'; font-size: 40px; text-shadow: 4px 4px 0px #000; letter-spacing: 5px;}
-    
-    /* 2. Dark Room (노란장판 거실) */
+    /* [차원 1] 로비: 구지레한 노란장판 원룸 */
     #view-room { 
-        background: linear-gradient(to bottom, rgba(20,0,0,0.9) 0%, rgba(50,0,0,0.8) 60%, #2e1a1a 60%, #3e2723 100%), url('https://www.transparenttextures.com/patterns/floral-pattern.png');
+        background-color: #dcb35a;
+        background-image: 
+            linear-gradient(to bottom, rgba(255,255,255,0.8) 0%, rgba(240,230,200,0.6) 50%, rgba(220,179,90,0.9) 50%, rgba(200,150,50,1) 100%),
+            url('https://www.transparenttextures.com/patterns/worn-dots.png');
+        background-size: auto; background-attachment: fixed;
     }
-    /* 3. Abyss Forest (심연의 숲) */
-    #view-forest { 
-        background: #001a00 url('https://www.transparenttextures.com/patterns/dark-matter.png'); 
+    /* 방 오브젝트 (고정) */
+    .room-obj { position: absolute; pointer-events: none; z-index: 1; filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.3)); }
+    .obj-window { top: 10%; right: 5%; width: 250px; opacity: 0.9; border: 4px solid #5d4037; background: url('https://cdn.pixabay.com/photo/2018/01/24/18/05/window-3104655_1280.jpg') no-repeat center/cover;} /* 창문 */
+    .obj-closet { bottom: 5%; left: 5%; width: 300px; height: 500px; background: url('https://cdn.pixabay.com/photo/2015/12/08/00/33/wardrobe-1081670_1280.png') no-repeat center/contain; } /* 옷장 */
+    .obj-bedding { bottom: 2%; right: 15%; width: 400px; background: url('https://cdn.pixabay.com/photo/2017/08/06/09/52/blanket-2591473_1280.png') no-repeat center/contain; transform: rotate(5deg); opacity:0.9;} /* 이불 */
+    .obj-mold { top: 5%; left: 5%; width: 200px; height: 200px; background: url('https://www.transparenttextures.com/patterns/black-felt.png'); opacity: 0.3; mix-blend-mode: multiply; mask-image: radial-gradient(circle, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 70%); } /* 곰팡이 */
+
+    /* 형광등 스위치 (상호작용 가능) */
+    .light-switch {
+        position: absolute; top: 40%; left: 2%; width: 50px; height: 80px; background: #eceff1; border: 3px solid #cfd8dc;
+        cursor: pointer; z-index: 15; box-shadow: 3px 3px 5px rgba(0,0,0,0.2); display: flex; justify-content: center; align-items: center;
     }
+    .light-switch:active { background: #cfd8dc; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2); }
+    .switch-knob { width: 20px; height: 40px; background: #fff; border: 1px solid #b0bec5; transition: 0.1s; }
+    .light-switch:active .switch-knob { transform: translateY(5px); }
+    /* 방 점멸 효과 */
+    @keyframes flickerAnim { 0% { filter: brightness(1); } 10% { filter: brightness(0.3); } 20% { filter: brightness(1); } 30% { filter: brightness(0.5); } 100% { filter: brightness(1); } }
+    .room-flicker { animation: flickerAnim 0.5s linear; }
+
+    /* [차원 2] 노을진 기차역 */
+    #view-station { 
+        background: url('https://cdn.pixabay.com/photo/2017/03/27/14/56/train-station-2179044_1280.jpg') no-repeat center center/cover;
+    }
+    .station-filter { position: absolute; width:100%; height:100%; background: rgba(255, 100, 0, 0.3); mix-blend-mode: overlay; pointer-events: none;}
+
+    /* [차원 3] 아쿠아리움 */
+    #view-aqua { 
+        background: linear-gradient(to bottom, #001f3f, #0074d9);
+        background-image: url('https://www.transparenttextures.com/patterns/underwater.png');
+    }
+    .aqua-obj { position: absolute; pointer-events: none; z-index: 5; animation: floatSwim linear infinite; filter: blur(1px) brightness(0.8); opacity: 0.7;}
+    .f-fish1 { top: 20%; left: -10%; font-size: 60px; animation-duration: 25s; }
+    .f-fish2 { top: 60%; right: -10%; font-size: 80px; animation-duration: 35s; animation-delay: -5s; transform: scaleX(-1); animation-direction: reverse;}
+    .f-jelly { top: 40%; left: 50%; font-size: 50px; animation: floatJelly 20s ease-in-out infinite; }
+    @keyframes floatSwim { 0% { transform: translateX(0) rotate(5deg); } 100% { transform: translateX(120vw) rotate(-5deg); } }
+    @keyframes floatJelly { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(20px, -50px); } }
 
     /* === 🎬 팝업 애니메이션 === */
-    @keyframes popDark { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
-    .pop-anim { animation: popDark 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    @keyframes popDark { 0% { transform: scale(0.7); opacity: 0; filter: blur(2px);} 70% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; filter: blur(0); } }
+    .pop-anim { animation: popDark 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
-    /* === 🔮 다크 룸 (거실) 요소들 === */
-    .main-pic-container {
-        position: absolute; top: 10%; left: 5%; width: 40%; height: 75%; 
-        background: #000; border: 4px solid #333; outline: 4px dashed #8b0000; box-shadow: 15px 15px 30px rgba(0,0,0,0.9);
-        transform: rotate(-1deg); z-index: 10; display: flex; flex-direction: column;
-    }
-    .main-pic-img { width: 100%; height: 100%; object-fit: cover; filter: contrast(1.3) sepia(0.2); opacity: 0.9; }
-    .pic-label { text-align: center; font-size: 16px; font-weight: bold; color: #ff0000; margin-top: 10px; font-family: '궁서'; background: #111; border-top: 2px solid #8b0000;}
-
-    /* 흩어진 다크 버튼들 */
+    /* === 🎀 흩어진 스티커 버튼들 (로비로 이주 완료) === */
     .scattered-btn {
-        position: absolute; background: #000; border: 1px solid #555;
-        padding: 10px 15px; font-weight: bold; color: #ccc; font-size: 13px; font-family: 'Galmuri9';
-        cursor: pointer; box-shadow: 4px 4px 0px rgba(0,0,0,0.8); z-index: 20; transition: 0.1s; user-select: none;
+        position: absolute; background: rgba(0,0,0,0.7); border: 2px dashed #fff; border-radius: 15px;
+        padding: 8px 12px; font-weight: bold; color: #fff; font-size: 13px; font-family: 'Galmuri9';
+        cursor: pointer; box-shadow: 3px 3px 5px rgba(0,0,0,0.5); z-index: 20; transition: 0.15s; user-select: none; white-space: nowrap;
+        backdrop-filter: blur(2px);
     }
-    .scattered-btn:hover { background: #8b0000; color: #fff; transform: scale(1.1) !important;}
-    .scattered-btn:active { transform: translate(3px, 3px) !important; box-shadow: none; }
-    .btn-diary { top: 20%; left: 60%; transform: rotate(5deg); border-style: dashed; color: #ffeb3b;} 
-    .btn-char  { top: 40%; left: 55%; transform: rotate(-3deg); border-color: #8b0000; color: #ff0000; }
-    .btn-review { top: 60%; left: 70%; transform: rotate(8deg); } 
-    .btn-guest { top: 80%; left: 50%; transform: rotate(-5deg); border: 2px dotted #00bcd4; color: #00bcd4;}
+    .scattered-btn:hover { transform: scale(1.1) rotate(0deg) !important; background: rgba(255,255,255,0.9); color:#000; border-style: solid;}
+    .scattered-btn:active { transform: scale(0.95) !important; box-shadow: none; }
+    
+    /* 버튼 배치 (로비 내 복작복작하게) */
+    .btn-diary { top: 25%; left: 30%; transform: rotate(-5deg); background: #8e44ad; border-color: #c0392b; } 
+    .btn-char  { top: 40%; left: 45%; transform: rotate(3deg); background: #2980b9; }
+    .btn-review { top: 20%; left: 65%; transform: rotate(8deg); background: #16a085; } 
+    .btn-guest { top: 55%; left: 20%; transform: rotate(-10deg); background: #d35400; }
+    .btn-write { top: 75%; left: 40%; transform: rotate(-2deg); font-size: 15px; padding: 10px 18px; background: #27ae60; }
+    
+    /* 새로 이주한 버튼들 */
+    .btn-verify { top: 15%; left: 10%; transform: rotate(15deg); background: #c0392b; color:#f1c40f; border-radius: 50px; } /* 알약 모양 */
+    .btn-setting { top: 65%; left: 55%; transform: rotate(5deg); background: #7f8c8d; border-radius: 50%; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; padding:0;} /* 톱니바퀴 모양 */
 
-    /* === 🌲 심연의 숲 요소들 === */
-    .floating-obj { position: absolute; pointer-events: none; z-index: 5; animation: floatAround linear infinite; filter: drop-shadow(5px 5px 0px #000); font-size: 50px;}
-    .f-fish { top: 60%; left: 30%; animation-duration: 20s; }
-    .f-bird { top: 20%; left: 70%; animation-duration: 25s; animation-delay: -10s; filter: hue-rotate(90deg);}
-    @keyframes floatAround {
-        0% { transform: translate(0, 0) scaleX(-1); } 50% { transform: translate(-200px, -50px) scaleX(-1); } 
-        51% { transform: translate(-200px, -50px) scaleX(1); } 100% { transform: translate(0, 0) scaleX(1); }
-    }
+    /* 위치 수정된 버튼들 */
+    .btn-shop { top: 80%; right: 5%; transform: rotate(5deg); background: #f39c12; color:#000; z-index: 25;} /* 펫과 안 겹치게 우측 하단으로 */
+
+    /* 아쿠아리움 오락기 버튼 */
+    .btn-dolphin { top: 60%; left: 50%; transform: translate(-50%,-50%) scale(1.5); border: 3px dotted #00bcd4; color:#00bcd4; background: rgba(0,0,0,0.6); font-family: 'Impact'; z-index: 10;}
 
     /* === 💻 공통 팝업창 (드래그 가능) === */
     .cute-popup {
-        position: absolute; display: none; background: rgba(10,10,10,0.95); border: 2px solid #555;
-        box-shadow: 10px 10px 0px rgba(0,0,0,0.8); overflow: hidden; width: 450px; color: #ccc;
+        position: absolute; display: none; background: rgba(20,20,20,0.95); border: 2px solid #555;
+        box-shadow: 15px 15px 0px rgba(0,0,0,0.6); overflow: hidden; width: 450px; color: #ccc;
     }
     .cute-titlebar {
-        background: #000080; color: #fff; padding: 5px 10px; font-weight: bold; font-size: 12px; font-family: 'Galmuri9';
-        display: flex; justify-content: space-between; align-items: center; user-select: none; cursor: grab; border-bottom: 2px solid #fff;
+        background: #34495e; color: #ecf0f1; padding: 6px 10px; font-weight: bold; font-size: 12px; font-family: 'Galmuri9';
+        display: flex; justify-content: space-between; align-items: center; user-select: none; cursor: grab; border-bottom: 3px solid #2c3e50;
     }
     .cute-titlebar:active { cursor: grabbing; }
-    .cute-title-btns span { display: inline-block; width: 14px; height: 14px; background: #ccc; border: 1px outset #fff; cursor: pointer; }
-    .cute-title-btns span:active { border-style: inset; background: #888;}
-    .cute-body { padding: 15px; max-height: 65vh; overflow-y: auto; }
-    .cute-body::-webkit-scrollbar { width: 10px; background: #000; border-left: 1px solid #555;}
-    .cute-body::-webkit-scrollbar-thumb { background: #555; border: 1px solid #ccc; }
+    .cute-title-btns span { display: inline-block; width: 14px; height: 14px; background: #e74c3c; border: 2px outset #c0392b; cursor: pointer; border-radius: 50%;}
+    .cute-title-btns span:active { border-style: inset; background: #c0392b;}
+    .cute-body { padding: 15px; max-height: 65vh; overflow-y: auto; background: #2c3e50;}
+    .cute-body::-webkit-scrollbar { width: 10px; background: #1a252f;}
+    .cute-body::-webkit-scrollbar-thumb { background: #95a5a6; border: 2px outset #ecf0f1; }
 
     /* 팝업 초기 위치 */
-    #captcha-window { width: 350px; top: 15%; left: 20%; }
-    #write-window { width: 800px; top: 10%; left: 10%; }
-    #board-window { width: 650px; top: 15%; left: 15%; }
-    #ai-window { width: 320px; top: 40%; left: 60%; }
+    #captcha-window { width: 350px; top: 15%; left: 25%; }
+    #write-window { width: 700px; top: 10%; left: 15%; }
+    #board-window { width: 600px; top: 15%; left: 20%; }
+    #ai-window { width: 320px; top: 40%; right: 10%; } /* 펫 근처 */
     #shop-window { width: 350px; top: 30%; left: 30%; }
-    #music-window { width: 300px; top: 8%; left: 60%; }
-    #profile-window { width: 450px; top: 20%; left: 25%;}
-    #dolphin-window { width: 350px; top: 20%; left: 40%; border-color: #00bcd4; }
+    #music-window { width: 300px; top: 5%; left: 65%; }
+    #profile-window { width: 400px; top: 25%; left: 30%;}
+    #dolphin-window { width: 350px; top: 15%; left: 45%; border-color: #00bcd4; }
 
-    /* === 🐾 시메지 (생존자) === */
-    #shimeji-room { position: absolute; top: 75%; left: 75%; z-index: 999; text-align: center; cursor: grab; transition: top 1.5s linear, left 1.5s linear; }
+    /* === 🐾 시메지 (생존자) - 위치 수정 및 안정된 이미지 === */
+    #shimeji-room { position: absolute; top: 65%; right: 10%; z-index: 999; text-align: center; cursor: grab; transition: top 1.5s linear, left 1.5s linear; }
     #shimeji-room:active { cursor: grabbing; transition: none; }
-    #pet-bubble { background: #000; border: 1px solid #ff0000; padding: 5px; font-size: 11px; color: #ff0000; margin-bottom: 5px; opacity:0; transition: opacity 0.3s;}
-    #pet-image { width: 90px; height: 90px; object-fit: contain; filter: drop-shadow(5px 5px 0px rgba(0,0,0,0.8)); transform: scaleX(var(--flip, 1)); }
+    #pet-bubble { background: #fff; border: 2px solid #000; padding: 5px; font-size: 11px; color: #000; margin-bottom: 5px; opacity:0; transition: opacity 0.3s; font-weight: bold;}
+    #pet-image { width: 100px; height: 100px; object-fit: contain; filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.5)); transform: scaleX(var(--flip, 1)); }
     .is-walking { animation: bounce 0.3s infinite; }
     @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-    /* === 폼 & UI 요소 === */
+    /* === 폼 & UI 요소 (구지레한 느낌) === */
     .player-controls { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px;}
-    .ctrl-btn { background: #ccc; border: 2px outset #fff; width: 35px; height: 35px; cursor: pointer; font-size: 12px; color: #000; display:flex; justify-content:center; align-items:center;}
-    .ctrl-btn:active { border-style: inset; background: #aaa; }
-    .music-info { font-size: 11px; color: #00ff00; background:#000; padding:5px; border: 2px inset #555; text-align: center;}
+    .ctrl-btn { background: #95a5a6; border: 3px outset #bdc3c7; width: 35px; height: 35px; cursor: pointer; font-size: 12px; color: #000; display:flex; justify-content:center; align-items:center;}
+    .ctrl-btn:active { border-style: inset; background: #7f8c8d; }
+    .music-info { font-size: 11px; color: #f1c40f; background:#1a252f; padding:5px; border: 2px inset #34495e; text-align: center;}
     .input-row { display: flex; flex-direction: column; margin-bottom: 15px; }
-    .input-row label { font-size: 12px; color: #ccc; margin-bottom: 5px; font-weight: bold;}
-    .cute-input { padding: 8px; border: 2px inset #555; background: #fff; color: #000; font-family: 'Galmuri9'; outline: none;}
-    .btn-action { font-family: 'Galmuri9'; font-size: 12px; padding: 6px 15px; cursor: pointer; border: 2px outset #fff; background: #ccc; color: #000; font-weight: bold; }
-    .btn-action:active { border-style: inset; background: #aaa;}
+    .input-row label { font-size: 12px; color: #bdc3c7; margin-bottom: 5px; font-weight: bold;}
+    .cute-input { padding: 8px; border: 2px inset #34495e; background: #ecf0f1; color: #000; font-family: 'Galmuri9'; outline: none;}
+    .btn-action { font-family: 'Galmuri9'; font-size: 12px; padding: 6px 15px; cursor: pointer; border: 3px outset #bdc3c7; background: #95a5a6; color: #000; font-weight: bold; }
+    .btn-action:active { border-style: inset; background: #7f8c8d;}
     
-    .chat-body { height: 250px; background: #fff; border: 2px inset #555; overflow-y: auto; padding: 10px; font-size: 12px; color: #000;}
-    .msg-row { margin-bottom: 8px; line-height: 1.4; padding: 5px; border-bottom: 1px dashed #ccc; width: fit-content; max-width: 85%;}
-    .msg-ai { color: #8b0000; float: left; clear: both; font-weight: bold;} .msg-me { color: #000080; text-align: right; float: right; clear: both; }
+    .chat-body { height: 250px; background: #ecf0f1; border: 2px inset #34495e; overflow-y: auto; padding: 10px; font-size: 12px; color: #000;}
+    .msg-row { margin-bottom: 8px; line-height: 1.4; padding: 8px; border-radius: 5px; width: fit-content; max-width: 85%; box-shadow: 2px 2px 0px rgba(0,0,0,0.2);}
+    .msg-ai { background: #e74c3c; color: #fff; float: left; clear: both; font-weight: bold;} .msg-me { background: #3498db; color: #fff; text-align: right; float: right; clear: both; }
 
     /* === 📝 아코디언 게시판 === */
-    .post-item { margin-bottom: 10px; border: 2px outset #555; background: #ccc; color: #000;}
-    .post-header { padding: 8px 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid #888;}
-    .post-header:active { background: #aaa; }
-    .post-content-area { padding: 15px; display: none; border-top: 1px inset #fff; font-size: 12px; line-height: 1.6; background: #fff;}
+    .post-item { margin-bottom: 10px; border: 3px outset #7f8c8d; background: #bdc3c7; color: #000;}
+    .post-header { padding: 8px 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid #7f8c8d;}
+    .post-header:active { background: #a0a0a0; }
+    .post-content-area { padding: 15px; display: none; border-top: 2px inset #ecf0f1; font-size: 12px; line-height: 1.6; background: #ecf0f1;}
 
-    /* === 🤖 로봇 검증 (모달 -> 팝업으로 변경) === */
+    /* === 🤖 로봇 검증 (팝업 내부) === */
     .captcha-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 15px; }
-    .captcha-grid img { width: 100%; height: 70px; object-fit: cover; cursor: pointer; border: 2px solid #000; filter: grayscale(100%); transition:0.1s;}
-    .captcha-grid img:active { border-color: #ff0000; filter: grayscale(0%); transform: scale(0.9);}
-    .captcha-btn { width: 100%; padding: 10px; background: #000080; color: #fff; border: 2px outset #fff; font-weight: bold; cursor: pointer; font-family: 'Galmuri9';}
-    .captcha-btn:active { border-style: inset; background: #000050; }
+    .captcha-grid img { width: 100%; height: 70px; object-fit: cover; cursor: pointer; border: 3px solid #34495e; filter: grayscale(100%); transition:0.1s;}
+    .captcha-grid img:active { border-color: #e74c3c; filter: grayscale(0%); transform: scale(0.9);}
+    .captcha-btn { width: 100%; padding: 10px; background: #c0392b; color: #fff; border: 3px outset #e74c3c; font-weight: bold; cursor: pointer; font-family: 'Galmuri9';}
+    .captcha-btn:active { border-style: inset; background: #a93226; }
 
-    /* === 🐬 돌고래 아케이드 === */
-    #dolphin-game-area { width: 300px; height: 350px; background: linear-gradient(to bottom, #000, #003333, #006064); border: 4px inset #555; margin: 0 auto; position: relative; overflow: hidden; }
-    .dolphin-deco { position: absolute; font-size: 40px; opacity: 0.3; filter: grayscale(100%) invert(1); user-select: none;}
-    .ring { width: 25px; height: 25px; border: 4px solid #ff0000; border-radius: 50%; position: absolute; box-shadow: 0 0 10px rgba(255,0,0,0.5); transition: top 0.2s ease-out, left 0.2s ease-out; }
-    .post { width: 10px; height: 120px; background: #333; position: absolute; bottom: 0; border-radius: 5px 5px 0 0; border:1px solid #555;}
-    .pump-btn { width: 60px; height: 60px; background: #ccc; border: 3px outset #fff; border-radius: 50%; cursor: pointer; font-size: 20px; color: #000; display: flex; justify-content: center; align-items: center; user-select: none; transition: 0.1s;}
-    .pump-btn:active { border-style: inset; background: #aaa; transform: scale(0.9); }
-    #dolphin-ui-top { display: flex; justify-content: space-between; padding: 5px 10px; background: #000; color: #00ff00; font-family: 'Galmuri9'; font-size: 14px; border-bottom: 2px solid #555;}
-    #dolphin-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; color: #ff0000; font-size: 16px; font-family: '궁서'; text-align: center; }
+    /* === 🐬 돌고래 아케이드 (버그 수정 및 디자인 개선) === */
+    #dolphin-game-area { width: 300px; height: 350px; background: linear-gradient(to bottom, #0288d1, #26c6da, #80deea); border: 5px inset #00838f; margin: 0 auto; position: relative; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);}
+    .dolphin-deco { position: absolute; font-size: 40px; opacity: 0.6; color: #fff; user-select: none; filter: drop-shadow(2px 2px 0px #00838f);}
+    /* 링 디자인 개선 */
+    .ring { width: 28px; height: 28px; border: 5px solid; border-radius: 50%; position: absolute; box-shadow: 2px 2px 5px rgba(0,0,0,0.4); transition: top 0.1s ease-out, left 0.1s ease-out; background: rgba(255,255,255,0.2);}
+    /* 기둥 디자인 개선 (충돌 범위와 시각적 일치) */
+    .post { width: 12px; height: 130px; background: linear-gradient(to right, #ff7043, #d84315); position: absolute; bottom: 0; border-radius: 6px 6px 0 0; border: 2px solid #bf360c; box-shadow: 3px 3px 5px rgba(0,0,0,0.3);}
+    .pump-btn { width: 65px; height: 65px; background: #26c6da; border: 4px outset #80deea; border-radius: 50%; cursor: pointer; font-size: 22px; color: #fff; display: flex; justify-content: center; align-items: center; user-select: none; transition: 0.1s; text-shadow: 1px 1px 0px #00838f;}
+    .pump-btn:active { border-style: inset; background: #00bcd4; transform: scale(0.95); color:#e0f7fa;}
+    #dolphin-ui-top { display: flex; justify-content: space-between; padding: 8px 12px; background: #00838f; color: #fff; font-family: 'Galmuri9'; font-size: 14px; border-bottom: 3px solid #006064; font-weight: bold; text-shadow: 1px 1px 0px #000;}
+    #dolphin-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; color: #fff; font-size: 18px; font-family: '궁서'; text-align: center; text-shadow: 2px 2px 0px #000;}
 
     /* 암시장 아이템 낙하 */
     #item-drop-zone { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10000; overflow: hidden;}
-    .dropped-item { position: absolute; font-size: 30px; filter: drop-shadow(2px 2px 5px rgba(0,0,0,1)); animation: itemFall 1s ease-out forwards; }
-    @keyframes itemFall { 0% { transform: translateY(-50px) rotate(0deg); opacity:0; } 100% { transform: translateY(0) rotate(360deg); opacity:1; } }
+    .dropped-item { position: absolute; font-size: 35px; filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.7)); animation: itemFall 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    @keyframes itemFall { 0% { transform: translateY(-100px) rotate(-360deg); opacity:0; } 100% { transform: translateY(0) rotate(0deg); opacity:1; } }
+
+    /* 마우스 툴팁 */
+    #custom-tooltip { position: absolute; display: none; z-index: 9999999; background: #fff; border: 2px solid #000; padding: 5px 10px; font-size: 11px; font-family: 'Galmuri9'; color: #000; pointer-events: none; white-space: nowrap; box-shadow: 4px 4px 0px rgba(0,0,0,0.5); font-weight: bold;}
   </style>
 </head>
 <body id="main-body">
 
-  <div id="left-taskbar">
-      <div class="task-icon" onclick="switchWorld('view-os')" data-tooltip="로비로 귀환">
-          <img src="https://win98icons.alexmeub.com/icons/computer_explorer-4.png"><br>OS Main
-      </div>
-      <div class="task-icon" onclick="switchWorld('view-room')" data-tooltip="은밀한 거실">
-          <img src="https://win98icons.alexmeub.com/icons/directory_open_file_mydocs-4.png"><br>Room
-      </div>
-      <div class="task-icon" onclick="switchWorld('view-forest')" data-tooltip="심연의 숲">
-          <img src="https://win98icons.alexmeub.com/icons/tree-0.png"><br>Forest
-      </div>
-      <hr style="width: 60%; border-color: #555; margin: 10px 0;">
-      <div class="task-icon" onclick="openPopup('music-window')" data-tooltip="도청 장치">
-          <img src="https://win98icons.alexmeub.com/icons/cd_audio_cd_a-3.png"><br>Music
-      </div>
-      <div class="task-icon" onclick="openPopup('captcha-window')" data-tooltip="로봇 검증 (다시 열기)">
-          <img src="https://win98icons.alexmeub.com/icons/msg_warning-0.png"><br>Verify
-      </div>
-      <div class="task-icon" onclick="openPopup('ai-window')" data-tooltip="생존자 교신">
-          <img src="https://win98icons.alexmeub.com/icons/modem-1.png"><br>Chat
-      </div>
-      <div class="task-icon" onclick="openPopup('profile-window')" data-tooltip="현장 조작">
-          <img src="https://win98icons.alexmeub.com/icons/settings_gear-0.png"><br>Setting
-      </div>
-  </div>
-
-  <div id="custom-tooltip">말풍선</div>
-
   <div id="world-container">
       
-      <div id="view-os" class="world-view active">
-          <div class="os-title">당신도 로봇이 될 수 있다!</div>
-          <marquee style="position:absolute; bottom:20%; color:#fff; font-size:20px; width:100%;">로봇집에 오신것을 환영합니다... 여기는 공사중...</marquee>
-      </div>
-
-      <div id="view-room" class="world-view">
-          <div id="item-drop-zone"></div> <div class="main-pic-container">
-              <img id="main-visual-img" src="https://cdn.pixabay.com/photo/2020/04/18/16/24/pixel-art-5059880_1280.png" class="main-pic-img">
-              <div class="pic-label">✝️ 맹렬한 순애(純愛) ✝️</div>
+      <div id="view-room" class="world-view active">
+          <div id="item-drop-zone"></div> <div class="room-obj obj-window"></div>
+          <div class="room-obj obj-closet"></div>
+          <div class="room-obj obj-bedding"></div>
+          <div class="room-obj obj-mold"></div>
+          
+          <div class="light-switch" onclick="flickerRoom()" data-tooltip="형광등">
+              <div class="switch-knob"></div>
           </div>
 
-          <button class="scattered-btn btn-diary" onclick="openBoard('diary')">📓 데스 노트</button>
-          <button class="scattered-btn btn-char" onclick="openBoard('character')">✨ 페르소나</button>
-          <button class="scattered-btn btn-review" onclick="openBoard('review')">🎬 목격담</button>
-          <button class="scattered-btn btn-guest" onclick="openBoard('guestbook')">📝 유언장</button>
+          <button class="scattered-btn btn-diary" onclick="openBoard('diary')">📓 비밀 일기</button>
+          <button class="scattered-btn btn-char" onclick="openBoard('character')">✨ 캐릭터 덱</button>
+          <button class="scattered-btn btn-review" onclick="openBoard('review')">🎬 리뷰 노트</button>
+          <button class="scattered-btn btn-guest" onclick="openBoard('guestbook')">📝 방명록</button>
+          <button class="scattered-btn btn-write" onclick="openWrite()">✏️ 글쓰기</button>
           
-          <button class="scattered-btn" style="top:75%; left:65%; background:#8b0000; color:#fff;" onclick="openWrite()">✏️ 투고하기</button>
-          <button class="scattered-btn" style="top:85%; left:75%; background:#000; color:#ffeb3b;" onclick="openPopup('shop-window')">🛒 암시장</button>
+          <button class="scattered-btn btn-verify" onclick="openPopup('captcha-window')">💊 로봇 검증</button>
+          <button class="scattered-btn btn-setting" onclick="openPopup('profile-window')" data-tooltip="설정">⚙️</button>
+
+          <button class="scattered-btn btn-shop" onclick="openPopup('shop-window')">🛒 암시장</button>
       </div>
 
-      <div id="view-forest" class="world-view">
-          <div class="floating-obj f-fish">🐟</div>
-          <div class="floating-obj f-bird">🦅</div>
+      <div id="view-station" class="world-view">
+          <div class="station-filter"></div>
+          <div style="position:absolute; top:20%; left:10%; color:#fff; font-size:24px; font-weight:bold; text-shadow: 2px 2px 5px #000;">떠나간 것들의 역...</div>
+      </div>
+
+      <div id="view-aqua" class="world-view">
+          <div class="aqua-obj f-fish1">🐟</div>
+          <div class="aqua-obj f-fish2">🐠</div>
+          <div class="aqua-obj f-jelly">🪼</div>
           
-          <button class="scattered-btn" style="top:50%; left:50%; transform:translate(-50%,-50%) scale(1.5); border: 2px dashed #00bcd4; color:#00bcd4; background: rgba(0,0,0,0.8);" onclick="openPopup('dolphin-window')">
-              🐬 심연의 오락기 작동
+          <button class="scattered-btn btn-dolphin" onclick="openPopup('dolphin-window')">
+              🐬 심해 오락실 작동
           </button>
       </div>
 
       <div id="shimeji-room" data-tooltip="더블클릭 이동">
           <div id="pet-bubble">배고파...</div>
-          <img id="pet-image" src="https://raw.githubusercontent.com/shimeji-ee/shimeji-ee.github.io/master/img/shime1.png" onclick="openPopup('ai-window')" ondblclick="toggleRoaming()">
+          <img id="pet-image" src="https://cdn.statically.io/gh/shimeji-ee/shimeji-ee.github.io/master/img/shime1.png" onclick="openPopup('ai-window')" ondblclick="toggleRoaming()">
       </div>
 
-  </div> <div id="captcha-window" class="cute-popup" style="display: block;"> <div class="cute-titlebar" id="captcha-drag">
-          <span>⚠️ S Y S T E M _ E R R O R</span>
+  </div> <div id="left-taskbar">
+      <div class="task-icon" onclick="switchWorld('view-room')" data-tooltip="내 방">
+          <img src="https://win98icons.alexmeub.com/icons/directory_open_file_mydocs-4.png"><br>Room
+      </div>
+      <div class="task-icon" onclick="switchWorld('view-station')" data-tooltip="기차역">
+          <img src="https://win98icons.alexmeub.com/icons/network_cool_two_pcs-0.png"><br>Station
+      </div>
+      <div class="task-icon" onclick="switchWorld('view-aqua')" data-tooltip="아쿠아리움">
+          <img src="https://win98icons.alexmeub.com/icons/world-2.png"><br>Aqua
+      </div>
+      <hr style="width: 60%; border-color: #1a252f; margin: 15px 0;">
+      <div class="task-icon" onclick="openPopup('music-window')" data-tooltip="카세트">
+          <img src="https://win98icons.alexmeub.com/icons/cd_audio_cd_a-3.png"><br>Music
+      </div>
+      <div class="task-icon" onclick="openPopup('ai-window')" data-tooltip="메신저">
+          <img src="https://win98icons.alexmeub.com/icons/modem-1.png"><br>Chat
+      </div>
+  </div>
+
+  <div id="custom-tooltip">말풍선</div>
+
+  <div id="captcha-window" class="cute-popup">
+      <div class="cute-titlebar" id="captcha-drag">
+          <span>⚠️ 보안 시스템</span>
           <div class="cute-title-btns"><span onclick="closePopup('captcha-window')"></span></div>
       </div>
-      <div class="cute-body" style="background: #ccc; color: #000;">
-          <p style="font-weight:bold; margin-top:0;">'고통'을 느끼는 피사체를 모두 선택하라.</p>
+      <div class="cute-body" style="text-align:center;">
+          <p style="font-weight:bold; margin-top:0; color:#ecf0f1;">따뜻함이 느껴지는 사진을 선택하시오.</p>
           <div class="captcha-grid">
-              <img src="https://cdn.pixabay.com/photo/2017/06/14/04/08/old-man-2401183_1280.jpg">
-              <img src="https://cdn.pixabay.com/photo/2016/11/21/16/08/barbed-wire-1846148_1280.jpg">
+              <img src="https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg">
+              <img src="https://cdn.pixabay.com/photo/2017/08/06/09/52/blanket-2591473_1280.png">
               <img src="https://cdn.pixabay.com/photo/2015/12/01/20/28/road-1072821_1280.jpg">
-              <img src="https://cdn.pixabay.com/photo/2014/09/13/21/16/hands-444440_1280.jpg">
+              <img src="https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg">
               <img src="https://cdn.pixabay.com/photo/2017/08/01/01/33/beanie-2562646_1280.jpg">
-              <img src="https://cdn.pixabay.com/photo/2018/05/23/17/36/doll-3424627_1280.jpg">
+              <img src="https://cdn.pixabay.com/photo/2016/03/23/04/01/woman-1274056_1280.jpg">
           </div>
-          <button class="captcha-btn" onclick="closePopup('captcha-window')">[ 접속 승인 ]</button>
+          <button class="captcha-btn" onclick="closePopup('captcha-window')">[ 인증 완료 ]</button>
       </div>
   </div>
 
   <div id="dolphin-window" class="cute-popup">
-      <div class="cute-titlebar" id="dolphin-drag"><span>🐬 링 던지기.exe</span> <div class="cute-title-btns"><span onclick="closePopup('dolphin-window')"></span></div></div>
-      <div class="cute-body" style="background:#111; text-align:center; padding: 10px;">
-          <div id="dolphin-ui-top"><span id="d-time">⏳ 30초</span><span id="d-score">🏆 0점</span></div>
+      <div class="cute-titlebar" id="dolphin-drag" style="background: #00838f;"><span>🐬 추억의 링 던지기</span> <div class="cute-title-btns"><span onclick="closePopup('dolphin-window')"></span></div></div>
+      <div class="cute-body" style="background:#b2ebf2; text-align:center; padding: 10px;">
+          <div id="dolphin-ui-top"><span id="d-time">⏳ 30초</span><span id="d-score">🏆 0개 성공</span></div>
           <div id="dolphin-game-area">
               <div id="dolphin-overlay">
-                  <div id="d-msg" style="color:#ff0000; font-size:16px;">코인을 넣으십시오</div>
-                  <button class="btn-action" style="margin-top:15px; background:#000; color:#ff0000;" onclick="startDolphinGame()">▶ 시작</button>
+                  <div id="d-msg" style="font-size:20px; font-weight:bold; text-shadow: 2px 2px 0px #000;">도전하시겠습니까?</div>
+                  <button class="btn-action" style="margin-top:20px; font-size:16px; padding: 10px 20px;" onclick="startDolphinGame()">▶ COIN INSERT</button>
               </div>
               <div class="dolphin-deco" style="top:20px; left:20px;">🐬</div>
               <div class="dolphin-deco" style="bottom:50px; right:20px; transform:scaleX(-1);">🐬</div>
-              <div class="post" style="left: 70px;"></div><div class="post" style="right: 200px;"></div>
-              <div class="ring" id="ring0"></div><div class="ring" id="ring1"></div><div class="ring" id="ring2"></div><div class="ring" id="ring3"></div><div class="ring" id="ring4"></div>
+              <div class="post" style="left: 60px;"></div><div class="post" style="right: 60px;"></div>
+              <div class="ring" id="ring0" style="border-color:#e91e63;"></div>
+              <div class="ring" id="ring1" style="border-color:#9c27b0;"></div>
+              <div class="ring" id="ring2" style="border-color:#3f51b5;"></div>
+              <div class="ring" id="ring3" style="border-color:#4caf50;"></div>
+              <div class="ring" id="ring4" style="border-color:#ff9800;"></div>
           </div>
-          <div style="display: flex; justify-content: space-between; margin-top: 15px; align-items:center;">
-              <button class="pump-btn" onclick="pushRings('left')">L</button>
-              <div style="font-size:11px; color:#00bcd4;">연타...</div>
-              <button class="pump-btn" onclick="pushRings('right')">R</button>
+          <div style="display: flex; justify-content: space-between; margin-top: 15px; align-items:center; padding: 0 10px;">
+              <button class="pump-btn" onclick="pushRings('left')">◀</button>
+              <div style="font-size:12px; color:#00838f; font-weight:bold;">버튼을 연타해 물살을 일으켜라!</div>
+              <button class="pump-btn" onclick="pushRings('right')">▶</button>
           </div>
       </div>
   </div>
 
   <div id="music-window" class="cute-popup">
-      <div class="cute-titlebar" id="music-drag"><span>📻 CD_Player.exe</span> <div class="cute-title-btns"><span onclick="closePopup('music-window')"></span></div></div>
-      <div class="cute-body" style="background:#ccc;">
+      <div class="cute-titlebar" id="music-drag" style="background:#f39c12; color:#000;"><span>📻 카세트 플레이어</span> <div class="cute-title-btns"><span onclick="closePopup('music-window')"></span></div></div>
+      <div class="cute-body">
           <div class="player-controls">
               <button class="ctrl-btn" onclick="prevTrack()">⏮</button>
               <button class="ctrl-btn" id="play-btn" onclick="togglePlay()">▶</button>
               <button class="ctrl-btn" onclick="nextTrack()">⏭</button>
           </div>
-          <marquee class="music-info" scrollamount="4" id="now-playing-text">신호 대기 중...</marquee>
+          <marquee class="music-info" scrollamount="4" id="now-playing-text">테이프 대기 중...</marquee>
       </div>
   </div>
 
   <div id="board-window" class="cute-popup">
-      <div class="cute-titlebar" id="board-drag"><span id="board-title">🎀 Board.exe</span> <div class="cute-title-btns"><span onclick="closePopup('board-window')"></span></div></div>
-      <div class="cute-body" id="page-content" style="background:#008080;">로딩 중...</div>
+      <div class="cute-titlebar" id="board-drag" style="background:#9b59b6;"><span>🎀 기록 보관소</span> <div class="cute-title-btns"><span onclick="closePopup('board-window')"></span></div></div>
+      <div class="cute-body" id="page-content" style="background:#ecf0f1;">로딩 중...</div>
   </div>
 
   <div id="write-window" class="cute-popup">
-      <div class="cute-titlebar" id="write-drag"><span>📝 Notepad.exe</span> <div class="cute-title-btns"><span onclick="closePopup('write-window')"></span></div></div>
-      <div class="cute-body" style="background:#ccc;">
+      <div class="cute-titlebar" id="write-drag" style="background:#27ae60;"><span>📝 새 글 작성</span> <div class="cute-title-btns"><span onclick="closePopup('write-window')"></span></div></div>
+      <div class="cute-body">
           <div class="input-row" style="flex-direction:row; align-items:center; justify-content:space-between;">
               <div style="display:flex; gap:10px; align-items:center;">
-                  <label style="margin:0; color:#000;">분류</label>
-                  <select id="post-category" class="cute-input" style="width: 120px;">
-                      <option value="diary">데스 노트</option>
-                      <option value="character">페르소나</option>
-                      <option value="review">목격담(리뷰)</option>
-                      <option value="guestbook">유언장(방명록)</option>
+                  <label style="margin:0; color:#bdc3c7;">카테고리</label>
+                  <select id="post-category" class="cute-input" style="width: 140px;">
+                      <option value="diary">📓 비밀 일기</option>
+                      <option value="character">✨ 캐릭터 덱</option>
+                      <option value="review">🎬 리뷰 노트</option>
+                      <option value="guestbook">📝 방명록</option>
                   </select>
               </div>
               <div>
-                  <label for="local-img-upload" class="btn-action" style="cursor:pointer;">🖼️ 증거 첨부</label>
+                  <label for="local-img-upload" class="btn-action" style="cursor:pointer; background:#bdc3c7; color:#000;">🖼️ 사진 첨부</label>
                   <input type="file" id="local-img-upload" accept="image/*" style="display:none;" onchange="insertLocalImageToEditor(this)">
               </div>
           </div>
-          <div class="input-row"><input type="text" id="post-title" class="cute-input" placeholder="제목..."></div>
+          <div class="input-row"><input type="text" id="post-title" class="cute-input" placeholder="제목을 입력하세요..."></div>
           <textarea id="post-content"></textarea>
-          <div style="text-align: right; margin-top: 15px;"><button class="btn-action" onclick="savePost()">기록 저장</button></div>
+          <div style="text-align: right; margin-top: 15px;"><button class="btn-action" onclick="savePost()" style="background:#27ae60; color:#fff; border-color:#2ecc71;">저장하기</button></div>
       </div>
   </div>
 
   <div id="ai-window" class="cute-popup">
-      <div class="cute-titlebar" id="ai-drag"><span>💬 Messenger.exe</span> <div class="cute-title-btns"><span onclick="closePopup('ai-window')"></span></div></div>
-      <div class="cute-body" style="background:#ccc;">
-        <div class="chat-body" id="chat-log"><div class="msg-row msg-ai">나루: ...응답하라.</div></div>
+      <div class="cute-titlebar" id="ai-drag" style="background:#3498db;"><span>💬 펫 메신저</span> <div class="cute-title-btns"><span onclick="closePopup('ai-window')"></span></div></div>
+      <div class="cute-body">
+        <div class="chat-body" id="chat-log"><div class="msg-row msg-ai">나루: 밥 줘...</div></div>
         <div style="display:flex; gap:5px; margin-top:10px;">
             <input type="text" id="ai-input" class="cute-input" style="flex:1;" onkeypress="if(event.key==='Enter') sendMsg()">
-            <button class="btn-action" onclick="sendMsg()">전송</button>
+            <button class="btn-action" onclick="sendMsg()" style="background:#3498db; color:#fff;">전송</button>
         </div>
       </div>
   </div>
 
   <div id="profile-window" class="cute-popup">
-      <div class="cute-titlebar" id="profile-drag"><span>🛠️ Control_Panel.exe</span> <div class="cute-title-btns"><span onclick="closePopup('profile-window')"></span></div></div>
-      <div class="cute-body" style="background:#ccc;">
-          <div class="input-row"><label style="color:#000;">거실 거대 액자</label><input type="file" id="edit-main-file" class="cute-input"></div>
-          <div class="input-row"><label style="color:#000;">생존자(펫) 이미지</label><input type="file" id="edit-pet-file" class="cute-input"></div>
-          <div class="input-row"><label style="color:#000;">유튜브 BGM (ID 쉼표 구분)</label><textarea id="edit-bgm" class="cute-input" rows="2" placeholder="VDMiHYgQKLE, jfKfPfyJRdk"></textarea></div>
-          <div style="text-align: right;"><button class="btn-action" onclick="saveProfile()">적용</button></div>
+      <div class="cute-titlebar" id="profile-drag" style="background:#7f8c8d;"><span>🛠️ 환경 설정</span> <div class="cute-title-btns"><span onclick="closePopup('profile-window')"></span></div></div>
+      <div class="cute-body">
+          <div class="input-row"><label>펫 이미지 변경</label><input type="file" id="edit-pet-file" class="cute-input"></div>
+          <div class="input-row"><label>유튜브 BGM (ID 쉼표 구분)</label><textarea id="edit-bgm" class="cute-input" rows="2" placeholder="VDMiHYgQKLE, jfKfPfyJRdk"></textarea></div>
+          <div style="text-align: right;"><button class="btn-action" onclick="saveProfile()">저장 및 적용</button></div>
       </div>
   </div>
 
   <div id="shop-window" class="cute-popup">
-      <div class="cute-titlebar" id="shop-drag"><span>🛒 Black_Market.exe</span> <div class="cute-title-btns"><span onclick="closePopup('shop-window')"></span></div></div>
-      <div class="cute-body" style="text-align:center; background:#ccc;">
-          <h3 style="color:#000; margin:0 0 10px 0;">잔고: <span id="my-money">0</span> P</h3>
-          <p style="font-size:11px; color:#555;">(아이템은 거실(Room) 차원에 떨어집니다)</p>
+      <div class="cute-titlebar" id="shop-drag" style="background:#f39c12; color:#000;"><span>🛒 암시장 거래소</span> <div class="cute-title-btns"><span onclick="closePopup('shop-window')"></span></div></div>
+      <div class="cute-body" style="text-align:center;">
+          <h3 style="color:#f1c40f; margin:0 0 10px 0; text-shadow: 1px 1px 0px #000;">보유 포인트: <span id="my-money">0</span> P</h3>
+          <p style="font-size:11px; color:#bdc3c7;">(구매한 물건은 방바닥에 떨어집니다)</p>
           <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:15px;">
-              <button class="btn-action" style="padding:15px 10px;" onclick="buyItem('칼', '🔪', 100)">🔪<br>100P</button>
-              <button class="btn-action" style="padding:15px 10px;" onclick="buyItem('알약', '💊', 200)">💊<br>200P</button>
-              <button class="btn-action" style="padding:15px 10px;" onclick="buyItem('부적', '🎴', 300)">🎴<br>300P</button>
+              <button class="btn-action" style="padding:15px 10px; background:#e74c3c; color:#fff;" onclick="buyItem('컵라면', '🍜', 100)">🍜 컵라면<br>100P</button>
+              <button class="btn-action" style="padding:15px 10px; background:#3498db; color:#fff;" onclick="buyItem('소주', '🍾', 200)">🍾 소주<br>200P</button>
+              <button class="btn-action" style="padding:15px 10px; background:#2ecc71; color:#fff;" onclick="buyItem('담배', '🚬', 300)">🚬 담배<br>300P</button>
+              <button class="btn-action" style="padding:15px 10px; background:#9b59b6; color:#fff;" onclick="buyItem('비디오', '📼', 500)">📼 비디오<br>500P</button>
           </div>
-          <div style="text-align:right;"><button class="btn-action" style="font-size:11px;" onclick="clearRoomItems()">거실 청소</button></div>
+          <div style="text-align:right;"><button class="btn-action" style="font-size:11px; background:#c0392b; color:#fff;" onclick="clearRoomItems()">방 청소하기</button></div>
       </div>
   </div>
 
   <div id="yt-player-container" style="display:none;"></div>
 
   <script>
-    /* 🔴 브라우저 내장 신디사이저 사운드 (403 에러 원천 차단) */
+    /* 🔴 브라우저 내장 사운드 (수정 없음) */
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playClickSound() {
-        if(audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-        osc.type = 'square'; osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-    }
-    function playPopupSound() {
-        if(audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-        osc.type = 'sine'; osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-        osc.frequency.linearRampToValueAtTime(600, audioCtx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.05); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-    }
-    document.addEventListener('click', (e) => {
-        if(e.target.tagName === 'BUTTON' || e.target.classList.contains('scattered-btn') || e.target.classList.contains('task-icon') || e.target.closest('.task-icon') || e.target.tagName === 'SPAN') {
-            playClickSound();
-        }
-    });
+    function playClickSound() { if(audioCtx.state === 'suspended') audioCtx.resume(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'square'; osc.frequency.setValueAtTime(600, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1); }
+    function playPopupSound() { if(audioCtx.state === 'suspended') audioCtx.resume(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(300, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(600, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.05); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1); }
+    document.addEventListener('click', (e) => { if(e.target.tagName === 'BUTTON' || e.target.classList.contains('scattered-btn') || e.target.classList.contains('task-icon') || e.target.closest('.task-icon') || e.target.tagName === 'SPAN' || e.target.closest('.light-switch')) { playClickSound(); } });
 
-    /* 🔴 차원(스크린) 이동 로직 */
-    function switchWorld(viewId) {
-        document.querySelectorAll('.world-view').forEach(el => el.classList.remove('active'));
-        document.getElementById(viewId).classList.add('active');
-        // 차원 이동 시 팝업 사운드 효과
-        playPopupSound();
-    }
+    /* 🔴 차원 이동 및 형광등 효과 */
+    function switchWorld(viewId) { document.querySelectorAll('.world-view').forEach(el => el.classList.remove('active')); document.getElementById(viewId).classList.add('active'); playPopupSound(); }
+    function flickerRoom() { const room = document.getElementById('view-room'); room.classList.remove('room-flicker'); void room.offsetWidth; room.classList.add('room-flicker'); }
 
-    /* Supabase 설정 */
+    /* Supabase 및 기본 설정 */
     const SB_URL = "https://kzgbqpodvpuoqovfsyrm.supabase.co";
     const SB_KEY = "sb_publishable_pdqE1Sc-4PSv3LQM9IsBcA_xJWeZwW-"; 
     const OPENROUTER_KEY = "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"; 
     let sbClient = null; if (window.supabase) sbClient = window.supabase.createClient(SB_URL, SB_KEY);
-    
     CKEDITOR.replace('post-content', { height: 250, language: 'ko', removeButtons: 'About', versionCheck: false });
     let currentEditId = null; let globalPostsData = []; 
-
     function insertLocalImageToEditor(input) { const file = input.files[0]; if(!file) return; if(file.size > 2 * 1024 * 1024) return alert("용량 초과..."); const reader = new FileReader(); reader.onload = function(e) { CKEDITOR.instances['post-content'].insertHtml(`<img src="${e.target.result}" style="max-width:100%; border-radius:5px; border:2px inset #555;">`); input.value = ''; }; reader.readAsDataURL(file); }
-
-    /* 마우스 툴팁 */
     const tooltip = document.getElementById('custom-tooltip');
     document.addEventListener('mousemove', (e) => { const target = e.target.closest('[data-tooltip]'); if (target) { tooltip.style.display = 'block'; tooltip.style.left = (e.pageX + 15) + 'px'; tooltip.style.top = (e.pageY + 15) + 'px'; tooltip.innerText = target.getAttribute('data-tooltip'); } else { tooltip.style.display = 'none'; } });
 
@@ -402,35 +413,27 @@
     let highestZ = 600;
     function makeDraggable(winId, dragId) { const win = document.getElementById(winId); const dragArea = document.getElementById(dragId); let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0; win.onmousedown = () => { win.style.zIndex = ++highestZ; }; dragArea.onmousedown = (e) => { e.preventDefault(); pos3 = e.clientX; pos4 = e.clientY; document.onmouseup = closeDrag; document.onmousemove = elementDrag; }; function elementDrag(e) { e.preventDefault(); pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; pos3 = e.clientX; pos4 = e.clientY; win.style.top = (win.offsetTop - pos2) + "px"; win.style.left = (win.offsetLeft - pos1) + "px"; } function closeDrag() { document.onmouseup = null; document.onmousemove = null; } }
     ['write-window','board-window','ai-window','profile-window','shop-window','music-window','shimeji-room','dolphin-window', 'captcha-window'].forEach(id => { makeDraggable(id, id === 'shimeji-room' ? id : id.replace('window', 'drag')); });
-    
-    function openPopup(id) { 
-        playPopupSound();
-        const el = document.getElementById(id); el.style.display = 'block'; el.style.zIndex = ++highestZ; 
-        el.classList.remove('pop-anim'); void el.offsetWidth; el.classList.add('pop-anim'); 
-    }
+    function openPopup(id) { playPopupSound(); const el = document.getElementById(id); el.style.display = 'block'; el.style.zIndex = ++highestZ; el.classList.remove('pop-anim'); void el.offsetWidth; el.classList.add('pop-anim'); }
     function closePopup(id) { document.getElementById(id).style.display = 'none'; }
 
     /* 시메지 중얼거림 */
-    const mutterTexts = ["다 죽여버릴까...", "살아남아...", "배고파..."];
-    setInterval(() => {
-        const bubble = document.getElementById('pet-bubble');
-        bubble.style.opacity = '1'; bubble.innerText = mutterTexts[Math.floor(Math.random() * mutterTexts.length)];
-        setTimeout(() => { bubble.style.opacity = '0'; }, 3000);
-    }, 8000);
+    const mutterTexts = ["배고파...", "심심해...", "추워...", "불 좀 켜줘..."];
+    setInterval(() => { const bubble = document.getElementById('pet-bubble'); bubble.style.opacity = '1'; bubble.innerText = mutterTexts[Math.floor(Math.random() * mutterTexts.length)]; setTimeout(() => { bubble.style.opacity = '0'; }, 3000); }, 8000);
 
-    /* 🐬 돌고래 아케이드 */
+    /* 🔴 돌고래 아케이드 (버그 박멸 완료) */
     const rings = [document.getElementById('ring0'), document.getElementById('ring1'), document.getElementById('ring2'), document.getElementById('ring3'), document.getElementById('ring4')];
     let ringStates = []; let dTime = 30; let dScore = 0; let dState = 'ready'; let dTimer = null; let gameLoop = null;
 
     function resetRings() {
-        ringStates = rings.map((r, i) => ({ x: 30 + (i*45), y: 300, vy: 0, vx: 0, stuck: false, scored: false }));
+        // 링 초기 위치 분산
+        ringStates = rings.map((r, i) => ({ x: 40 + (i*50), y: 300, vy: 0, vx: 0, stuck: false, scored: false }));
         rings.forEach((r, i) => { r.style.top = '300px'; r.style.left = ringStates[i].x + 'px'; });
     }
     resetRings();
 
     function startDolphinGame() {
         dState = 'playing'; dTime = 30; dScore = 0;
-        document.getElementById('d-score').innerText = '🏆 0점'; document.getElementById('d-time').innerText = '⏳ 30초';
+        document.getElementById('d-score').innerText = '🏆 0개 성공'; document.getElementById('d-time').innerText = '⏳ 30초';
         document.getElementById('dolphin-overlay').style.display = 'none'; resetRings();
         if(dTimer) clearInterval(dTimer);
         dTimer = setInterval(() => { dTime--; document.getElementById('d-time').innerText = `⏳ ${dTime}초`; if(dTime <= 0) endGame(false); }, 1000);
@@ -440,78 +443,83 @@
     function endGame(isWin) {
         dState = 'over'; clearInterval(dTimer); cancelAnimationFrame(gameLoop); gameLoop = null;
         const msgEl = document.getElementById('d-msg');
-        if(isWin) { msgEl.innerText = `† 승 리 †\n+100P 지급`; earnPoints(100); } 
-        else { msgEl.innerText = `G A M E O V E R\n최종: ${dScore}점`; }
-        document.getElementById('dolphin-overlay').style.display = 'flex'; document.querySelector('.start-btn').innerText = '다시 하기';
+        if(isWin) { msgEl.innerText = `✨ 완벽한 성공! ✨\n+100P 지급 완료`; earnPoints(100); } 
+        else { msgEl.innerText = `G A M E O V E R\n최종 성공: ${dScore}개`; }
+        document.getElementById('dolphin-overlay').style.display = 'flex'; document.querySelector('.start-btn').innerText = '▶ 다시 도전';
     }
 
-    const gravity = 0.5;
+    const gravity = 0.4; // 중력 조절
+    const bounce = -0.5; // 바닥 반동
     function updateGame() {
         if(dState !== 'playing') return;
         rings.forEach((ring, i) => {
             let s = ringStates[i]; if (s.stuck) return;
-            s.vy += gravity; s.y += s.vy; s.x += s.vx; s.vx *= 0.92;
-            if (s.y > 300) { s.y = 300; s.vy = -s.vy * 0.4; } 
-            if (s.x < 0) { s.x = 0; s.vx = -s.vx; } if (s.x > 250) { s.x = 250; s.vx = -s.vx; }
-            if ((Math.abs(s.x - 65) < 15 || Math.abs(s.x - 195) < 15) && s.y > 180 && s.y < 250 && s.vy > 0) {
-                s.stuck = true; s.y = 240 - (dScore*10); s.x = Math.abs(s.x - 65) < 15 ? 65 : 195;
-                if(!s.scored) { s.scored = true; dScore++; document.getElementById('d-score').innerText = `🏆 ${dScore}점`; }
+            s.vy += gravity; s.y += s.vy; s.x += s.vx; s.vx *= 0.95; // 공기 저항
+
+            // 벽/바닥 충돌
+            if (s.y > 300) { s.y = 300; s.vy *= bounce; } 
+            if (s.x < 10) { s.x = 10; s.vx *= -0.8; } if (s.x > 260) { s.x = 260; s.vx *= -0.8; }
+
+            // 🔴 기둥 충돌 판정 (정밀 조정)
+            // 왼쪽 기둥(x=60 근처), 오른쪽 기둥(x=220 근처)
+            const targetXLeft = 65; const targetXRight = 225; const threshold = 12;
+            if (s.y > 170 && s.y < 250 && s.vy > 0) { // 내려오는 중에만 판정
+                if (Math.abs(s.x - targetXLeft) < threshold) {
+                    s.stuck = true; s.y = 260 - (dScore*12); s.x = targetXLeft; // 기둥에 걸림
+                    if(!s.scored) { s.scored = true; dScore++; }
+                } else if (Math.abs(s.x - targetXRight) < threshold) {
+                    s.stuck = true; s.y = 260 - (dScore*12); s.x = targetXRight; // 기둥에 걸림
+                    if(!s.scored) { s.scored = true; dScore++; }
+                }
             }
+            if(s.scored) document.getElementById('d-score').innerText = `🏆 ${dScore}개 성공`;
             ring.style.top = s.y + 'px'; ring.style.left = s.x + 'px';
         });
-        if(dScore >= 5) { endGame(true); return; } 
+        if(dScore >= 5) { endGame(true); return; } // 5개 모두 성공 시 승리
         gameLoop = requestAnimationFrame(updateGame);
     }
     function pushRings(side) {
         if(dState !== 'playing') return;
         rings.forEach((ring, i) => {
             let s = ringStates[i]; if (s.stuck) return;
-            s.vy = -Math.random() * 10 - 6; s.vx = (side === 'left' ? 1 : -1) * (Math.random() * 5 + 2);
+            // 펌프 힘 조절 (랜덤성 추가)
+            s.vy = -Math.random() * 8 - 4; 
+            s.vx += (side === 'left' ? 1 : -1) * (Math.random() * 4 + 2);
         });
     }
 
-    /* 암시장 (거실 뷰에 아이템 생성) */
+    /* 암시장 아이템 낙하 (로비 한정) */
     let myMoney = parseInt(localStorage.getItem('myPoints') || '1000'); let roomItems = JSON.parse(localStorage.getItem('myRoomItems') || '[]');
     function updateMoneyDisplay() { document.getElementById('my-money').innerText = myMoney; localStorage.setItem('myPoints', myMoney); }
     function earnPoints(amount) { myMoney += amount; updateMoneyDisplay(); } updateMoneyDisplay();
-    
     function buyItem(name, icon, price) { 
-        if (myMoney < price) return alert("자금 부족..."); myMoney -= price; updateMoneyDisplay(); 
-        const randX = Math.floor(Math.random() * (window.innerWidth - 130)) + 80; // 메뉴바(80px) 피하기
-        const randY = Math.floor(Math.random() * (window.innerHeight - 100));
-        const newItem = { icon: icon, x: randX, y: randY }; 
-        roomItems.push(newItem); localStorage.setItem('myRoomItems', JSON.stringify(roomItems)); renderRoomItems(); 
+        if (myMoney < price) return alert("돈이 없어..."); myMoney -= price; updateMoneyDisplay(); 
+        const randX = Math.floor(Math.random() * (window.innerWidth - 130)) + 80; const randY = Math.floor(Math.random() * (window.innerHeight - 100));
+        const newItem = { icon: icon, x: randX, y: randY }; roomItems.push(newItem); localStorage.setItem('myRoomItems', JSON.stringify(roomItems)); renderRoomItems(); 
     }
-    function renderRoomItems() { 
-        const layer = document.getElementById('item-drop-zone'); layer.innerHTML = ''; 
-        roomItems.forEach(item => { 
-            const el = document.createElement('div'); el.className = 'dropped-item'; 
-            el.style.left = item.x + 'px'; el.style.top = item.y + 'px'; el.innerText = item.icon; 
-            layer.appendChild(el); 
-        }); 
-    }
+    function renderRoomItems() { const layer = document.getElementById('item-drop-zone'); layer.innerHTML = ''; roomItems.forEach(item => { const el = document.createElement('div'); el.className = 'dropped-item'; el.style.left = item.x + 'px'; el.style.top = item.y + 'px'; el.innerText = item.icon; layer.appendChild(el); }); }
     function clearRoomItems() { roomItems = []; localStorage.setItem('myRoomItems', '[]'); renderRoomItems(); } renderRoomItems();
 
-    /* 설정 */
-    let tempMainBase64 = null, tempPetBase64 = null; let currentPlaylist = [];
+    /* 설정 및 이미지 로드 (안정적인 CDN 사용) */
+    let tempPetBase64 = null; let currentPlaylist = [];
     function handleFile(id, callback) { document.getElementById(id).addEventListener('change', function(e) { const file = e.target.files[0]; if(!file) return; if(file.size > 3 * 1024 * 1024) return alert("용량 초과..."); const r = new FileReader(); r.onload = evt => callback(evt.target.result); r.readAsDataURL(file); }); }
-    handleFile('edit-main-file', res => tempMainBase64 = res); handleFile('edit-pet-file', res => tempPetBase64 = res);
-    function loadProfile() { const saved = JSON.parse(localStorage.getItem('osRoomSettingsV1')) || {}; if(saved.main) document.getElementById('main-visual-img').src = saved.main; document.getElementById('pet-image').src = saved.pet || 'https://raw.githubusercontent.com/shimeji-ee/shimeji-ee.github.io/master/img/shime1.png'; currentPlaylist = (saved.bgm || 'VDMiHYgQKLE').split(',').map(s => s.trim()).filter(s => s); tempMainBase64 = saved.main || ''; tempPetBase64 = saved.pet || ''; }
-    function saveProfile() { try { localStorage.setItem('osRoomSettingsV1', JSON.stringify({ main: tempMainBase64, pet: tempPetBase64, bgm: document.getElementById('edit-bgm').value || 'VDMiHYgQKLE' })); } catch(e) { alert("저장 실패..."); return; } loadProfile(); closePopup('profile-window'); if(player && player.loadVideoById) loadMusicPlayer(); }
+    handleFile('edit-pet-file', res => tempPetBase64 = res);
+    function loadProfile() { const saved = JSON.parse(localStorage.getItem('yellowRoomSettingsV1')) || {}; 
+        // 🔴 안정적인 CDN 이미지 기본값 설정
+        document.getElementById('pet-image').src = saved.pet || 'https://cdn.statically.io/gh/shimeji-ee/shimeji-ee.github.io/master/img/shime1.png'; 
+        currentPlaylist = (saved.bgm || 'VDMiHYgQKLE').split(',').map(s => s.trim()).filter(s => s); tempPetBase64 = saved.pet || ''; }
+    function saveProfile() { try { localStorage.setItem('yellowRoomSettingsV1', JSON.stringify({ pet: tempPetBase64, bgm: document.getElementById('edit-bgm').value || 'VDMiHYgQKLE' })); } catch(e) { alert("저장 실패..."); return; } loadProfile(); closePopup('profile-window'); if(player && player.loadVideoById) loadMusicPlayer(); }
 
     /* 유튜브 */
     let player = null; let trackIndex = 0; let isPlayerReady = false; let tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
-    window.onYouTubeIframeAPIReady = function() { if(currentPlaylist.length === 0) return; trackIndex = Math.floor(Math.random() * currentPlaylist.length); player = new YT.Player('yt-player-container', { height: '0', width: '0', videoId: currentPlaylist[trackIndex], events: { 'onReady': () => { isPlayerReady = true; document.getElementById('now-playing-text').innerText = "신호 대기 중..."; }, 'onStateChange': onPlayerStateChange, 'onError': nextTrack } }); }
+    window.onYouTubeIframeAPIReady = function() { if(currentPlaylist.length === 0) return; trackIndex = Math.floor(Math.random() * currentPlaylist.length); player = new YT.Player('yt-player-container', { height: '0', width: '0', videoId: currentPlaylist[trackIndex], events: { 'onReady': () => { isPlayerReady = true; document.getElementById('now-playing-text').innerText = "테이프 대기 중..."; }, 'onStateChange': onPlayerStateChange, 'onError': nextTrack } }); }
     function loadMusicPlayer() { if(!isPlayerReady || currentPlaylist.length === 0) return; trackIndex = Math.floor(Math.random() * currentPlaylist.length); player.loadVideoById(currentPlaylist[trackIndex]); }
     function onPlayerStateChange(event) { if(event.data === YT.PlayerState.ENDED) nextTrack(); if(event.data === YT.PlayerState.PLAYING) { document.getElementById('play-btn').innerText = '⏸'; let videoTitle = player.getVideoData().title; document.getElementById('now-playing-text').innerText = "▶ " + (videoTitle || currentPlaylist[trackIndex]); } if(event.data === YT.PlayerState.PAUSED) { document.getElementById('play-btn').innerText = '▶'; } }
     function togglePlay() { if(!isPlayerReady) return; if(player.getPlayerState() === YT.PlayerState.PLAYING) player.pauseVideo(); else player.playVideo(); } function nextTrack() { if(!isPlayerReady) return; trackIndex = (trackIndex + 1) % currentPlaylist.length; player.loadVideoById(currentPlaylist[trackIndex]); } function prevTrack() { if(!isPlayerReady) return; trackIndex = (trackIndex - 1 + currentPlaylist.length) % currentPlaylist.length; player.loadVideoById(currentPlaylist[trackIndex]); }
 
     /* 시메지 이동 */
     let isRoaming = false; let roamInterval; 
-    function toggleRoaming() { 
-        isRoaming = !isRoaming; const petRoom = document.getElementById('shimeji-room'); const petImg = document.getElementById('pet-image'); let currentX = petRoom.offsetLeft; 
-        if(isRoaming) { roamInterval = setInterval(() => { const randX = Math.floor(Math.random() * (window.innerWidth - 150)); const randY = Math.floor(Math.random() * (window.innerHeight - 150)); if(randX < currentX) petImg.style.setProperty('--flip', -1); else petImg.style.setProperty('--flip', 1); currentX = randX; petImg.classList.add('is-walking'); petRoom.style.left = randX + 'px'; petRoom.style.top = randY + 'px'; setTimeout(() => { petImg.classList.remove('is-walking'); }, 1500); }, 3000); } else { clearInterval(roamInterval); petImg.classList.remove('is-walking'); } 
-    }
+    function toggleRoaming() { isRoaming = !isRoaming; const petRoom = document.getElementById('shimeji-room'); const petImg = document.getElementById('pet-image'); let currentX = petRoom.offsetLeft; if(isRoaming) { roamInterval = setInterval(() => { const randX = Math.floor(Math.random() * (window.innerWidth - 150)); const randY = Math.floor(Math.random() * (window.innerHeight - 150)); if(randX < currentX) petImg.style.setProperty('--flip', -1); else petImg.style.setProperty('--flip', 1); currentX = randX; petImg.classList.add('is-walking'); petRoom.style.left = randX + 'px'; petRoom.style.top = randY + 'px'; setTimeout(() => { petImg.classList.remove('is-walking'); }, 1500); }, 3000); } else { clearInterval(roamInterval); petImg.classList.remove('is-walking'); } }
 
     /* AI 통신 */
     async function callAI(text) { try { const res = await fetch("https://openrouter.ai/api/v1/chat/completions", { method: "POST", headers: { "Authorization": `Bearer ${OPENROUTER_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify({ "model": "mistralai/mistral-7b-instruct:free", "messages": [{"role": "system", "content": "너는 피폐한 다마고치 펫이야. 어둡고 짧게 반말로 대답해."}, {"role": "user", "content": text}] }) }); const data = await res.json(); if(data.choices) return data.choices[0].message.content; } catch(e) { return null; } return null; }
@@ -519,8 +527,8 @@
 
     /* 📝 게시판 */
     function openBoard(type) { 
-        let title = "🎀 Board.exe";
-        if(type === 'diary') title = "📓 데스 노트"; else if(type === 'character') title = "✨ 페르소나"; else if(type === 'review') title = "🎬 목격담"; else if(type === 'guestbook') title = "📝 유언장";
+        let title = "🎀 Board";
+        if(type === 'diary') title = "📓 비밀 일기"; else if(type === 'character') title = "✨ 캐릭터 덱"; else if(type === 'review') title = "🎬 리뷰 노트"; else if(type === 'guestbook') title = "📝 방명록";
         document.getElementById('board-title').innerText = title; document.getElementById('page-content').innerHTML = `로딩 중...`; 
         openPopup('board-window'); loadPosts(type); 
     } 
@@ -528,31 +536,17 @@
     async function savePost() { if (!sbClient) return; const category = document.getElementById('post-category').value; const title = document.getElementById('post-title').value; const content = CKEDITOR.instances['post-content'].getData(); if(!title || !content.trim()) return alert("기록해라..."); let err; if (currentEditId) err = (await sbClient.from('posts').update({ title, content, category }).eq('id', currentEditId)).error; else { err = (await sbClient.from('posts').insert([{ title, content, category }])).error; if(!err) earnPoints(100); } if(err) alert("실패..."); else { closePopup('write-window'); loadPosts(category); } } 
     async function deletePost(id, category) { if(!confirm("파기할까...?")) return; await sbClient.from('posts').delete().eq('id', id); loadPosts(category); } 
     function editPost(id) { const post = globalPostsData.find(p => p.id === id); if(!post) return; currentEditId = id; document.getElementById('post-category').value = post.category; document.getElementById('post-title').value = post.title; CKEDITOR.instances['post-content'].setData(post.content); openPopup('write-window'); } 
-    
     function togglePostView(id) { const contentArea = document.getElementById('content-' + id); contentArea.style.display = contentArea.style.display === 'block' ? 'none' : 'block'; }
 
     async function loadPosts(categoryType) { 
         if (!sbClient) return; 
         const { data, error } = await sbClient.from('posts').select('*').eq('category', categoryType).order('created_at', { ascending: false }); 
         const list = document.getElementById('page-content'); 
-        if(error || data.length === 0) { list.innerHTML = "<div style='color:#fff; text-align:center; padding:20px;'>텅 비었다...</div>"; return; } 
-        
+        if(error || data.length === 0) { list.innerHTML = "<div style='color:#000; text-align:center; padding:20px;'>텅 비었다...</div>"; return; } 
         globalPostsData = data; let html = ''; 
         data.forEach(p => { 
             const dateStr = new Date(p.created_at).toLocaleDateString(); 
-            html += `
-            <div class="post-item">
-                <div class="post-header" onclick="togglePostView('${p.id}')">
-                    <span>📑 ${p.title} <small style="color:#555; font-weight:normal; margin-left:10px;">${dateStr}</small></span>
-                    <div>
-                        <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="event.stopPropagation(); editPost('${p.id}')">수정</button>
-                        <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="event.stopPropagation(); deletePost('${p.id}', '${p.category}')">파기</button>
-                    </div>
-                </div>
-                <div class="post-content-area" id="content-${p.id}">
-                    ${p.content}
-                </div>
-            </div>`; 
+            html += `<div class="post-item"><div class="post-header" onclick="togglePostView('${p.id}')"><span>📑 ${p.title} <small style="color:#555; font-weight:normal; margin-left:10px;">${dateStr}</small></span><div><button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="event.stopPropagation(); editPost('${p.id}')">수정</button><button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="event.stopPropagation(); deletePost('${p.id}', '${p.category}')">파기</button></div></div><div class="post-content-area" id="content-${p.id}">${p.content}</div></div>`; 
         }); 
         list.innerHTML = html; 
     }
