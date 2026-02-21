@@ -12,10 +12,10 @@
     body { 
         background-color: #000; color: #ccc;
         font-family: 'Galmuri9', '궁서', serif; margin: 0; padding: 0; overflow: hidden; 
-        cursor: url('https://cdn.pixabay.com/pixabay/img/cursor/crosshair.png'), crosshair; /* 십자 커서 */
+        cursor: crosshair; 
     }
     
-    /* === 💻 좌측 시스템 메뉴바 (슬림 버전) === */
+    /* === 💻 좌측 시스템 메뉴바 (슬림 & 차원 이동) === */
     #left-taskbar {
         position: fixed; top: 0; left: 0; width: 80px; height: 100vh;
         background: #2c3e50; border-right: 3px solid #1a252f; outline: 1px solid #000;
@@ -27,9 +27,9 @@
         font-size: 11px; color: #bdc3c7; font-weight: bold; text-shadow: 1px 1px 0px #000;
         transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
-    .task-icon img { width: 40px; height: 40px; margin-bottom: 8px; filter: drop-shadow(3px 3px 0px #000); transition: 0.2s;}
-    .task-icon:active img { transform: translate(2px, 2px); filter: brightness(0.7); }
-    .task-icon:hover { color: #f1c40f; } .task-icon:hover img { transform: scale(1.1); }
+    .task-icon div { font-size: 28px; margin-bottom: 5px; filter: drop-shadow(3px 3px 0px #000); transition: 0.2s;}
+    .task-icon:active div { transform: translate(2px, 2px); filter: brightness(0.7); }
+    .task-icon:hover { color: #f1c40f; } .task-icon:hover div { transform: scale(1.1); }
 
     /* === 🌌 차원(스크린) 컨테이너 === */
     #world-container {
@@ -38,155 +38,197 @@
     .world-view { display: none; width: 100%; height: 100%; position: relative; }
     .world-view.active { display: block; }
 
-    /* [차원 1] 로비: 구지레한 노란장판 원룸 */
+    /* === [차원 1] 로비: 구지레한 노란장판 원룸 (순수 CSS 인테리어) === */
     #view-room { 
-        background-color: #dcb35a;
-        background-image: 
-            linear-gradient(to bottom, rgba(255,255,255,0.8) 0%, rgba(240,230,200,0.6) 50%, rgba(220,179,90,0.9) 50%, rgba(200,150,50,1) 100%),
-            url('https://www.transparenttextures.com/patterns/worn-dots.png');
-        background-size: auto; background-attachment: fixed;
+        /* 주인의 사진 고증: 위는 하얀 벽지, 아래는 노란 장판 */
+        background: linear-gradient(to bottom, #f5f5f5 0%, #f5f5f5 55%, #dcb35a 55%, #c29b47 100%);
     }
-    /* 방 오브젝트 (고정) */
-    .room-obj { position: absolute; pointer-events: none; z-index: 1; filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.3)); }
-    .obj-window { top: 10%; right: 5%; width: 250px; opacity: 0.9; border: 4px solid #5d4037; background: url('https://cdn.pixabay.com/photo/2018/01/24/18/05/window-3104655_1280.jpg') no-repeat center/cover;} /* 창문 */
-    .obj-closet { bottom: 5%; left: 5%; width: 300px; height: 500px; background: url('https://cdn.pixabay.com/photo/2015/12/08/00/33/wardrobe-1081670_1280.png') no-repeat center/contain; } /* 옷장 */
-    .obj-bedding { bottom: 2%; right: 15%; width: 400px; background: url('https://cdn.pixabay.com/photo/2017/08/06/09/52/blanket-2591473_1280.png') no-repeat center/contain; transform: rotate(5deg); opacity:0.9;} /* 이불 */
-    .obj-mold { top: 5%; left: 5%; width: 200px; height: 200px; background: url('https://www.transparenttextures.com/patterns/black-felt.png'); opacity: 0.3; mix-blend-mode: multiply; mask-image: radial-gradient(circle, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 70%); } /* 곰팡이 */
 
-    /* 형광등 스위치 (상호작용 가능) */
+    /* 1. 나무 격자 창문 (사진 완벽 고증) */
+    .obj-window { 
+        position: absolute; top: 10%; left: 30%; width: 180px; height: 180px;
+        background-color: #e0e0e0;
+        /* 나무 창살 그리기 */
+        background-image: 
+            linear-gradient(to right, #8d6e63 6px, transparent 6px),
+            linear-gradient(to bottom, #8d6e63 6px, transparent 6px);
+        background-size: 30px 30px;
+        border: 12px solid #5d4037;
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 5px 5px 15px rgba(0,0,0,0.3);
+        z-index: 1; pointer-events: none;
+    }
+    /* 2. 형광등 */
+    .obj-light {
+        position: absolute; top: 4%; left: 40%; width: 160px; height: 20px;
+        background: #fff; border-radius: 10px; border: 2px solid #ccc;
+        box-shadow: 0 0 20px #fff, 0 0 40px rgba(255,255,255,0.8);
+        z-index: 1; pointer-events: none;
+    }
+    /* 3. 나무 옷장 */
+    .obj-closet {
+        position: absolute; bottom: 45%; right: 10%; width: 140px; height: 280px;
+        background: #8d6e63; border: 6px solid #4e342e;
+        box-shadow: 15px 15px 20px rgba(0,0,0,0.5);
+        z-index: 2; pointer-events: none; display: flex; flex-direction: column; justify-content: space-evenly; align-items: center;
+    }
+    .obj-closet::before, .obj-closet::after { content: ''; width: 90%; height: 5px; background: #4e342e; } /* 옷장 선반 */
+    /* 4. 이불과 베개 */
+    .obj-bedding {
+        position: absolute; bottom: 10%; left: 15%; width: 240px; height: 120px;
+        background: #ffc0cb; border-radius: 30px 30px 5px 5px; border: 4px solid #d81b60;
+        box-shadow: inset -15px -15px 0 rgba(0,0,0,0.1), 10px 10px 15px rgba(0,0,0,0.4);
+        z-index: 2; pointer-events: none; display:flex; align-items:center; justify-content:center;
+        font-family: '궁서'; font-size: 24px; color: #d81b60; font-weight: bold; transform: rotate(2deg);
+    }
+    .obj-bedding::after { content: '이 불'; opacity: 0.5; }
+    .obj-pillow {
+        position: absolute; bottom: 17%; left: 12%; width: 80px; height: 40px;
+        background: #fff; border-radius: 10px; border: 3px solid #ccc;
+        box-shadow: 5px 5px 10px rgba(0,0,0,0.3); z-index: 3; pointer-events: none; transform: rotate(-5deg);
+    }
+    /* 5. 곰팡이 */
+    .obj-mold {
+        position: absolute; bottom: 40%; left: 5%; width: 150px; height: 150px;
+        background: radial-gradient(circle, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 70%);
+        z-index: 1; pointer-events: none; mix-blend-mode: multiply;
+    }
+
+    /* 형광등 스위치 (상호작용) */
     .light-switch {
-        position: absolute; top: 40%; left: 2%; width: 50px; height: 80px; background: #eceff1; border: 3px solid #cfd8dc;
-        cursor: pointer; z-index: 15; box-shadow: 3px 3px 5px rgba(0,0,0,0.2); display: flex; justify-content: center; align-items: center;
+        position: absolute; top: 35%; left: 5%; width: 40px; height: 60px; background: #eceff1; border: 3px solid #cfd8dc;
+        cursor: pointer; z-index: 15; box-shadow: 5px 5px 10px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center;
     }
     .light-switch:active { background: #cfd8dc; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2); }
-    .switch-knob { width: 20px; height: 40px; background: #fff; border: 1px solid #b0bec5; transition: 0.1s; }
+    .switch-knob { width: 15px; height: 30px; background: #fff; border: 1px solid #b0bec5; transition: 0.1s; }
     .light-switch:active .switch-knob { transform: translateY(5px); }
-    /* 방 점멸 효과 */
-    @keyframes flickerAnim { 0% { filter: brightness(1); } 10% { filter: brightness(0.3); } 20% { filter: brightness(1); } 30% { filter: brightness(0.5); } 100% { filter: brightness(1); } }
+    
+    /* 방 점멸 애니메이션 */
+    @keyframes flickerAnim { 0% { filter: brightness(1); } 10% { filter: brightness(0.2); } 20% { filter: brightness(1); } 30% { filter: brightness(0.4); } 100% { filter: brightness(1); } }
     .room-flicker { animation: flickerAnim 0.5s linear; }
 
-    /* [차원 2] 노을진 기차역 */
+    /* === [차원 2] 노을진 기차역 === */
     #view-station { 
-        background: url('https://cdn.pixabay.com/photo/2017/03/27/14/56/train-station-2179044_1280.jpg') no-repeat center center/cover;
+        background: linear-gradient(to bottom, #ff7e5f, #feb47b, #2c3e50);
+        position: relative;
     }
-    .station-filter { position: absolute; width:100%; height:100%; background: rgba(255, 100, 0, 0.3); mix-blend-mode: overlay; pointer-events: none;}
+    .station-text { position:absolute; top:30%; width: 100%; text-align: center; color:#fff; font-size:30px; font-weight:bold; text-shadow: 3px 3px 10px #000; letter-spacing: 5px;}
+    .train-track { position: absolute; bottom: 0; width: 100%; height: 30%; background: repeating-linear-gradient(90deg, #333 0px, #333 20px, transparent 20px, transparent 60px), #111; border-top: 10px solid #555; transform: perspective(500px) rotateX(60deg);}
 
-    /* [차원 3] 아쿠아리움 */
+    /* === [차원 3] 아쿠아리움 === */
     #view-aqua { 
-        background: linear-gradient(to bottom, #001f3f, #0074d9);
-        background-image: url('https://www.transparenttextures.com/patterns/underwater.png');
+        background: linear-gradient(to bottom, #001f3f, #0074d9); overflow: hidden;
     }
-    .aqua-obj { position: absolute; pointer-events: none; z-index: 5; animation: floatSwim linear infinite; filter: blur(1px) brightness(0.8); opacity: 0.7;}
-    .f-fish1 { top: 20%; left: -10%; font-size: 60px; animation-duration: 25s; }
-    .f-fish2 { top: 60%; right: -10%; font-size: 80px; animation-duration: 35s; animation-delay: -5s; transform: scaleX(-1); animation-direction: reverse;}
-    .f-jelly { top: 40%; left: 50%; font-size: 50px; animation: floatJelly 20s ease-in-out infinite; }
+    .aqua-obj { position: absolute; pointer-events: none; z-index: 5; animation: floatSwim linear infinite; font-size: 80px; filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.5));}
+    .f-fish1 { top: 20%; left: -20%; animation-duration: 25s; }
+    .f-fish2 { top: 60%; right: -20%; animation-duration: 35s; transform: scaleX(-1); animation-direction: reverse;}
+    .f-jelly { top: 40%; left: 50%; font-size: 60px; animation: floatJelly 15s ease-in-out infinite; }
     @keyframes floatSwim { 0% { transform: translateX(0) rotate(5deg); } 100% { transform: translateX(120vw) rotate(-5deg); } }
-    @keyframes floatJelly { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(20px, -50px); } }
+    @keyframes floatJelly { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(30px, -60px) scale(1.1); } }
 
     /* === 🎬 팝업 애니메이션 === */
-    @keyframes popDark { 0% { transform: scale(0.7); opacity: 0; filter: blur(2px);} 70% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; filter: blur(0); } }
+    @keyframes popDark { 0% { transform: scale(0.7); opacity: 0; } 70% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
     .pop-anim { animation: popDark 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
-    /* === 🎀 흩어진 스티커 버튼들 (로비로 이주 완료) === */
+    /* === 🎀 흩어진 스티커 버튼들 (안 겹치게 교통정리) === */
     .scattered-btn {
-        position: absolute; background: rgba(0,0,0,0.7); border: 2px dashed #fff; border-radius: 15px;
-        padding: 8px 12px; font-weight: bold; color: #fff; font-size: 13px; font-family: 'Galmuri9';
-        cursor: pointer; box-shadow: 3px 3px 5px rgba(0,0,0,0.5); z-index: 20; transition: 0.15s; user-select: none; white-space: nowrap;
-        backdrop-filter: blur(2px);
+        position: absolute; background: rgba(0,0,0,0.8); border: 2px dashed #fff; border-radius: 15px;
+        padding: 10px 15px; font-weight: bold; color: #fff; font-size: 13px; font-family: 'Galmuri9';
+        cursor: pointer; box-shadow: 4px 4px 5px rgba(0,0,0,0.6); z-index: 20; transition: 0.15s; user-select: none; white-space: nowrap;
     }
-    .scattered-btn:hover { transform: scale(1.1) rotate(0deg) !important; background: rgba(255,255,255,0.9); color:#000; border-style: solid;}
+    .scattered-btn:hover { transform: scale(1.1) rotate(0deg) !important; background: #fff; color:#000; border-style: solid;}
     .scattered-btn:active { transform: scale(0.95) !important; box-shadow: none; }
     
-    /* 버튼 배치 (로비 내 복작복작하게) */
-    .btn-diary { top: 25%; left: 30%; transform: rotate(-5deg); background: #8e44ad; border-color: #c0392b; } 
-    .btn-char  { top: 40%; left: 45%; transform: rotate(3deg); background: #2980b9; }
-    .btn-review { top: 20%; left: 65%; transform: rotate(8deg); background: #16a085; } 
-    .btn-guest { top: 55%; left: 20%; transform: rotate(-10deg); background: #d35400; }
-    .btn-write { top: 75%; left: 40%; transform: rotate(-2deg); font-size: 15px; padding: 10px 18px; background: #27ae60; }
+    /* 로비 공간에 퍼뜨리기 */
+    .btn-diary  { top: 20%; left: 60%; transform: rotate(-5deg); background: #8e44ad; } 
+    .btn-char   { top: 40%; left: 50%; transform: rotate(6deg); background: #2980b9; }
+    .btn-review { top: 15%; right: 10%; transform: rotate(10deg); background: #16a085; } 
+    .btn-guest  { top: 55%; left: 30%; transform: rotate(-8deg); background: #d35400; }
+    .btn-write  { top: 75%; left: 25%; transform: rotate(3deg); font-size: 16px; padding: 12px 20px; background: #27ae60; }
+    .btn-shop   { top: 80%; left: 55%; transform: rotate(-5deg); background: #f39c12; color:#000; z-index: 25;}
     
-    /* 새로 이주한 버튼들 */
-    .btn-verify { top: 15%; left: 10%; transform: rotate(15deg); background: #c0392b; color:#f1c40f; border-radius: 50px; } /* 알약 모양 */
-    .btn-setting { top: 65%; left: 55%; transform: rotate(5deg); background: #7f8c8d; border-radius: 50%; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; padding:0;} /* 톱니바퀴 모양 */
+    /* 사이드바에서 이주해온 버튼들 */
+    .btn-verify { top: 60%; right: 15%; transform: rotate(12deg); background: #c0392b; color:#fff; border-radius: 30px; } 
+    .btn-setting{ top: 80%; right: 25%; transform: rotate(-10deg); background: #7f8c8d; border-radius: 50%; width: 50px; height: 50px; padding:0; display:flex; justify-content:center; align-items:center; font-size:20px;} 
 
-    /* 위치 수정된 버튼들 */
-    .btn-shop { top: 80%; right: 5%; transform: rotate(5deg); background: #f39c12; color:#000; z-index: 25;} /* 펫과 안 겹치게 우측 하단으로 */
+    /* 아쿠아리움 전용 오락기 버튼 */
+    .btn-dolphin { top: 50%; left: 50%; transform: translate(-50%,-50%) scale(1.5); border: 3px dotted #00bcd4; color:#00bcd4; background: rgba(0,0,0,0.7); font-family: 'Impact'; z-index: 10;}
 
-    /* 아쿠아리움 오락기 버튼 */
-    .btn-dolphin { top: 60%; left: 50%; transform: translate(-50%,-50%) scale(1.5); border: 3px dotted #00bcd4; color:#00bcd4; background: rgba(0,0,0,0.6); font-family: 'Impact'; z-index: 10;}
-
-    /* === 💻 공통 팝업창 (드래그 가능) === */
+    /* === 💻 공통 팝업창 === */
     .cute-popup {
-        position: absolute; display: none; background: rgba(20,20,20,0.95); border: 2px solid #555;
-        box-shadow: 15px 15px 0px rgba(0,0,0,0.6); overflow: hidden; width: 450px; color: #ccc;
+        position: absolute; display: none; background: rgba(30,30,30,0.95); border: 2px solid #7f8c8d;
+        box-shadow: 15px 15px 0px rgba(0,0,0,0.7); overflow: hidden; width: 450px; color: #ecf0f1;
     }
     .cute-titlebar {
-        background: #34495e; color: #ecf0f1; padding: 6px 10px; font-weight: bold; font-size: 12px; font-family: 'Galmuri9';
-        display: flex; justify-content: space-between; align-items: center; user-select: none; cursor: grab; border-bottom: 3px solid #2c3e50;
+        background: #2c3e50; color: #fff; padding: 8px 12px; font-weight: bold; font-size: 12px; font-family: 'Galmuri9';
+        display: flex; justify-content: space-between; align-items: center; user-select: none; cursor: grab; border-bottom: 3px solid #1a252f;
     }
     .cute-titlebar:active { cursor: grabbing; }
     .cute-title-btns span { display: inline-block; width: 14px; height: 14px; background: #e74c3c; border: 2px outset #c0392b; cursor: pointer; border-radius: 50%;}
     .cute-title-btns span:active { border-style: inset; background: #c0392b;}
-    .cute-body { padding: 15px; max-height: 65vh; overflow-y: auto; background: #2c3e50;}
+    .cute-body { padding: 15px; max-height: 65vh; overflow-y: auto; }
     .cute-body::-webkit-scrollbar { width: 10px; background: #1a252f;}
-    .cute-body::-webkit-scrollbar-thumb { background: #95a5a6; border: 2px outset #ecf0f1; }
+    .cute-body::-webkit-scrollbar-thumb { background: #7f8c8d; border: 1px solid #1a252f; }
 
     /* 팝업 초기 위치 */
     #captcha-window { width: 350px; top: 15%; left: 25%; }
     #write-window { width: 700px; top: 10%; left: 15%; }
     #board-window { width: 600px; top: 15%; left: 20%; }
-    #ai-window { width: 320px; top: 40%; right: 10%; } /* 펫 근처 */
+    #ai-window { width: 320px; top: 40%; right: 5%; } 
     #shop-window { width: 350px; top: 30%; left: 30%; }
-    #music-window { width: 300px; top: 5%; left: 65%; }
+    #music-window { width: 300px; top: 5%; left: 60%; }
     #profile-window { width: 400px; top: 25%; left: 30%;}
     #dolphin-window { width: 350px; top: 15%; left: 45%; border-color: #00bcd4; }
 
-    /* === 🐾 시메지 (생존자) - 위치 수정 및 안정된 이미지 === */
-    #shimeji-room { position: absolute; top: 65%; right: 10%; z-index: 999; text-align: center; cursor: grab; transition: top 1.5s linear, left 1.5s linear; }
+    /* === 🐾 시메지 (생존자 - 순수 CSS 불사신 펫) === */
+    #shimeji-room { position: absolute; bottom: 20%; right: 10%; z-index: 999; text-align: center; cursor: grab; transition: top 1.5s linear, left 1.5s linear; }
     #shimeji-room:active { cursor: grabbing; transition: none; }
     #pet-bubble { background: #fff; border: 2px solid #000; padding: 5px; font-size: 11px; color: #000; margin-bottom: 5px; opacity:0; transition: opacity 0.3s; font-weight: bold;}
-    #pet-image { width: 100px; height: 100px; object-fit: contain; filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.5)); transform: scaleX(var(--flip, 1)); }
+    /* 엑박 방지용 CSS 펫 기본 형태 */
+    .css-pet {
+        width: 70px; height: 70px; background: #fff; border: 3px solid #000; border-radius: 50%;
+        display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; color: #000;
+        box-shadow: 5px 5px 0px rgba(0,0,0,0.5); transform: scaleX(var(--flip, 1)); background-size: cover; background-position: center;
+    }
     .is-walking { animation: bounce 0.3s infinite; }
-    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
 
-    /* === 폼 & UI 요소 (구지레한 느낌) === */
+    /* === 폼 & UI 공통 요소 === */
     .player-controls { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px;}
-    .ctrl-btn { background: #95a5a6; border: 3px outset #bdc3c7; width: 35px; height: 35px; cursor: pointer; font-size: 12px; color: #000; display:flex; justify-content:center; align-items:center;}
-    .ctrl-btn:active { border-style: inset; background: #7f8c8d; }
-    .music-info { font-size: 11px; color: #f1c40f; background:#1a252f; padding:5px; border: 2px inset #34495e; text-align: center;}
+    .ctrl-btn { background: #7f8c8d; border: 3px outset #bdc3c7; width: 35px; height: 35px; cursor: pointer; font-size: 12px; color: #fff; display:flex; justify-content:center; align-items:center;}
+    .ctrl-btn:active { border-style: inset; background: #34495e; }
+    .music-info { font-size: 11px; color: #2ecc71; background:#000; padding:5px; border: 2px inset #555; text-align: center;}
     .input-row { display: flex; flex-direction: column; margin-bottom: 15px; }
     .input-row label { font-size: 12px; color: #bdc3c7; margin-bottom: 5px; font-weight: bold;}
-    .cute-input { padding: 8px; border: 2px inset #34495e; background: #ecf0f1; color: #000; font-family: 'Galmuri9'; outline: none;}
-    .btn-action { font-family: 'Galmuri9'; font-size: 12px; padding: 6px 15px; cursor: pointer; border: 3px outset #bdc3c7; background: #95a5a6; color: #000; font-weight: bold; }
-    .btn-action:active { border-style: inset; background: #7f8c8d;}
+    .cute-input { padding: 8px; border: 2px inset #555; background: #000; color: #2ecc71; font-family: 'Galmuri9'; outline: none;}
+    .btn-action { font-family: 'Galmuri9'; font-size: 12px; padding: 8px 15px; cursor: pointer; border: 3px outset #bdc3c7; background: #7f8c8d; color: #fff; font-weight: bold; }
+    .btn-action:active { border-style: inset; background: #34495e;}
     
-    .chat-body { height: 250px; background: #ecf0f1; border: 2px inset #34495e; overflow-y: auto; padding: 10px; font-size: 12px; color: #000;}
-    .msg-row { margin-bottom: 8px; line-height: 1.4; padding: 8px; border-radius: 5px; width: fit-content; max-width: 85%; box-shadow: 2px 2px 0px rgba(0,0,0,0.2);}
-    .msg-ai { background: #e74c3c; color: #fff; float: left; clear: both; font-weight: bold;} .msg-me { background: #3498db; color: #fff; text-align: right; float: right; clear: both; }
+    .chat-body { height: 250px; background: #000; border: 2px inset #555; overflow-y: auto; padding: 10px; font-size: 12px; color: #bdc3c7;}
+    .msg-row { margin-bottom: 8px; line-height: 1.4; padding: 8px; border-radius: 5px; width: fit-content; max-width: 85%; border: 1px solid #333;}
+    .msg-ai { background: #c0392b; color: #fff; float: left; clear: both; font-weight: bold;} .msg-me { background: #2980b9; color: #fff; text-align: right; float: right; clear: both; }
 
     /* === 📝 아코디언 게시판 === */
-    .post-item { margin-bottom: 10px; border: 3px outset #7f8c8d; background: #bdc3c7; color: #000;}
-    .post-header { padding: 8px 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid #7f8c8d;}
-    .post-header:active { background: #a0a0a0; }
-    .post-content-area { padding: 15px; display: none; border-top: 2px inset #ecf0f1; font-size: 12px; line-height: 1.6; background: #ecf0f1;}
+    .post-item { margin-bottom: 10px; border: 2px solid #7f8c8d; background: #2c3e50; color: #fff;}
+    .post-header { padding: 10px 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid #1a252f;}
+    .post-header:active { background: #1a252f; }
+    .post-content-area { padding: 15px; display: none; border-top: 1px solid #7f8c8d; font-size: 12px; line-height: 1.6; background: #34495e;}
 
-    /* === 🤖 로봇 검증 (팝업 내부) === */
+    /* === 🤖 로봇 검증 (팝업) === */
     .captcha-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 15px; }
-    .captcha-grid img { width: 100%; height: 70px; object-fit: cover; cursor: pointer; border: 3px solid #34495e; filter: grayscale(100%); transition:0.1s;}
-    .captcha-grid img:active { border-color: #e74c3c; filter: grayscale(0%); transform: scale(0.9);}
+    .captcha-grid div { width: 100%; height: 70px; cursor: pointer; border: 3px solid #34495e; transition:0.1s; background-size: cover; background-position: center; filter: grayscale(100%);}
+    .captcha-grid div:active { border-color: #e74c3c; filter: grayscale(0%); transform: scale(0.9);}
     .captcha-btn { width: 100%; padding: 10px; background: #c0392b; color: #fff; border: 3px outset #e74c3c; font-weight: bold; cursor: pointer; font-family: 'Galmuri9';}
     .captcha-btn:active { border-style: inset; background: #a93226; }
 
-    /* === 🐬 돌고래 아케이드 (버그 수정 및 디자인 개선) === */
-    #dolphin-game-area { width: 300px; height: 350px; background: linear-gradient(to bottom, #0288d1, #26c6da, #80deea); border: 5px inset #00838f; margin: 0 auto; position: relative; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);}
-    .dolphin-deco { position: absolute; font-size: 40px; opacity: 0.6; color: #fff; user-select: none; filter: drop-shadow(2px 2px 0px #00838f);}
-    /* 링 디자인 개선 */
-    .ring { width: 28px; height: 28px; border: 5px solid; border-radius: 50%; position: absolute; box-shadow: 2px 2px 5px rgba(0,0,0,0.4); transition: top 0.1s ease-out, left 0.1s ease-out; background: rgba(255,255,255,0.2);}
-    /* 기둥 디자인 개선 (충돌 범위와 시각적 일치) */
-    .post { width: 12px; height: 130px; background: linear-gradient(to right, #ff7043, #d84315); position: absolute; bottom: 0; border-radius: 6px 6px 0 0; border: 2px solid #bf360c; box-shadow: 3px 3px 5px rgba(0,0,0,0.3);}
-    .pump-btn { width: 65px; height: 65px; background: #26c6da; border: 4px outset #80deea; border-radius: 50%; cursor: pointer; font-size: 22px; color: #fff; display: flex; justify-content: center; align-items: center; user-select: none; transition: 0.1s; text-shadow: 1px 1px 0px #00838f;}
-    .pump-btn:active { border-style: inset; background: #00bcd4; transform: scale(0.95); color:#e0f7fa;}
-    #dolphin-ui-top { display: flex; justify-content: space-between; padding: 8px 12px; background: #00838f; color: #fff; font-family: 'Galmuri9'; font-size: 14px; border-bottom: 3px solid #006064; font-weight: bold; text-shadow: 1px 1px 0px #000;}
-    #dolphin-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; color: #fff; font-size: 18px; font-family: '궁서'; text-align: center; text-shadow: 2px 2px 0px #000;}
+    /* === 🐬 돌고래 아케이드 (버그 완전 수정판) === */
+    #dolphin-game-area { width: 300px; height: 350px; background: linear-gradient(to bottom, #0288d1, #00838f); border: 5px inset #006064; margin: 0 auto; position: relative; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.8);}
+    .dolphin-deco { position: absolute; font-size: 40px; opacity: 0.4; color: #fff; user-select: none; filter: drop-shadow(2px 2px 0px #000);}
+    .ring { width: 28px; height: 28px; border: 6px solid; border-radius: 50%; position: absolute; box-shadow: 2px 2px 5px rgba(0,0,0,0.6); transition: top 0.1s ease-out, left 0.1s ease-out; background: rgba(255,255,255,0.2);}
+    .post { width: 12px; height: 130px; background: linear-gradient(to right, #ff7043, #bf360c); position: absolute; bottom: 0; border-radius: 6px 6px 0 0; border: 2px solid #000; box-shadow: 3px 3px 5px rgba(0,0,0,0.5);}
+    .pump-btn { width: 60px; height: 60px; background: #26c6da; border: 4px outset #80deea; border-radius: 50%; cursor: pointer; font-size: 20px; color: #000; display: flex; justify-content: center; align-items: center; user-select: none; transition: 0.1s; font-weight: bold;}
+    .pump-btn:active { border-style: inset; background: #00bcd4; transform: scale(0.95); }
+    #dolphin-ui-top { display: flex; justify-content: space-between; padding: 8px 12px; background: #000; color: #00bcd4; font-family: 'Galmuri9'; font-size: 14px; border-bottom: 2px solid #00bcd4; font-weight: bold;}
+    #dolphin-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; color: #fff; font-size: 18px; font-family: '궁서'; text-align: center; text-shadow: 2px 2px 0px #000;}
 
     /* 암시장 아이템 낙하 */
     #item-drop-zone { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10000; overflow: hidden;}
@@ -202,12 +244,16 @@
   <div id="world-container">
       
       <div id="view-room" class="world-view active">
-          <div id="item-drop-zone"></div> <div class="room-obj obj-window"></div>
-          <div class="room-obj obj-closet"></div>
-          <div class="room-obj obj-bedding"></div>
-          <div class="room-obj obj-mold"></div>
+          <div id="item-drop-zone"></div>
           
-          <div class="light-switch" onclick="flickerRoom()" data-tooltip="형광등">
+          <div class="obj-window"></div>
+          <div class="obj-light"></div>
+          <div class="obj-closet"></div>
+          <div class="obj-bedding"></div>
+          <div class="obj-pillow"></div>
+          <div class="obj-mold"></div>
+          
+          <div class="light-switch" onclick="flickerRoom()" data-tooltip="딸깍!">
               <div class="switch-knob"></div>
           </div>
 
@@ -218,47 +264,46 @@
           <button class="scattered-btn btn-write" onclick="openWrite()">✏️ 글쓰기</button>
           
           <button class="scattered-btn btn-verify" onclick="openPopup('captcha-window')">💊 로봇 검증</button>
-          <button class="scattered-btn btn-setting" onclick="openPopup('profile-window')" data-tooltip="설정">⚙️</button>
-
+          <button class="scattered-btn btn-setting" onclick="openPopup('profile-window')" data-tooltip="환경 설정">⚙️</button>
           <button class="scattered-btn btn-shop" onclick="openPopup('shop-window')">🛒 암시장</button>
       </div>
 
       <div id="view-station" class="world-view">
-          <div class="station-filter"></div>
-          <div style="position:absolute; top:20%; left:10%; color:#fff; font-size:24px; font-weight:bold; text-shadow: 2px 2px 5px #000;">떠나간 것들의 역...</div>
+          <div class="station-text">떠나간 것들의 간이역...</div>
+          <div class="train-track"></div>
       </div>
 
       <div id="view-aqua" class="world-view">
-          <div class="aqua-obj f-fish1">🐟</div>
-          <div class="aqua-obj f-fish2">🐠</div>
-          <div class="aqua-obj f-jelly">🪼</div>
+          <div class="aqua-obj f-fish1">🐠</div>
+          <div class="aqua-obj f-fish2">🦈</div>
+          <div class="aqua-obj f-jelly">🦑</div>
           
           <button class="scattered-btn btn-dolphin" onclick="openPopup('dolphin-window')">
-              🐬 심해 오락실 작동
+              🐬 심해 오락기 작동
           </button>
       </div>
 
       <div id="shimeji-room" data-tooltip="더블클릭 이동">
-          <div id="pet-bubble">배고파...</div>
-          <img id="pet-image" src="https://cdn.statically.io/gh/shimeji-ee/shimeji-ee.github.io/master/img/shime1.png" onclick="openPopup('ai-window')" ondblclick="toggleRoaming()">
+          <div id="pet-bubble">밥 줘...</div>
+          <div id="pet-image" class="css-pet" onclick="openPopup('ai-window')" ondblclick="toggleRoaming()">( º ▲ º )</div>
       </div>
 
   </div> <div id="left-taskbar">
-      <div class="task-icon" onclick="switchWorld('view-room')" data-tooltip="내 방">
-          <img src="https://win98icons.alexmeub.com/icons/directory_open_file_mydocs-4.png"><br>Room
+      <div class="task-icon" onclick="switchWorld('view-room')" data-tooltip="노란장판">
+          <div>🚪</div>Room
       </div>
       <div class="task-icon" onclick="switchWorld('view-station')" data-tooltip="기차역">
-          <img src="https://win98icons.alexmeub.com/icons/network_cool_two_pcs-0.png"><br>Station
+          <div>🚂</div>Station
       </div>
       <div class="task-icon" onclick="switchWorld('view-aqua')" data-tooltip="아쿠아리움">
-          <img src="https://win98icons.alexmeub.com/icons/world-2.png"><br>Aqua
+          <div>🌊</div>Aqua
       </div>
       <hr style="width: 60%; border-color: #1a252f; margin: 15px 0;">
       <div class="task-icon" onclick="openPopup('music-window')" data-tooltip="카세트">
-          <img src="https://win98icons.alexmeub.com/icons/cd_audio_cd_a-3.png"><br>Music
+          <div>📻</div>Music
       </div>
       <div class="task-icon" onclick="openPopup('ai-window')" data-tooltip="메신저">
-          <img src="https://win98icons.alexmeub.com/icons/modem-1.png"><br>Chat
+          <div>💬</div>Chat
       </div>
   </div>
 
@@ -270,47 +315,47 @@
           <div class="cute-title-btns"><span onclick="closePopup('captcha-window')"></span></div>
       </div>
       <div class="cute-body" style="text-align:center;">
-          <p style="font-weight:bold; margin-top:0; color:#ecf0f1;">따뜻함이 느껴지는 사진을 선택하시오.</p>
+          <p style="font-weight:bold; margin-top:0; color:#fff;">'따뜻함'이 느껴지는 칸을 누르시오.</p>
           <div class="captcha-grid">
-              <img src="https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg">
-              <img src="https://cdn.pixabay.com/photo/2017/08/06/09/52/blanket-2591473_1280.png">
-              <img src="https://cdn.pixabay.com/photo/2015/12/01/20/28/road-1072821_1280.jpg">
-              <img src="https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg">
-              <img src="https://cdn.pixabay.com/photo/2017/08/01/01/33/beanie-2562646_1280.jpg">
-              <img src="https://cdn.pixabay.com/photo/2016/03/23/04/01/woman-1274056_1280.jpg">
+              <div style="background-image: url('https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg');"></div>
+              <div style="background-image: url('https://cdn.pixabay.com/photo/2017/08/06/09/52/blanket-2591473_1280.png');"></div>
+              <div style="background-image: url('https://cdn.pixabay.com/photo/2015/12/01/20/28/road-1072821_1280.jpg');"></div>
+              <div style="background-image: url('https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg');"></div>
+              <div style="background-image: url('https://cdn.pixabay.com/photo/2017/08/01/01/33/beanie-2562646_1280.jpg');"></div>
+              <div style="background-image: url('https://cdn.pixabay.com/photo/2016/03/23/04/01/woman-1274056_1280.jpg');"></div>
           </div>
           <button class="captcha-btn" onclick="closePopup('captcha-window')">[ 인증 완료 ]</button>
       </div>
   </div>
 
   <div id="dolphin-window" class="cute-popup">
-      <div class="cute-titlebar" id="dolphin-drag" style="background: #00838f;"><span>🐬 추억의 링 던지기</span> <div class="cute-title-btns"><span onclick="closePopup('dolphin-window')"></span></div></div>
-      <div class="cute-body" style="background:#b2ebf2; text-align:center; padding: 10px;">
+      <div class="cute-titlebar" id="dolphin-drag" style="background: #006064;"><span>🐬 링 던지기.exe</span> <div class="cute-title-btns"><span onclick="closePopup('dolphin-window')"></span></div></div>
+      <div class="cute-body" style="background:#000; text-align:center; padding: 10px;">
           <div id="dolphin-ui-top"><span id="d-time">⏳ 30초</span><span id="d-score">🏆 0개 성공</span></div>
           <div id="dolphin-game-area">
               <div id="dolphin-overlay">
-                  <div id="d-msg" style="font-size:20px; font-weight:bold; text-shadow: 2px 2px 0px #000;">도전하시겠습니까?</div>
-                  <button class="btn-action" style="margin-top:20px; font-size:16px; padding: 10px 20px;" onclick="startDolphinGame()">▶ COIN INSERT</button>
+                  <div id="dolphin-msg" style="font-size:18px; font-weight:bold;">도전하시겠습니까?</div>
+                  <button id="dolphin-start-btn" class="btn-action" style="margin-top:20px; font-size:16px; padding: 10px 20px; background:#00bcd4; color:#000;" onclick="startDolphinGame()">▶ COIN INSERT</button>
               </div>
               <div class="dolphin-deco" style="top:20px; left:20px;">🐬</div>
               <div class="dolphin-deco" style="bottom:50px; right:20px; transform:scaleX(-1);">🐬</div>
-              <div class="post" style="left: 60px;"></div><div class="post" style="right: 60px;"></div>
+              <div class="post" style="left: 65px;"></div><div class="post" style="right: 65px;"></div>
               <div class="ring" id="ring0" style="border-color:#e91e63;"></div>
               <div class="ring" id="ring1" style="border-color:#9c27b0;"></div>
-              <div class="ring" id="ring2" style="border-color:#3f51b5;"></div>
+              <div class="ring" id="ring2" style="border-color:#ffeb3b;"></div>
               <div class="ring" id="ring3" style="border-color:#4caf50;"></div>
               <div class="ring" id="ring4" style="border-color:#ff9800;"></div>
           </div>
           <div style="display: flex; justify-content: space-between; margin-top: 15px; align-items:center; padding: 0 10px;">
-              <button class="pump-btn" onclick="pushRings('left')">◀</button>
-              <div style="font-size:12px; color:#00838f; font-weight:bold;">버튼을 연타해 물살을 일으켜라!</div>
-              <button class="pump-btn" onclick="pushRings('right')">▶</button>
+              <button class="pump-btn" onclick="pushRings('left')">L</button>
+              <div style="font-size:12px; color:#00bcd4; font-weight:bold;">연타하여 물살을 만드시오</div>
+              <button class="pump-btn" onclick="pushRings('right')">R</button>
           </div>
       </div>
   </div>
 
   <div id="music-window" class="cute-popup">
-      <div class="cute-titlebar" id="music-drag" style="background:#f39c12; color:#000;"><span>📻 카세트 플레이어</span> <div class="cute-title-btns"><span onclick="closePopup('music-window')"></span></div></div>
+      <div class="cute-titlebar" id="music-drag"><span>📻 카세트</span> <div class="cute-title-btns"><span onclick="closePopup('music-window')"></span></div></div>
       <div class="cute-body">
           <div class="player-controls">
               <button class="ctrl-btn" onclick="prevTrack()">⏮</button>
@@ -322,16 +367,16 @@
   </div>
 
   <div id="board-window" class="cute-popup">
-      <div class="cute-titlebar" id="board-drag" style="background:#9b59b6;"><span>🎀 기록 보관소</span> <div class="cute-title-btns"><span onclick="closePopup('board-window')"></span></div></div>
-      <div class="cute-body" id="page-content" style="background:#ecf0f1;">로딩 중...</div>
+      <div class="cute-titlebar" id="board-drag"><span>🎀 Board</span> <div class="cute-title-btns"><span onclick="closePopup('board-window')"></span></div></div>
+      <div class="cute-body" id="page-content">로딩 중...</div>
   </div>
 
   <div id="write-window" class="cute-popup">
-      <div class="cute-titlebar" id="write-drag" style="background:#27ae60;"><span>📝 새 글 작성</span> <div class="cute-title-btns"><span onclick="closePopup('write-window')"></span></div></div>
+      <div class="cute-titlebar" id="write-drag"><span>📝 기록하기</span> <div class="cute-title-btns"><span onclick="closePopup('write-window')"></span></div></div>
       <div class="cute-body">
           <div class="input-row" style="flex-direction:row; align-items:center; justify-content:space-between;">
               <div style="display:flex; gap:10px; align-items:center;">
-                  <label style="margin:0; color:#bdc3c7;">카테고리</label>
+                  <label style="margin:0;">카테고리</label>
                   <select id="post-category" class="cute-input" style="width: 140px;">
                       <option value="diary">📓 비밀 일기</option>
                       <option value="character">✨ 캐릭터 덱</option>
@@ -340,29 +385,29 @@
                   </select>
               </div>
               <div>
-                  <label for="local-img-upload" class="btn-action" style="cursor:pointer; background:#bdc3c7; color:#000;">🖼️ 사진 첨부</label>
+                  <label for="local-img-upload" class="btn-action" style="cursor:pointer;">🖼️ 사진 첨부</label>
                   <input type="file" id="local-img-upload" accept="image/*" style="display:none;" onchange="insertLocalImageToEditor(this)">
               </div>
           </div>
-          <div class="input-row"><input type="text" id="post-title" class="cute-input" placeholder="제목을 입력하세요..."></div>
+          <div class="input-row"><input type="text" id="post-title" class="cute-input" placeholder="제목..."></div>
           <textarea id="post-content"></textarea>
-          <div style="text-align: right; margin-top: 15px;"><button class="btn-action" onclick="savePost()" style="background:#27ae60; color:#fff; border-color:#2ecc71;">저장하기</button></div>
+          <div style="text-align: right; margin-top: 15px;"><button class="btn-action" onclick="savePost()">저장하기</button></div>
       </div>
   </div>
 
   <div id="ai-window" class="cute-popup">
-      <div class="cute-titlebar" id="ai-drag" style="background:#3498db;"><span>💬 펫 메신저</span> <div class="cute-title-btns"><span onclick="closePopup('ai-window')"></span></div></div>
+      <div class="cute-titlebar" id="ai-drag"><span>💬 펫 메신저</span> <div class="cute-title-btns"><span onclick="closePopup('ai-window')"></span></div></div>
       <div class="cute-body">
         <div class="chat-body" id="chat-log"><div class="msg-row msg-ai">나루: 밥 줘...</div></div>
         <div style="display:flex; gap:5px; margin-top:10px;">
             <input type="text" id="ai-input" class="cute-input" style="flex:1;" onkeypress="if(event.key==='Enter') sendMsg()">
-            <button class="btn-action" onclick="sendMsg()" style="background:#3498db; color:#fff;">전송</button>
+            <button class="btn-action" onclick="sendMsg()">전송</button>
         </div>
       </div>
   </div>
 
   <div id="profile-window" class="cute-popup">
-      <div class="cute-titlebar" id="profile-drag" style="background:#7f8c8d;"><span>🛠️ 환경 설정</span> <div class="cute-title-btns"><span onclick="closePopup('profile-window')"></span></div></div>
+      <div class="cute-titlebar" id="profile-drag"><span>🛠️ 환경 설정</span> <div class="cute-title-btns"><span onclick="closePopup('profile-window')"></span></div></div>
       <div class="cute-body">
           <div class="input-row"><label>펫 이미지 변경</label><input type="file" id="edit-pet-file" class="cute-input"></div>
           <div class="input-row"><label>유튜브 BGM (ID 쉼표 구분)</label><textarea id="edit-bgm" class="cute-input" rows="2" placeholder="VDMiHYgQKLE, jfKfPfyJRdk"></textarea></div>
@@ -371,45 +416,45 @@
   </div>
 
   <div id="shop-window" class="cute-popup">
-      <div class="cute-titlebar" id="shop-drag" style="background:#f39c12; color:#000;"><span>🛒 암시장 거래소</span> <div class="cute-title-btns"><span onclick="closePopup('shop-window')"></span></div></div>
+      <div class="cute-titlebar" id="shop-drag"><span>🛒 암시장</span> <div class="cute-title-btns"><span onclick="closePopup('shop-window')"></span></div></div>
       <div class="cute-body" style="text-align:center;">
-          <h3 style="color:#f1c40f; margin:0 0 10px 0; text-shadow: 1px 1px 0px #000;">보유 포인트: <span id="my-money">0</span> P</h3>
-          <p style="font-size:11px; color:#bdc3c7;">(구매한 물건은 방바닥에 떨어집니다)</p>
+          <h3 style="color:#f1c40f; margin:0 0 10px 0;">보유: <span id="my-money">0</span> P</h3>
+          <p style="font-size:11px;">(물건은 로비에 떨어집니다)</p>
           <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:15px;">
-              <button class="btn-action" style="padding:15px 10px; background:#e74c3c; color:#fff;" onclick="buyItem('컵라면', '🍜', 100)">🍜 컵라면<br>100P</button>
-              <button class="btn-action" style="padding:15px 10px; background:#3498db; color:#fff;" onclick="buyItem('소주', '🍾', 200)">🍾 소주<br>200P</button>
-              <button class="btn-action" style="padding:15px 10px; background:#2ecc71; color:#fff;" onclick="buyItem('담배', '🚬', 300)">🚬 담배<br>300P</button>
-              <button class="btn-action" style="padding:15px 10px; background:#9b59b6; color:#fff;" onclick="buyItem('비디오', '📼', 500)">📼 비디오<br>500P</button>
+              <button class="btn-action" onclick="buyItem('소주', '🍾', 100)">🍾 소주(100P)</button>
+              <button class="btn-action" onclick="buyItem('담배', '🚬', 200)">🚬 담배(200P)</button>
+              <button class="btn-action" onclick="buyItem('칼', '🔪', 300)">🔪 칼(300P)</button>
           </div>
-          <div style="text-align:right;"><button class="btn-action" style="font-size:11px; background:#c0392b; color:#fff;" onclick="clearRoomItems()">방 청소하기</button></div>
+          <div style="text-align:right;"><button class="btn-action" style="font-size:11px; background:#c0392b;" onclick="clearRoomItems()">방 청소</button></div>
       </div>
   </div>
 
   <div id="yt-player-container" style="display:none;"></div>
 
   <script>
-    /* 🔴 브라우저 내장 사운드 (수정 없음) */
+    /* 🔴 브라우저 내장 사운드 (오류 없음) */
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playClickSound() { if(audioCtx.state === 'suspended') audioCtx.resume(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'square'; osc.frequency.setValueAtTime(600, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1); }
     function playPopupSound() { if(audioCtx.state === 'suspended') audioCtx.resume(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(300, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(600, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.05); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1); }
     document.addEventListener('click', (e) => { if(e.target.tagName === 'BUTTON' || e.target.classList.contains('scattered-btn') || e.target.classList.contains('task-icon') || e.target.closest('.task-icon') || e.target.tagName === 'SPAN' || e.target.closest('.light-switch')) { playClickSound(); } });
 
-    /* 🔴 차원 이동 및 형광등 효과 */
+    /* 차원 이동 및 형광등 점멸 */
     function switchWorld(viewId) { document.querySelectorAll('.world-view').forEach(el => el.classList.remove('active')); document.getElementById(viewId).classList.add('active'); playPopupSound(); }
     function flickerRoom() { const room = document.getElementById('view-room'); room.classList.remove('room-flicker'); void room.offsetWidth; room.classList.add('room-flicker'); }
 
-    /* Supabase 및 기본 설정 */
+    /* Supabase 설정 */
     const SB_URL = "https://kzgbqpodvpuoqovfsyrm.supabase.co";
     const SB_KEY = "sb_publishable_pdqE1Sc-4PSv3LQM9IsBcA_xJWeZwW-"; 
     const OPENROUTER_KEY = "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"; 
     let sbClient = null; if (window.supabase) sbClient = window.supabase.createClient(SB_URL, SB_KEY);
     CKEDITOR.replace('post-content', { height: 250, language: 'ko', removeButtons: 'About', versionCheck: false });
     let currentEditId = null; let globalPostsData = []; 
-    function insertLocalImageToEditor(input) { const file = input.files[0]; if(!file) return; if(file.size > 2 * 1024 * 1024) return alert("용량 초과..."); const reader = new FileReader(); reader.onload = function(e) { CKEDITOR.instances['post-content'].insertHtml(`<img src="${e.target.result}" style="max-width:100%; border-radius:5px; border:2px inset #555;">`); input.value = ''; }; reader.readAsDataURL(file); }
+    function insertLocalImageToEditor(input) { const file = input.files[0]; if(!file) return; if(file.size > 2 * 1024 * 1024) return alert("용량 초과..."); const reader = new FileReader(); reader.onload = function(e) { CKEDITOR.instances['post-content'].insertHtml(`<img src="${e.target.result}" style="max-width:100%; border-radius:5px; border:2px solid #555;">`); input.value = ''; }; reader.readAsDataURL(file); }
+    
+    /* 툴팁 및 팝업 드래그 */
     const tooltip = document.getElementById('custom-tooltip');
     document.addEventListener('mousemove', (e) => { const target = e.target.closest('[data-tooltip]'); if (target) { tooltip.style.display = 'block'; tooltip.style.left = (e.pageX + 15) + 'px'; tooltip.style.top = (e.pageY + 15) + 'px'; tooltip.innerText = target.getAttribute('data-tooltip'); } else { tooltip.style.display = 'none'; } });
 
-    /* 팝업 드래그 및 애니메이션 */
     let highestZ = 600;
     function makeDraggable(winId, dragId) { const win = document.getElementById(winId); const dragArea = document.getElementById(dragId); let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0; win.onmousedown = () => { win.style.zIndex = ++highestZ; }; dragArea.onmousedown = (e) => { e.preventDefault(); pos3 = e.clientX; pos4 = e.clientY; document.onmouseup = closeDrag; document.onmousemove = elementDrag; }; function elementDrag(e) { e.preventDefault(); pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; pos3 = e.clientX; pos4 = e.clientY; win.style.top = (win.offsetTop - pos2) + "px"; win.style.left = (win.offsetLeft - pos1) + "px"; } function closeDrag() { document.onmouseup = null; document.onmousemove = null; } }
     ['write-window','board-window','ai-window','profile-window','shop-window','music-window','shimeji-room','dolphin-window', 'captcha-window'].forEach(id => { makeDraggable(id, id === 'shimeji-room' ? id : id.replace('window', 'drag')); });
@@ -417,15 +462,14 @@
     function closePopup(id) { document.getElementById(id).style.display = 'none'; }
 
     /* 시메지 중얼거림 */
-    const mutterTexts = ["배고파...", "심심해...", "추워...", "불 좀 켜줘..."];
+    const mutterTexts = ["배고파...", "불 좀 켜줘...", "방바닥 따뜻해...", "곰팡이 냄새..."];
     setInterval(() => { const bubble = document.getElementById('pet-bubble'); bubble.style.opacity = '1'; bubble.innerText = mutterTexts[Math.floor(Math.random() * mutterTexts.length)]; setTimeout(() => { bubble.style.opacity = '0'; }, 3000); }, 8000);
 
-    /* 🔴 돌고래 아케이드 (버그 박멸 완료) */
+    /* 🔴 돌고래 아케이드 (Null 에러 및 꼼수 완벽 수정) */
     const rings = [document.getElementById('ring0'), document.getElementById('ring1'), document.getElementById('ring2'), document.getElementById('ring3'), document.getElementById('ring4')];
     let ringStates = []; let dTime = 30; let dScore = 0; let dState = 'ready'; let dTimer = null; let gameLoop = null;
 
     function resetRings() {
-        // 링 초기 위치 분산
         ringStates = rings.map((r, i) => ({ x: 40 + (i*50), y: 300, vy: 0, vx: 0, stuck: false, scored: false }));
         rings.forEach((r, i) => { r.style.top = '300px'; r.style.left = ringStates[i].x + 'px'; });
     }
@@ -433,8 +477,10 @@
 
     function startDolphinGame() {
         dState = 'playing'; dTime = 30; dScore = 0;
-        document.getElementById('d-score').innerText = '🏆 0개 성공'; document.getElementById('d-time').innerText = '⏳ 30초';
-        document.getElementById('dolphin-overlay').style.display = 'none'; resetRings();
+        document.getElementById('d-score').innerText = '🏆 0개 성공'; 
+        document.getElementById('d-time').innerText = '⏳ 30초';
+        document.getElementById('dolphin-overlay').style.display = 'none'; 
+        resetRings();
         if(dTimer) clearInterval(dTimer);
         dTimer = setInterval(() => { dTime--; document.getElementById('d-time').innerText = `⏳ ${dTime}초`; if(dTime <= 0) endGame(false); }, 1000);
         if(!gameLoop) updateGame();
@@ -442,53 +488,55 @@
 
     function endGame(isWin) {
         dState = 'over'; clearInterval(dTimer); cancelAnimationFrame(gameLoop); gameLoop = null;
-        const msgEl = document.getElementById('d-msg');
-        if(isWin) { msgEl.innerText = `✨ 완벽한 성공! ✨\n+100P 지급 완료`; earnPoints(100); } 
-        else { msgEl.innerText = `G A M E O V E R\n최종 성공: ${dScore}개`; }
-        document.getElementById('dolphin-overlay').style.display = 'flex'; document.querySelector('.start-btn').innerText = '▶ 다시 도전';
+        
+        // Null 에러 발생 지점 완벽 수정 (ID 변경 및 존재 여부 확인)
+        const msgEl = document.getElementById('dolphin-msg');
+        if(msgEl) {
+            if(isWin) { msgEl.innerText = `✨ 성공! ✨\n+100P 지급`; earnPoints(100); } 
+            else { msgEl.innerText = `G A M E O V E R\n최종: ${dScore}개`; }
+        }
+        document.getElementById('dolphin-overlay').style.display = 'flex'; 
+        const btn = document.getElementById('dolphin-start-btn');
+        if(btn) btn.innerText = '▶ 다시 도전';
     }
 
-    const gravity = 0.4; // 중력 조절
-    const bounce = -0.5; // 바닥 반동
+    const gravity = 0.4; const bounce = -0.5;
     function updateGame() {
         if(dState !== 'playing') return;
         rings.forEach((ring, i) => {
             let s = ringStates[i]; if (s.stuck) return;
-            s.vy += gravity; s.y += s.vy; s.x += s.vx; s.vx *= 0.95; // 공기 저항
+            s.vy += gravity; s.y += s.vy; s.x += s.vx; s.vx *= 0.95; 
 
-            // 벽/바닥 충돌
             if (s.y > 300) { s.y = 300; s.vy *= bounce; } 
             if (s.x < 10) { s.x = 10; s.vx *= -0.8; } if (s.x > 260) { s.x = 260; s.vx *= -0.8; }
 
-            // 🔴 기둥 충돌 판정 (정밀 조정)
-            // 왼쪽 기둥(x=60 근처), 오른쪽 기둥(x=220 근처)
+            // 기둥 충돌 판정 (x=65, x=225 부근)
             const targetXLeft = 65; const targetXRight = 225; const threshold = 12;
-            if (s.y > 170 && s.y < 250 && s.vy > 0) { // 내려오는 중에만 판정
+            if (s.y > 170 && s.y < 250 && s.vy > 0) { 
                 if (Math.abs(s.x - targetXLeft) < threshold) {
-                    s.stuck = true; s.y = 260 - (dScore*12); s.x = targetXLeft; // 기둥에 걸림
+                    s.stuck = true; s.y = 260 - (dScore*12); s.x = targetXLeft; 
                     if(!s.scored) { s.scored = true; dScore++; }
                 } else if (Math.abs(s.x - targetXRight) < threshold) {
-                    s.stuck = true; s.y = 260 - (dScore*12); s.x = targetXRight; // 기둥에 걸림
+                    s.stuck = true; s.y = 260 - (dScore*12); s.x = targetXRight; 
                     if(!s.scored) { s.scored = true; dScore++; }
                 }
             }
             if(s.scored) document.getElementById('d-score').innerText = `🏆 ${dScore}개 성공`;
             ring.style.top = s.y + 'px'; ring.style.left = s.x + 'px';
         });
-        if(dScore >= 5) { endGame(true); return; } // 5개 모두 성공 시 승리
+        if(dScore >= 5) { endGame(true); return; } 
         gameLoop = requestAnimationFrame(updateGame);
     }
     function pushRings(side) {
         if(dState !== 'playing') return;
         rings.forEach((ring, i) => {
             let s = ringStates[i]; if (s.stuck) return;
-            // 펌프 힘 조절 (랜덤성 추가)
             s.vy = -Math.random() * 8 - 4; 
             s.vx += (side === 'left' ? 1 : -1) * (Math.random() * 4 + 2);
         });
     }
 
-    /* 암시장 아이템 낙하 (로비 한정) */
+    /* 암시장 */
     let myMoney = parseInt(localStorage.getItem('myPoints') || '1000'); let roomItems = JSON.parse(localStorage.getItem('myRoomItems') || '[]');
     function updateMoneyDisplay() { document.getElementById('my-money').innerText = myMoney; localStorage.setItem('myPoints', myMoney); }
     function earnPoints(amount) { myMoney += amount; updateMoneyDisplay(); } updateMoneyDisplay();
@@ -500,15 +548,25 @@
     function renderRoomItems() { const layer = document.getElementById('item-drop-zone'); layer.innerHTML = ''; roomItems.forEach(item => { const el = document.createElement('div'); el.className = 'dropped-item'; el.style.left = item.x + 'px'; el.style.top = item.y + 'px'; el.innerText = item.icon; layer.appendChild(el); }); }
     function clearRoomItems() { roomItems = []; localStorage.setItem('myRoomItems', '[]'); renderRoomItems(); } renderRoomItems();
 
-    /* 설정 및 이미지 로드 (안정적인 CDN 사용) */
+    /* 설정 및 불사신 펫 이미지 */
     let tempPetBase64 = null; let currentPlaylist = [];
     function handleFile(id, callback) { document.getElementById(id).addEventListener('change', function(e) { const file = e.target.files[0]; if(!file) return; if(file.size > 3 * 1024 * 1024) return alert("용량 초과..."); const r = new FileReader(); r.onload = evt => callback(evt.target.result); r.readAsDataURL(file); }); }
     handleFile('edit-pet-file', res => tempPetBase64 = res);
-    function loadProfile() { const saved = JSON.parse(localStorage.getItem('yellowRoomSettingsV1')) || {}; 
-        // 🔴 안정적인 CDN 이미지 기본값 설정
-        document.getElementById('pet-image').src = saved.pet || 'https://cdn.statically.io/gh/shimeji-ee/shimeji-ee.github.io/master/img/shime1.png'; 
-        currentPlaylist = (saved.bgm || 'VDMiHYgQKLE').split(',').map(s => s.trim()).filter(s => s); tempPetBase64 = saved.pet || ''; }
-    function saveProfile() { try { localStorage.setItem('yellowRoomSettingsV1', JSON.stringify({ pet: tempPetBase64, bgm: document.getElementById('edit-bgm').value || 'VDMiHYgQKLE' })); } catch(e) { alert("저장 실패..."); return; } loadProfile(); closePopup('profile-window'); if(player && player.loadVideoById) loadMusicPlayer(); }
+    
+    function loadProfile() { 
+        const saved = JSON.parse(localStorage.getItem('yellowRoomSettingsV2')) || {}; 
+        const petEl = document.getElementById('pet-image');
+        // 사용자가 이미지를 올렸으면 적용, 없으면 기본 텍스트 이모티콘 유지
+        if(saved.pet) {
+            petEl.style.backgroundImage = `url(${saved.pet})`;
+            petEl.innerText = '';
+        } else {
+            petEl.style.backgroundImage = 'none';
+            petEl.innerText = '( º ▲ º )';
+        }
+        currentPlaylist = (saved.bgm || 'VDMiHYgQKLE').split(',').map(s => s.trim()).filter(s => s); tempPetBase64 = saved.pet || ''; 
+    }
+    function saveProfile() { try { localStorage.setItem('yellowRoomSettingsV2', JSON.stringify({ pet: tempPetBase64, bgm: document.getElementById('edit-bgm').value || 'VDMiHYgQKLE' })); } catch(e) { alert("저장 실패..."); return; } loadProfile(); closePopup('profile-window'); if(player && player.loadVideoById) loadMusicPlayer(); }
 
     /* 유튜브 */
     let player = null; let trackIndex = 0; let isPlayerReady = false; let tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
@@ -542,11 +600,11 @@
         if (!sbClient) return; 
         const { data, error } = await sbClient.from('posts').select('*').eq('category', categoryType).order('created_at', { ascending: false }); 
         const list = document.getElementById('page-content'); 
-        if(error || data.length === 0) { list.innerHTML = "<div style='color:#000; text-align:center; padding:20px;'>텅 비었다...</div>"; return; } 
+        if(error || data.length === 0) { list.innerHTML = "<div style='color:#ccc; text-align:center; padding:20px;'>텅 비었다...</div>"; return; } 
         globalPostsData = data; let html = ''; 
         data.forEach(p => { 
             const dateStr = new Date(p.created_at).toLocaleDateString(); 
-            html += `<div class="post-item"><div class="post-header" onclick="togglePostView('${p.id}')"><span>📑 ${p.title} <small style="color:#555; font-weight:normal; margin-left:10px;">${dateStr}</small></span><div><button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="event.stopPropagation(); editPost('${p.id}')">수정</button><button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="event.stopPropagation(); deletePost('${p.id}', '${p.category}')">파기</button></div></div><div class="post-content-area" id="content-${p.id}">${p.content}</div></div>`; 
+            html += `<div class="post-item"><div class="post-header" onclick="togglePostView('${p.id}')"><span>📑 ${p.title} <small style="color:#bdc3c7; font-weight:normal; margin-left:10px;">${dateStr}</small></span><div><button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="event.stopPropagation(); editPost('${p.id}')">수정</button><button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="event.stopPropagation(); deletePost('${p.id}', '${p.category}')">파기</button></div></div><div class="post-content-area" id="content-${p.id}">${p.content}</div></div>`; 
         }); 
         list.innerHTML = html; 
     }
