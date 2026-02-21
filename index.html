@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8"><!DOCTYPE html>
-<html lang="ko">
-<head>
   <meta charset="UTF-8">
   <title>My Messy Collage Room</title>
   <link href="https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css" rel="stylesheet">
@@ -11,62 +8,60 @@
   <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 
   <style>
-    /* === 🌸 아날로그 다이어리 바탕화면 🌸 === */
+    /* === 🌸 전체 배경 (아파트/방 내부 느낌으로 쓸 수 있는 공간) 🌸 === */
     body { 
         background-color: #fdf5e6; 
         background-image: url('https://www.transparenttextures.com/patterns/cream-pixels.png');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
         font-family: 'Galmuri9', sans-serif; 
         margin: 0; padding: 0; color: #4a4a4a; overflow-x: hidden;
     }
     .messy-canvas { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
 
-    /* === 🖼️ 좌측을 장악하는 거대한 메인 룸 === */
-    .iso-room-container {
-        position: absolute; top: 40px; left: 20px;
-        width: 750px; height: 750px; /* 화면 절반 이상을 덮는 거대 사이즈 */
-        z-index: 10; display: flex; justify-content: center; align-items: center; user-select: none;
-        pointer-events: none; /* 배경처럼 취급 */
+    /* === 🖼️ 좌측을 장악하는 거대한 그림 캔버스 (픽셀룸 삭제) === */
+    .main-pic-container {
+        position: absolute; top: 5%; left: 3%;
+        width: 45%; height: 85%; /* 화면 왼쪽 절반을 차지하는 거대 액자 */
+        background: #fff; border: 8px solid #ffb6c1; border-radius: 5px;
+        padding: 15px; box-shadow: 15px 15px 0px rgba(0,0,0,0.1);
+        transform: rotate(-2deg); /* 콜라주 느낌으로 살짝 삐뚤게 */
+        z-index: 10; display: flex; flex-direction: column;
     }
-    .iso-room-container img { pointer-events: auto; } /* 이미지만 클릭 가능하게 */
-    .iso-room-img { 
-        width: 100%; height: 100%; object-fit: contain; 
-        filter: drop-shadow(10px 10px 15px rgba(0,0,0,0.15)); 
+    .main-pic-img { 
+        width: 100%; height: 100%; object-fit: cover; border: 2px dashed #ffb6c1;
     }
-    
-    /* 자판기 아이템이 떨어지는 레이어 */
-    #room-items-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .pic-label {
+        text-align: center; font-size: 14px; font-weight: bold; color: #d81b60; margin-top: 10px;
+    }
+
+    #room-items-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
     .room-item { position: absolute; font-size: 40px; filter: drop-shadow(3px 3px 0px rgba(0,0,0,0.2)); animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     @keyframes pop { 0% {transform: scale(0);} 100% {transform: scale(1);} }
 
-    /* === 🎀 흩어진 스티커 버튼들 (주인님 사진 완벽 고증) === */
+    /* === 🎀 흩어진 스티커 버튼들 === */
     .scattered-btn {
-        position: absolute; 
-        background: #ffb6c1; /* 딸기우유색 */
-        border: 3px dashed #fff; /* 귀여운 점선 테두리 */
-        border-radius: 30px; /* 알약 모양 */
-        padding: 10px 20px; font-weight: bold; color: #fff; font-size: 16px;
-        text-shadow: 1px 1px 0px #d81b60;
-        cursor: pointer; box-shadow: 4px 4px 0px rgba(216, 27, 96, 0.2); 
-        z-index: 20; transition: 0.1s; user-select: none; white-space: nowrap;
+        position: absolute; background: #ffb6c1; border: 3px dashed #fff; border-radius: 30px;
+        padding: 10px 20px; font-weight: bold; color: #fff; font-size: 16px; text-shadow: 1px 1px 0px #d81b60;
+        cursor: pointer; box-shadow: 4px 4px 0px rgba(216, 27, 96, 0.2); z-index: 20; transition: 0.1s; user-select: none;
     }
-    .scattered-btn:hover { background: #ff99cc; transform: scale(1.05) rotate(0deg) !important; }
     .scattered-btn:active { transform: translate(3px, 3px) !important; box-shadow: none; }
     
-    /* 방 우측/하단으로 파리떼처럼 난잡하게 배치 */
-    .btn-home  { top: 80px; left: 780px; transform: rotate(12deg); }
-    .btn-diary { top: 200px; left: 850px; transform: rotate(-8deg); background: #dda0dd; }
-    .btn-char  { top: 350px; left: 800px; transform: rotate(5deg); background: #87cefa; }
-    .btn-shop  { top: 520px; left: 750px; transform: rotate(-15deg); background: #ffeb3b; color:#d81b60; text-shadow:none; border-color:#d81b60;}
-    .btn-write { top: 680px; left: 600px; transform: rotate(8deg); background: #ff7f50; font-size: 18px; padding: 12px 25px;}
-    .btn-dolphin { top: 750px; left: 850px; transform: rotate(-5deg); background: #40e0d0; font-size: 20px; }
+    /* 그림 주변(가운데~오른쪽)으로 난잡하게 흩뿌림 */
+    .btn-home  { top: 10%; left: 55%; transform: rotate(12deg); }
+    .btn-diary { top: 25%; left: 75%; transform: rotate(-8deg); background: #dda0dd; }
+    .btn-char  { top: 40%; left: 60%; transform: rotate(5deg); background: #87cefa; }
+    .btn-shop  { top: 55%; left: 80%; transform: rotate(-15deg); background: #ffeb3b; color:#d81b60; text-shadow:none; border-color:#d81b60;}
+    .btn-write { top: 75%; left: 52%; transform: rotate(8deg); background: #ff7f50; font-size: 18px; padding: 12px 25px;}
+    .btn-dolphin { top: 80%; left: 75%; transform: rotate(-5deg); background: #40e0d0; font-size: 20px; }
 
-    /* === 💬 마우스 말풍선 === */
     #custom-tooltip {
         position: absolute; display: none; z-index: 9999999; background: #fff; border: 2px solid #ff69b4; border-radius: 15px;
         padding: 8px 15px; font-size: 12px; font-weight: bold; color: #ff69b4; box-shadow: 3px 3px 0px rgba(255, 105, 180, 0.3); pointer-events: none; white-space: nowrap;
     }
 
-    /* === 💻 투명하고 귀여운 팝업창 (Mac 스타일 변형) === */
+    /* === 💻 투명 팝업창 === */
     .cute-popup {
         position: absolute; display: none; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(5px);
         border: 2px solid #ffb6c1; border-radius: 15px; box-shadow: 8px 8px 0px rgba(255, 182, 193, 0.5); overflow: hidden; width: 450px;
@@ -78,52 +73,48 @@
     .cute-titlebar:active { cursor: grabbing; }
     .cute-title-btns { display: flex; gap: 5px; }
     .cute-title-btns span { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 1px solid #ffb6c1; cursor: pointer; }
-    .btn-close { background: #ff69b4; } .btn-min { background: #ffeb3b; } .btn-max { background: #87cefa; }
+    .btn-close { background: #ff69b4; } 
     .cute-body { padding: 20px; max-height: 65vh; overflow-y: auto; }
 
-    /* 팝업 초기 난잡 위치 */
-    #write-window { width: 800px; top: 100px; left: 150px; }
-    #board-window { width: 650px; top: 150px; left: 350px; }
-    #ai-window { width: 320px; top: 300px; left: 800px; }
-    #shop-window { width: 400px; top: 250px; left: 500px; }
-    #music-window { width: 300px; top: 50px; left: 900px; display: block; }
-    #profile-window { width: 450px; top: 100px; left: 400px;}
-    #dolphin-window { width: 320px; top: 200px; left: 600px; border-color: #00acc1; }
+    /* 팝업 위치 */
+    #write-window { width: 800px; top: 10%; left: 20%; }
+    #board-window { width: 650px; top: 15%; left: 30%; }
+    #ai-window { width: 320px; top: 30%; left: 75%; }
+    #shop-window { width: 400px; top: 25%; left: 60%; }
+    #music-window { width: 300px; top: 5%; left: 75%; display: block; }
+    #profile-window { width: 450px; top: 10%; left: 40%;}
+    #dolphin-window { width: 350px; top: 15%; left: 55%; border-color: #00acc1; }
 
     /* === 🐾 시메지 펫 === */
     #shimeji-room {
-        position: absolute; top: 600px; left: 250px; z-index: 30; text-align: center; cursor: grab; 
+        position: absolute; top: 70%; left: 85%; z-index: 30; text-align: center; cursor: grab; 
         transition: top 1.5s ease-in-out, left 1.5s ease-in-out;
     }
     #shimeji-room:active { cursor: grabbing; transition: none; }
     #pet-bubble { background: #fff; border: 2px solid #8a2be2; border-radius: 10px; padding: 6px; font-size: 12px; color: #8a2be2; font-weight: bold; margin-bottom: 5px; opacity:0; transition: opacity 0.3s;}
     #pet-image { width: 110px; height: 110px; object-fit: contain; filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.2)); transform: scaleX(var(--flip, 1)); }
-    @keyframes bounce { 0%, 100% { transform: translateY(0) scaleX(var(--flip, 1)); } 50% { transform: translateY(-20px) scaleX(var(--flip, 1)); } }
     .is-walking { animation: bounce 0.3s infinite; }
+    @keyframes bounce { 0%, 100% { transform: translateY(0) scaleX(var(--flip, 1)); } 50% { transform: translateY(-20px) scaleX(var(--flip, 1)); } }
 
-    /* === 📻 카세트 플레이어 === */
+    /* UI 요소 */
     .player-controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px;}
     .ctrl-btn { background: #fff; border: 2px solid #ffb6c1; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 16px; color: #d81b60; box-shadow: 2px 2px 0px #ffb6c1; display:flex; justify-content:center; align-items:center;}
     .ctrl-btn:active { transform: translate(2px,2px); box-shadow:none;}
     .music-info { font-size: 12px; color: #d81b60; font-weight: bold; overflow: hidden; white-space: nowrap; text-align:center; background:#ffe4e1; padding:8px; border-radius:10px; border: 1px dashed #ffb6c1;}
-
-    /* 기타 UI 요소 */
     .input-row { display: flex; flex-direction: column; margin-bottom: 15px; }
     .input-row label { font-size: 12px; color: #d81b60; font-weight: bold; margin-bottom: 5px; }
     .cute-input { padding: 10px; border: 2px solid #ffb6c1; border-radius: 10px; font-family: 'Galmuri9'; outline: none; background: rgba(255,255,255,0.8);}
     .btn-action { font-family: 'Galmuri9'; font-size: 12px; padding: 8px 15px; cursor: pointer; border: 2px solid #ffb6c1; border-radius: 10px; background: #fff; color: #d81b60; font-weight: bold; box-shadow: 2px 2px 0px #ffb6c1;}
     .btn-action:active { transform:translate(2px,2px); box-shadow:none; }
-
-    /* 챗봇 디자인 */
     .chat-body { height: 250px; background: rgba(255,255,255,0.7); border: 2px dashed #ffb6c1; overflow-y: auto; padding: 15px; font-size: 13px; border-radius: 15px;}
     .msg-row { margin-bottom: 10px; line-height: 1.5; padding: 8px 12px; border-radius: 15px; max-width: 80%; width: fit-content; }
     .msg-ai { background: #ffe4e1; color: #d81b60; border-bottom-left-radius: 0; float: left; clear: both;}
     .msg-me { background: #e6e6fa; color: #4a148c; border-bottom-right-radius: 0; float: right; clear: both;}
     .msg-sys { text-align: center; color: #ff69b4; font-size: 11px; clear: both; width: 100%; max-width: none; background: transparent;}
 
-    /* === 🐬 돌고래 링끼우기 게임 === */
+    /* === 🐬 완벽해진 돌고래 링 게임 === */
     #dolphin-game-area {
-        width: 280px; height: 350px; background: linear-gradient(to bottom, #4fc3f7, #0288d1);
+        width: 300px; height: 350px; background: linear-gradient(to bottom, #4fc3f7, #0288d1);
         border: 4px solid #00acc1; border-radius: 20px; margin: 0 auto; position: relative; overflow: hidden;
         box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
     }
@@ -132,16 +123,22 @@
         width: 25px; height: 25px; border: 5px solid #ffeb3b; border-radius: 50%; position: absolute; 
         box-shadow: 2px 2px 5px rgba(0,0,0,0.3); transition: top 0.3s ease-out, left 0.3s ease-out;
     }
-    .post {
-        width: 10px; height: 120px; background: #ff5722; position: absolute; bottom: 0; border-radius: 5px 5px 0 0;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-    }
+    .post { width: 10px; height: 120px; background: #ff5722; position: absolute; bottom: 0; border-radius: 5px 5px 0 0; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
     .pump-btn {
         width: 70px; height: 70px; background: #00bcd4; border: 4px solid #00838f; border-radius: 50%; cursor: pointer;
-        font-size: 24px; color: #fff; box-shadow: 4px 4px 0px #006064; display: flex; justify-content: center; align-items: center;
-        user-select: none;
+        font-size: 24px; color: #fff; box-shadow: 4px 4px 0px #006064; display: flex; justify-content: center; align-items: center; user-select: none;
     }
     .pump-btn:active { transform: scale(0.9); box-shadow: none; }
+    
+    /* 게임 UI 오버레이 */
+    #dolphin-ui-top { display: flex; justify-content: space-between; padding: 10px; font-weight: bold; color: #00838f; font-size: 16px; }
+    #dolphin-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6);
+        display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10;
+        color: #fff; font-size: 20px; font-weight: bold; text-align: center; border-radius: 15px;
+    }
+    .start-btn { background: #ffeb3b; border: 3px solid #fbc02d; color: #d84315; padding: 10px 20px; border-radius: 10px; font-family: 'Galmuri9'; font-size: 18px; cursor: pointer; margin-top: 15px; box-shadow: 3px 3px 0px #fbc02d; }
+    .start-btn:active { transform: translate(2px,2px); box-shadow: none; }
   </style>
 </head>
 <body id="main-body">
@@ -150,42 +147,52 @@
 
   <div class="messy-canvas" id="desktop-area">
     
-    <div class="iso-room-container" data-tooltip="가구를 사면 배치됩니다!">
-        <img id="main-visual-img" src="https://cdn.pixabay.com/photo/2020/04/18/16/24/pixel-art-5059880_1280.png" class="iso-room-img">
-        <div id="room-items-layer"></div>
+    <div class="main-pic-container">
+        <img id="main-visual-img" src="https://picsum.photos/600/800" class="main-pic-img">
+        <div class="pic-label">✨ MY MASTERPIECE ✨</div>
     </div>
+    
+    <div id="room-items-layer"></div>
 
-    <button class="scattered-btn btn-home" onclick="openPopup('profile-window')" data-tooltip="배경, 사진, BGM 설정">🛠️ 방 꾸미기</button>
+    <button class="scattered-btn btn-home" onclick="openPopup('profile-window')" data-tooltip="그림/배경/노래 수정">🛠️ 방 꾸미기</button>
     <button class="scattered-btn btn-diary" onclick="openBoard('diary')" data-tooltip="아무도 모르는 은밀한 공간">📓 비밀 일기</button>
     <button class="scattered-btn btn-char" onclick="openBoard('character')" data-tooltip="내 안의 또 다른 자아들">✨ 캐릭터 덱</button>
-    <button class="scattered-btn btn-shop" onclick="openPopup('shop-window')" data-tooltip="돈을 낭비해 방을 꾸며라!">🛒 수상한 자판기</button>
-    <button class="scattered-btn btn-write" onclick="openWrite()" data-tooltip="내 PC 사진도 바로 넣을 수 있음!">✏️ 글쓰기</button>
-    
-    <button class="scattered-btn btn-dolphin" onclick="openPopup('dolphin-window')" data-tooltip="추억의 링 던지기 게임기!">🐬🎮</button>
+    <button class="scattered-btn btn-shop" onclick="openPopup('shop-window')" data-tooltip="바탕화면에 쓰레기 뿌리기">🛒 수상한 자판기</button>
+    <button class="scattered-btn btn-write" onclick="openWrite()" data-tooltip="PC 사진 직접 첨부 가능">✏️ 글쓰기</button>
+    <button class="scattered-btn btn-dolphin" onclick="openPopup('dolphin-window')" data-tooltip="타이머 장착! 링 던지기 게임">🐬🎮</button>
 
-    <div id="shimeji-room" data-tooltip="더블 클릭하면 뽈뽈뽈 돌아다닙니다!">
+    <div id="shimeji-room" data-tooltip="더블 클릭 시 이동">
         <div id="pet-bubble">심심해!</div>
         <img id="pet-image" src="https://raw.githubusercontent.com/shimeji-ee/shimeji-ee.github.io/master/img/shime1.png" onclick="toggleChat()" ondblclick="toggleRoaming()">
-        <div style="font-size: 10px; color:#d81b60; font-weight:bold; margin-top:5px; text-shadow:1px 1px #fff;" id="roam-status">상태: [대기 중]</div>
+        <div style="font-size: 10px; color:#d81b60; font-weight:bold; margin-top:5px;" id="roam-status">상태: [대기 중]</div>
     </div>
 
     <div id="dolphin-window" class="cute-popup">
-        <div class="cute-titlebar" id="dolphin-drag" style="background:#00acc1; color:#fff;">🐬 Water Game <div class="cute-title-btns"><span class="btn-close" onclick="closePopup('dolphin-window')"></span></div></div>
-        <div class="cute-body" style="background:#e0f7fa; text-align:center;">
+        <div class="cute-titlebar" id="dolphin-drag" style="background:#00acc1; color:#fff;">🐬 아케이드 <div class="cute-title-btns"><span class="btn-close" onclick="closePopup('dolphin-window')"></span></div></div>
+        <div class="cute-body" style="background:#e0f7fa; text-align:center; padding: 10px;">
+            <div id="dolphin-ui-top">
+                <span id="d-time">⏳ 30초</span>
+                <span id="d-score">🏆 0점</span>
+            </div>
             <div id="dolphin-game-area">
+                <div id="dolphin-overlay">
+                    <div id="d-msg">추억의 링 던지기</div>
+                    <button class="start-btn" onclick="startDolphinGame()">게임 시작</button>
+                </div>
                 <div class="dolphin-deco" style="top:20px; left:20px;">🐬</div>
                 <div class="dolphin-deco" style="bottom:50px; right:20px; transform:scaleX(-1);">🐬</div>
                 <div class="post" style="left: 70px;"></div>
-                <div class="post" style="right: 70px;"></div>
-                <div class="ring" id="ring1" style="top:300px; left:50px; border-color:#ffeb3b;"></div>
-                <div class="ring" id="ring2" style="top:300px; left:100px; border-color:#ff5722;"></div>
-                <div class="ring" id="ring3" style="top:300px; left:150px; border-color:#4caf50;"></div>
-                <div class="ring" id="ring4" style="top:300px; left:200px; border-color:#e91e63;"></div>
+                <div class="post" style="right: 210px;"></div>
+                <div class="ring" id="ring0" style="border-color:#ffeb3b;"></div>
+                <div class="ring" id="ring1" style="border-color:#ff5722;"></div>
+                <div class="ring" id="ring2" style="border-color:#4caf50;"></div>
+                <div class="ring" id="ring3" style="border-color:#e91e63;"></div>
+                <div class="ring" id="ring4" style="border-color:#9c27b0;"></div>
             </div>
             <div style="display: flex; justify-content: space-between; margin-top: 15px; align-items:center;">
-                <button class="pump-btn" onclick="pushRings('left')" data-tooltip="왼쪽 물살!">👈</button>
-                <div style="font-size:11px; color:#00838f; font-weight:bold;">버튼을 연타해<br>고리에 걸어라!</div>
-                <button class="pump-btn" onclick="pushRings('right')" data-tooltip="오른쪽 물살!">👉</button>
+                <button class="pump-btn" onclick="pushRings('left')">👈</button>
+                <div style="font-size:11px; color:#00838f; font-weight:bold;">버튼을 연타해라!</div>
+                <button class="pump-btn" onclick="pushRings('right')">👉</button>
             </div>
         </div>
     </div>
@@ -194,17 +201,17 @@
         <div class="cute-titlebar" id="music-drag">📻 Cassette.exe <div class="cute-title-btns"><span class="btn-close" onclick="closePopup('music-window')"></span></div></div>
         <div class="cute-body" style="text-align:center;">
             <div class="player-controls">
-                <button class="ctrl-btn" onclick="prevTrack()" data-tooltip="이전 곡">⏮</button>
-                <button class="ctrl-btn" id="play-btn" onclick="togglePlay()" data-tooltip="재생/정지">▶</button>
-                <button class="ctrl-btn" onclick="nextTrack()" data-tooltip="다음 곡">⏭</button>
+                <button class="ctrl-btn" onclick="prevTrack()">⏮</button>
+                <button class="ctrl-btn" id="play-btn" onclick="togglePlay()">▶</button>
+                <button class="ctrl-btn" onclick="nextTrack()">⏭</button>
             </div>
-            <marquee class="music-info" scrollamount="4" id="now-playing-text">BGM 불러오는 중...</marquee>
+            <marquee class="music-info" scrollamount="4" id="now-playing-text">BGM 대기 중</marquee>
         </div>
     </div>
 
     <div id="board-window" class="cute-popup">
         <div class="cute-titlebar" id="board-drag"><span id="board-title">🎀 Board</span> <div class="cute-title-btns"><span class="btn-close" onclick="closePopup('board-window')"></span></div></div>
-        <div class="cute-body" id="page-content">데이터를 불러오는 중...</div>
+        <div class="cute-body" id="page-content">불러오는 중...</div>
     </div>
 
     <div id="write-window" class="cute-popup">
@@ -212,7 +219,7 @@
         <div class="cute-body">
             <div class="input-row" style="flex-direction:row; align-items:center; justify-content:space-between;">
                 <div style="display:flex; gap:10px; align-items:center;">
-                    <label style="margin:0;">카테고리</label>
+                    <label style="margin:0;">분류</label>
                     <select id="post-category" class="cute-input" style="width: 120px;"><option value="diary">비밀 일기장</option><option value="character">캐릭터 덱</option></select>
                 </div>
                 <div>
@@ -220,16 +227,16 @@
                     <input type="file" id="local-img-upload" accept="image/*" style="display:none;" onchange="insertLocalImageToEditor(this)">
                 </div>
             </div>
-            <div class="input-row"><input type="text" id="post-title" class="cute-input" placeholder="제목을 입력해..."></div>
+            <div class="input-row"><input type="text" id="post-title" class="cute-input" placeholder="제목"></div>
             <textarea id="post-content"></textarea>
-            <div style="text-align: right; margin-top: 15px;"><button class="btn-action" onclick="savePost()">디스켓에 저장</button></div>
+            <div style="text-align: right; margin-top: 15px;"><button class="btn-action" onclick="savePost()">저장</button></div>
         </div>
     </div>
 
     <div id="ai-window" class="cute-popup">
-        <div class="cute-titlebar" id="ai-drag">💬 메신저 <div class="cute-title-btns"><span class="btn-close" onclick="closePopup('ai-window')"></span></div></div>
+        <div class="cute-titlebar" id="ai-drag">💬 나루 <div class="cute-title-btns"><span class="btn-close" onclick="closePopup('ai-window')"></span></div></div>
         <div class="cute-body">
-          <div class="chat-body" id="chat-log"><div class="msg-row msg-ai">나루: 냥! </div></div>
+          <div class="chat-body" id="chat-log"><div class="msg-row msg-ai">나루: 냥!</div></div>
           <div style="display:flex; gap:5px; margin-top:10px;">
               <input type="text" id="ai-input" class="cute-input" style="flex:1;" onkeypress="if(event.key==='Enter') sendMsg()">
               <button class="btn-action" onclick="sendMsg()">전송</button>
@@ -240,36 +247,31 @@
     <div id="profile-window" class="cute-popup">
         <div class="cute-titlebar" id="profile-drag">🛠️ Setting <div class="cute-title-btns"><span class="btn-close" onclick="closePopup('profile-window')"></span></div></div>
         <div class="cute-body">
-            <div class="input-row"><label>바탕화면 사진</label><input type="file" id="edit-bg-file" class="cute-input"></div>
-            <div class="input-row"><label>바탕화면 확대/축소: <span id="bg-size-val">100</span>%</label><input type="range" id="edit-bg-size" min="10" max="300" value="100" oninput="document.getElementById('bg-size-val').innerText=this.value"></div>
-            <hr style="border:1px dashed #ffb6c1;">
-            <div class="input-row"><label>거대한 내 방 이미지 (투명 PNG 추천)</label><input type="file" id="edit-main-file" class="cute-input"></div>
+            <div class="input-row"><label>전체 배경 (방 내부 사진 등)</label><input type="file" id="edit-bg-file" class="cute-input"></div>
+            <div class="input-row"><label>거대한 액자 그림</label><input type="file" id="edit-main-file" class="cute-input"></div>
             <div class="input-row"><label>펫 이미지</label><input type="file" id="edit-pet-file" class="cute-input"></div>
-            <div class="input-row"><label>BGM 셔플 리스트 (유튜브 ID 쉼표 구분)</label><textarea id="edit-bgm" class="cute-input" rows="2" placeholder="VDMiHYgQKLE, jfKfPfyJRdk"></textarea></div>
-            <div style="text-align: right;"><button class="btn-action" onclick="saveProfile()">저장 및 적용</button></div>
+            <div class="input-row"><label>BGM 리스트 (ID 쉼표 구분)</label><textarea id="edit-bgm" class="cute-input" rows="2" placeholder="VDMiHYgQKLE, jfKfPfyJRdk"></textarea></div>
+            <div style="text-align: right;"><button class="btn-action" onclick="saveProfile()">적용</button></div>
         </div>
     </div>
 
     <div id="shop-window" class="cute-popup">
-        <div class="cute-titlebar" id="shop-drag">🛒 수상한 자판기 <div class="cute-title-btns"><span class="btn-close" onclick="closePopup('shop-window')"></span></div></div>
+        <div class="cute-titlebar" id="shop-drag">🛒 자판기 <div class="cute-title-btns"><span class="btn-close" onclick="closePopup('shop-window')"></span></div></div>
         <div class="cute-body" style="text-align:center;">
-            <h3 style="color:#d81b60; margin:0 0 10px 0; text-shadow: 1px 1px #ffb6c1;">보유 포인트: <span id="my-money">0</span> P</h3>
+            <h3 style="color:#d81b60; margin:0 0 10px 0;">보유: <span id="my-money">0</span> P</h3>
             <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:15px;">
-                <button class="btn-action" style="padding:15px 10px; background:#fff0f5;" onclick="buyItem('오리', '🦆', 100)">🦆오리<br>100P</button>
-                <button class="btn-action" style="padding:15px 10px; background:#e6e6fa;" onclick="buyItem('화분', '🌵', 200)">🌵화분<br>200P</button>
-                <button class="btn-action" style="padding:15px 10px; background:#f0f8ff;" onclick="buyItem('곰인형', '🧸', 300)">🧸인형<br>300P</button>
-                <button class="btn-action" style="padding:15px 10px; background:#fffacd;" onclick="buyItem('게임기', '🎮', 500)">🎮게임기<br>500P</button>
+                <button class="btn-action" style="padding:15px 10px; background:#fff0f5;" onclick="buyItem('오리', '🦆', 100)">🦆<br>100P</button>
+                <button class="btn-action" style="padding:15px 10px; background:#e6e6fa;" onclick="buyItem('화분', '🌵', 200)">🌵<br>200P</button>
+                <button class="btn-action" style="padding:15px 10px; background:#f0f8ff;" onclick="buyItem('별', '⭐', 300)">⭐<br>300P</button>
             </div>
-            <div style="text-align:right;"><button class="btn-action" style="font-size:11px; padding:4px 8px;" onclick="clearRoomItems()">🧹 방 청소 (가구 싹 버리기)</button></div>
+            <div style="text-align:right;"><button class="btn-action" style="font-size:11px;" onclick="clearRoomItems()">🧹 바탕화면 청소</button></div>
         </div>
     </div>
 
   </div>
-
   <div id="yt-player-container" style="display:none;"></div>
 
   <script>
-    /* 🔴 Supabase 및 외부 키 설정 */
     const SB_URL = "https://kzgbqpodvpuoqovfsyrm.supabase.co";
     const SB_KEY = "sb_publishable_pdqE1Sc-4PSv3LQM9IsBcA_xJWeZwW-"; 
     const OPENROUTER_KEY = "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"; 
@@ -278,52 +280,85 @@
     CKEDITOR.replace('post-content', { height: 250, language: 'ko', removeButtons: 'About', versionCheck: false });
     let currentEditId = null; let globalPostsData = []; 
 
-    function insertLocalImageToEditor(input) { const file = input.files[0]; if(!file) return; if(file.size > 2 * 1024 * 1024) return alert("크윽... 사진 용량이 2MB가 넘는다!"); const reader = new FileReader(); reader.onload = function(e) { CKEDITOR.instances['post-content'].insertHtml(`<img src="${e.target.result}" style="max-width:100%; border-radius:10px;">`); input.value = ''; }; reader.readAsDataURL(file); }
+    function insertLocalImageToEditor(input) { const file = input.files[0]; if(!file) return; if(file.size > 2 * 1024 * 1024) return alert("용량 초과!"); const reader = new FileReader(); reader.onload = function(e) { CKEDITOR.instances['post-content'].insertHtml(`<img src="${e.target.result}" style="max-width:100%; border-radius:10px;">`); input.value = ''; }; reader.readAsDataURL(file); }
 
-    /* 마우스 툴팁 */
     const tooltip = document.getElementById('custom-tooltip');
     document.addEventListener('mousemove', (e) => { const target = e.target.closest('[data-tooltip]'); if (target) { tooltip.style.display = 'block'; tooltip.style.left = (e.pageX + 15) + 'px'; tooltip.style.top = (e.pageY + 15) + 'px'; tooltip.innerText = target.getAttribute('data-tooltip'); } else { tooltip.style.display = 'none'; } });
 
-    /* 드래그 팝업 */
     let highestZ = 100;
     function makeDraggable(winId, dragId) { const win = document.getElementById(winId); const dragArea = document.getElementById(dragId); let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0; win.onmousedown = () => { win.style.zIndex = ++highestZ; }; dragArea.onmousedown = (e) => { e.preventDefault(); pos3 = e.clientX; pos4 = e.clientY; document.onmouseup = closeDrag; document.onmousemove = elementDrag; }; function elementDrag(e) { e.preventDefault(); pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; pos3 = e.clientX; pos4 = e.clientY; win.style.top = (win.offsetTop - pos2) + "px"; win.style.left = (win.offsetLeft - pos1) + "px"; } function closeDrag() { document.onmouseup = null; document.onmousemove = null; } }
     ['write-window','board-window','ai-window','profile-window','shop-window','music-window','shimeji-room','dolphin-window'].forEach(id => { makeDraggable(id, id === 'shimeji-room' ? id : id.replace('window', 'drag')); });
     function openPopup(id) { document.getElementById(id).style.display = 'block'; document.getElementById(id).style.zIndex = ++highestZ; }
     function closePopup(id) { document.getElementById(id).style.display = 'none'; }
 
-    /* 🐬 돌고래 링끼우기 게임 로직 */
-    const rings = [document.getElementById('ring1'), document.getElementById('ring2'), document.getElementById('ring3'), document.getElementById('ring4')];
-    let ringStates = rings.map((r, i) => ({ x: 50 + (i*50), y: 300, vy: 0, vx: 0, stuck: false }));
-    const gravity = 0.6;
+    /* 🐬 타이머 장착된 아케이드 링 게임 */
+    const rings = [document.getElementById('ring0'), document.getElementById('ring1'), document.getElementById('ring2'), document.getElementById('ring3'), document.getElementById('ring4')];
+    let ringStates = [];
+    let dTime = 30; let dScore = 0; let dState = 'ready'; let dTimer = null; let gameLoop = null;
 
+    function resetRings() {
+        ringStates = rings.map((r, i) => ({ x: 50 + (i*45), y: 300, vy: 0, vx: 0, stuck: false, scored: false }));
+        rings.forEach((r, i) => { r.style.top = '300px'; r.style.left = ringStates[i].x + 'px'; });
+    }
+    resetRings();
+
+    function startDolphinGame() {
+        dState = 'playing'; dTime = 30; dScore = 0;
+        document.getElementById('d-score').innerText = '🏆 0점';
+        document.getElementById('d-time').innerText = '⏳ 30초';
+        document.getElementById('dolphin-overlay').style.display = 'none';
+        resetRings();
+        
+        if(dTimer) clearInterval(dTimer);
+        dTimer = setInterval(() => {
+            dTime--; document.getElementById('d-time').innerText = `⏳ ${dTime}초`;
+            if(dTime <= 0) endGame();
+        }, 1000);
+        
+        if(!gameLoop) updateGame();
+    }
+
+    function endGame() {
+        dState = 'over'; clearInterval(dTimer); cancelAnimationFrame(gameLoop); gameLoop = null;
+        let ext = "";
+        if(dScore >= 5) { ext = "\n완벽해! +100P"; earnPoints(100); }
+        document.getElementById('d-msg').innerText = `게임 오버!\n점수: ${dScore}점` + ext;
+        document.getElementById('dolphin-overlay').style.display = 'flex';
+        document.querySelector('.start-btn').innerText = '다시 하기';
+    }
+
+    const gravity = 0.6;
     function updateGame() {
+        if(dState !== 'playing') return;
         rings.forEach((ring, i) => {
             let s = ringStates[i];
             if (s.stuck) return;
 
             s.vy += gravity; s.y += s.vy; s.x += s.vx; s.vx *= 0.92;
             if (s.y > 300) { s.y = 300; s.vy = -s.vy * 0.4; } 
-            if (s.x < 0) { s.x = 0; s.vx = -s.vx; } if (s.x > 240) { s.x = 240; s.vx = -s.vx; }
+            if (s.x < 0) { s.x = 0; s.vx = -s.vx; } if (s.x > 260) { s.x = 260; s.vx = -s.vx; }
 
-            // 고리에 걸림 판정 (왼쪽 70, 오른쪽 205)
-            if ((Math.abs(s.x - 65) < 15 || Math.abs(s.x - 200) < 15) && s.y > 180 && s.y < 250 && s.vy > 0) {
-                s.stuck = true; s.y = 230 + (i*5); s.x = Math.abs(s.x - 65) < 15 ? 65 : 200;
-                earnPoints(50); showBubble("링 걸기 성공! +50P"); // 성공 보상!
+            // 고리 판정 (왼쪽 70, 오른쪽 210)
+            if ((Math.abs(s.x - 65) < 15 || Math.abs(s.x - 205) < 15) && s.y > 180 && s.y < 250 && s.vy > 0) {
+                s.stuck = true; s.y = 240 - (dScore*10); s.x = Math.abs(s.x - 65) < 15 ? 65 : 205;
+                if(!s.scored) { s.scored = true; dScore++; document.getElementById('d-score').innerText = `🏆 ${dScore}점`; }
             }
             ring.style.top = s.y + 'px'; ring.style.left = s.x + 'px';
         });
-        requestAnimationFrame(updateGame);
+        
+        if(dScore >= 5) { endGame(); return; } // 모두 걸면 즉시 종료
+        gameLoop = requestAnimationFrame(updateGame);
     }
-    updateGame();
 
     function pushRings(side) {
+        if(dState !== 'playing') return;
         rings.forEach((ring, i) => {
             let s = ringStates[i]; if (s.stuck) return;
             s.vy = -Math.random() * 12 - 6; s.vx = (side === 'left' ? 1 : -1) * (Math.random() * 6 + 2);
         });
     }
 
-    /* 자판기 및 방 장식 */
+    /* 자판기 */
     let myMoney = parseInt(localStorage.getItem('myPoints') || '1000'); let roomItems = JSON.parse(localStorage.getItem('myRoomItems') || '[]');
     function updateMoneyDisplay() { document.getElementById('my-money').innerText = myMoney; localStorage.setItem('myPoints', myMoney); }
     function earnPoints(amount) { myMoney += amount; updateMoneyDisplay(); } updateMoneyDisplay();
@@ -331,476 +366,33 @@
     function renderRoomItems() { const layer = document.getElementById('room-items-layer'); layer.innerHTML = ''; roomItems.forEach(item => { const el = document.createElement('div'); el.className = 'room-item'; el.style.left = item.x + '%'; el.style.top = item.y + '%'; el.innerText = item.icon; layer.appendChild(el); }); }
     function clearRoomItems() { roomItems = []; localStorage.setItem('myRoomItems', '[]'); renderRoomItems(); } renderRoomItems();
 
-    /* 설정 로드 */
+    /* 설정 */
     let tempBgBase64 = null, tempMainBase64 = null, tempPetBase64 = null; let currentPlaylist = [];
-    function handleFile(id, callback) { document.getElementById(id).addEventListener('change', function(e) { const file = e.target.files[0]; if(!file) return; if(file.size > 3 * 1024 * 1024) return alert("사진이 너무 큽니다!"); const r = new FileReader(); r.onload = evt => callback(evt.target.result); r.readAsDataURL(file); }); }
+    function handleFile(id, callback) { document.getElementById(id).addEventListener('change', function(e) { const file = e.target.files[0]; if(!file) return; if(file.size > 3 * 1024 * 1024) return alert("용량 초과!"); const r = new FileReader(); r.onload = evt => callback(evt.target.result); r.readAsDataURL(file); }); }
     handleFile('edit-bg-file', res => tempBgBase64 = res); handleFile('edit-main-file', res => tempMainBase64 = res); handleFile('edit-pet-file', res => tempPetBase64 = res);
-    function loadProfile() { const saved = JSON.parse(localStorage.getItem('collageSettingsV5')) || {}; if(saved.bg) document.body.style.backgroundImage = `url(${saved.bg})`; document.body.style.backgroundSize = (saved.bgSize || 100) + '%'; document.getElementById('edit-bg-size').value = saved.bgSize || 100; document.getElementById('bg-size-val').innerText = saved.bgSize || 100; if(saved.main) document.getElementById('main-visual-img').src = saved.main; document.getElementById('pet-image').src = saved.pet || 'https://raw.githubusercontent.com/shimeji-ee/shimeji-ee.github.io/master/img/shime1.png'; currentPlaylist = (saved.bgm || 'VDMiHYgQKLE').split(',').map(s => s.trim()).filter(s => s); tempBgBase64 = saved.bg || ''; tempMainBase64 = saved.main || ''; tempPetBase64 = saved.pet || ''; }
-    function saveProfile() { try { localStorage.setItem('collageSettingsV5', JSON.stringify({ bg: tempBgBase64, bgSize: document.getElementById('edit-bg-size').value, main: tempMainBase64, pet: tempPetBase64, bgm: document.getElementById('edit-bgm').value || 'VDMiHYgQKLE' })); } catch(e) { alert("사진 용량이 너무 큽니다!!"); return; } loadProfile(); closePopup('profile-window'); if(player && player.loadVideoById) loadMusicPlayer(); }
+    function loadProfile() { const saved = JSON.parse(localStorage.getItem('collageSettingsV6')) || {}; if(saved.bg) document.body.style.backgroundImage = `url(${saved.bg})`; if(saved.main) document.getElementById('main-visual-img').src = saved.main; document.getElementById('pet-image').src = saved.pet || 'https://raw.githubusercontent.com/shimeji-ee/shimeji-ee.github.io/master/img/shime1.png'; currentPlaylist = (saved.bgm || 'VDMiHYgQKLE').split(',').map(s => s.trim()).filter(s => s); tempBgBase64 = saved.bg || ''; tempMainBase64 = saved.main || ''; tempPetBase64 = saved.pet || ''; }
+    function saveProfile() { try { localStorage.setItem('collageSettingsV6', JSON.stringify({ bg: tempBgBase64, main: tempMainBase64, pet: tempPetBase64, bgm: document.getElementById('edit-bgm').value || 'VDMiHYgQKLE' })); } catch(e) { alert("사진 용량 초과!"); return; } loadProfile(); closePopup('profile-window'); if(player && player.loadVideoById) loadMusicPlayer(); }
 
-    /* 유튜브 제어 */
+    /* 유튜브 */
     let player = null; let trackIndex = 0; let isPlayerReady = false; let tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
-    window.onYouTubeIframeAPIReady = function() { if(currentPlaylist.length === 0) return; trackIndex = Math.floor(Math.random() * currentPlaylist.length); player = new YT.Player('yt-player-container', { height: '0', width: '0', videoId: currentPlaylist[trackIndex], events: { 'onReady': () => { isPlayerReady = true; document.getElementById('now-playing-text').innerText = "🎵 재생을 눌러주세요"; }, 'onStateChange': onPlayerStateChange, 'onError': nextTrack } }); }
+    window.onYouTubeIframeAPIReady = function() { if(currentPlaylist.length === 0) return; trackIndex = Math.floor(Math.random() * currentPlaylist.length); player = new YT.Player('yt-player-container', { height: '0', width: '0', videoId: currentPlaylist[trackIndex], events: { 'onReady': () => { isPlayerReady = true; document.getElementById('now-playing-text').innerText = "🎵 재생 대기중"; }, 'onStateChange': onPlayerStateChange, 'onError': nextTrack } }); }
     function loadMusicPlayer() { if(!isPlayerReady || currentPlaylist.length === 0) return; trackIndex = Math.floor(Math.random() * currentPlaylist.length); player.loadVideoById(currentPlaylist[trackIndex]); }
     function onPlayerStateChange(event) { if(event.data === YT.PlayerState.ENDED) nextTrack(); if(event.data === YT.PlayerState.PLAYING) { document.getElementById('play-btn').innerText = '⏸'; let videoTitle = player.getVideoData().title; document.getElementById('now-playing-text').innerText = "🎵 " + (videoTitle || currentPlaylist[trackIndex]); } if(event.data === YT.PlayerState.PAUSED) { document.getElementById('play-btn').innerText = '▶'; } }
     function togglePlay() { if(!isPlayerReady) return; if(player.getPlayerState() === YT.PlayerState.PLAYING) player.pauseVideo(); else player.playVideo(); } function nextTrack() { if(!isPlayerReady) return; trackIndex = (trackIndex + 1) % currentPlaylist.length; player.loadVideoById(currentPlaylist[trackIndex]); } function prevTrack() { if(!isPlayerReady) return; trackIndex = (trackIndex - 1 + currentPlaylist.length) % currentPlaylist.length; player.loadVideoById(currentPlaylist[trackIndex]); }
 
-    /* 시메지 펫 행동 */
+    /* 시메지 */
     let isRoaming = false; let roamInterval; function showBubble(text) { const bubble = document.getElementById('pet-bubble'); bubble.innerText = text; bubble.style.opacity = '1'; setTimeout(() => { bubble.style.opacity = '0'; }, 3000); }
-    setInterval(() => { if(Math.random() > 0.5) showBubble(["뒹굴뒹굴...", "배고파...", "놀아줘!", "포인트나 벌어와!"][Math.floor(Math.random() * 4)]); }, 8000);
-    function toggleRoaming() { isRoaming = !isRoaming; const status = document.getElementById('roam-status'); const petRoom = document.getElementById('shimeji-room'); const petImg = document.getElementById('pet-image'); let currentX = petRoom.offsetLeft; if(isRoaming) { status.innerText = "상태: [뽈뽈뽈 돌아다님]"; roamInterval = setInterval(() => { const randX = Math.floor(Math.random() * (window.innerWidth - 150)); const randY = Math.floor(Math.random() * (window.innerHeight - 150)); if(randX < currentX) petImg.style.setProperty('--flip', -1); else petImg.style.setProperty('--flip', 1); currentX = randX; petImg.classList.add('is-walking'); petRoom.style.left = randX + 'px'; petRoom.style.top = randY + 'px'; setTimeout(() => { petImg.classList.remove('is-walking'); }, 1500); }, 3000); } else { status.innerText = "상태: [대기 중]"; clearInterval(roamInterval); petImg.classList.remove('is-walking'); } }
+    setInterval(() => { if(Math.random() > 0.5) showBubble(["뒹굴뒹굴...", "배고파...", "심심해!", "포인트나 벌어와!"][Math.floor(Math.random() * 4)]); }, 8000);
+    function toggleRoaming() { isRoaming = !isRoaming; const status = document.getElementById('roam-status'); const petRoom = document.getElementById('shimeji-room'); const petImg = document.getElementById('pet-image'); let currentX = petRoom.offsetLeft; if(isRoaming) { status.innerText = "상태: [뽈뽈뽈 이동]"; roamInterval = setInterval(() => { const randX = Math.floor(Math.random() * (window.innerWidth - 150)); const randY = Math.floor(Math.random() * (window.innerHeight - 150)); if(randX < currentX) petImg.style.setProperty('--flip', -1); else petImg.style.setProperty('--flip', 1); currentX = randX; petImg.classList.add('is-walking'); petRoom.style.left = randX + 'px'; petRoom.style.top = randY + 'px'; setTimeout(() => { petImg.classList.remove('is-walking'); }, 1500); }, 3000); } else { status.innerText = "상태: [대기 중]"; clearInterval(roamInterval); petImg.classList.remove('is-walking'); } }
 
-    /* AI 챗봇 */
-    async function callAI(text) { try { const res = await fetch("https://openrouter.ai/api/v1/chat/completions", { method: "POST", headers: { "Authorization": `Bearer ${OPENROUTER_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify({ "model": "mistralai/mistral-7b-instruct:free", "messages": [{"role": "system", "content": "너는 다마고치 펫 '나루'야. 한국어로 귀엽게 반말로 대답해줘."}, {"role": "user", "content": text}] }) }); const data = await res.json(); if(data.choices) return data.choices[0].message.content; } catch(e) { return null; } return null; }
-    function toggleChat() { openPopup('ai-window'); } async function sendMsg() { const input = document.getElementById('ai-input'); const log = document.getElementById('chat-log'); const text = input.value.trim(); if(!text) return; log.innerHTML += `<div class="msg-row msg-me">${text}</div>`; input.value = ''; log.scrollTop = log.scrollHeight; const loadingId = "load-" + Date.now(); log.innerHTML += `<div id="${loadingId}" class="msg-row msg-ai">나루: (생각 중...)</div>`; log.scrollTop = log.scrollHeight; const reply = await callAI(text); document.getElementById(loadingId).remove(); if(reply) { log.innerHTML += `<div class="msg-row msg-ai">나루: ${reply}</div>`; showBubble(reply); } else { log.innerHTML += `<div class="msg-sys">※ AI 서버 접속 실패...!!</div>`; } log.scrollTop = log.scrollHeight; }
+    /* AI */
+    async function callAI(text) { try { const res = await fetch("https://openrouter.ai/api/v1/chat/completions", { method: "POST", headers: { "Authorization": `Bearer ${OPENROUTER_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify({ "model": "mistralai/mistral-7b-instruct:free", "messages": [{"role": "system", "content": "다마고치 펫 '나루'야. 귀엽게 대답해줘."}, {"role": "user", "content": text}] }) }); const data = await res.json(); if(data.choices) return data.choices[0].message.content; } catch(e) { return null; } return null; }
+    function toggleChat() { openPopup('ai-window'); } async function sendMsg() { const input = document.getElementById('ai-input'); const log = document.getElementById('chat-log'); const text = input.value.trim(); if(!text) return; log.innerHTML += `<div class="msg-row msg-me">${text}</div>`; input.value = ''; log.scrollTop = log.scrollHeight; const loadingId = "load-" + Date.now(); log.innerHTML += `<div id="${loadingId}" class="msg-row msg-ai">나루: (생각 중...)</div>`; log.scrollTop = log.scrollHeight; const reply = await callAI(text); document.getElementById(loadingId).remove(); if(reply) { log.innerHTML += `<div class="msg-row msg-ai">나루: ${reply}</div>`; showBubble(reply); } else { log.innerHTML += `<div class="msg-sys">※ AI 서버 혼잡</div>`; } log.scrollTop = log.scrollHeight; }
 
-    /* 게시판 & 글쓰기 */
-    function openBoard(type) { document.getElementById('board-title').innerText = type === 'diary' ? '📓 Diary' : '✨ Character'; document.getElementById('page-content').innerHTML = `불러오는 중...`; openPopup('board-window'); loadPosts(type); } function openWrite() { currentEditId = null; document.getElementById('post-title').value = ''; CKEDITOR.instances['post-content'].setData(''); openPopup('write-window'); } async function savePost() { if (!sbClient) return; const category = document.getElementById('post-category').value; const title = document.getElementById('post-title').value; const content = CKEDITOR.instances['post-content'].getData(); if(!title || !content.trim()) return alert("빈칸을 채워...!!"); let err; if (currentEditId) err = (await sbClient.from('posts').update({ title, content, category }).eq('id', currentEditId)).error; else { err = (await sbClient.from('posts').insert([{ title, content, category }])).error; if(!err) earnPoints(100); } if(err) alert("실패...!!"); else { closePopup('write-window'); loadPosts(category); } } async function deletePost(id, category) { if(!confirm("지운다...?")) return; await sbClient.from('posts').delete().eq('id', id); loadPosts(category); } function editPost(id) { const post = globalPostsData.find(p => p.id === id); if(!post) return; currentEditId = id; document.getElementById('post-category').value = post.category; document.getElementById('post-title').value = post.title; CKEDITOR.instances['post-content'].setData(post.content); openPopup('write-window'); } async function loadPosts(categoryType) { if (!sbClient) return; const { data, error } = await sbClient.from('posts').select('*').eq('category', categoryType).order('created_at', { ascending: false }); const list = document.getElementById('page-content'); if(error || data.length === 0) { list.innerHTML = "<div style='color:#d81b60;'>텅 비었다...</div>"; return; } globalPostsData = data; let html = ''; data.forEach(p => { const dateStr = new Date(p.created_at).toLocaleString(); html += `<div style="margin-bottom: 20px; border: 2px dashed #ffb6c1; border-radius:15px; overflow:hidden; background:rgba(255,255,255,0.9);"><div style="background: #ffe4e1; padding: 10px 15px; font-weight: bold; color: #d81b60; display:flex; justify-content:space-between; align-items:center;">📝 ${p.title} <div><button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="editPost('${p.id}')">수정</button><button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="deletePost('${p.id}', '${p.category}')">삭제</button></div></div><div style="padding:15px;"><div style="font-size:11px; color:#aaa; margin-bottom:10px;">${dateStr}</div><div style="font-size:13px; line-height: 1.6;">${p.content}</div></div></div>`; }); list.innerHTML = html; }
-
-    loadProfile();
-  </script>
-</body>
-</html>
-  <title>My Messy Iso-Room</title>
-  <link href="https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
-
-  <style>
-    body { 
-        background-color: #f4f0eb; 
-        background-image: url('https://www.transparenttextures.com/patterns/cream-pixels.png');
-        font-family: 'Galmuri9', sans-serif; 
-        margin: 0; padding: 0; color: #333; overflow-x: hidden;
-    }
-    .messy-canvas { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
-
-    /* 🌸 아담해진 메인 픽셀 룸 */
-    .iso-room-container {
-        position: absolute; top: 120px; left: 50px;
-        width: 450px; height: 450px; 
-        z-index: 10; display: flex; justify-content: center; align-items: center; user-select: none;
-    }
-    .iso-room-img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(10px 10px 0px rgba(0,0,0,0.1)); }
-    #room-items-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-    .room-item { position: absolute; font-size: 24px; filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.2)); animation: pop 0.3s ease-out; }
-    @keyframes pop { 0% {transform: scale(0);} 80% {transform: scale(1.2);} 100% {transform: scale(1);} }
-
-    /* 흩어진 버튼들 */
-    .scattered-btn {
-        position: absolute; background: #fff; border: 2px dashed #ff69b4; border-radius: 15px;
-        padding: 8px 15px; font-weight: bold; color: #d81b60; font-size: 14px;
-        cursor: pointer; box-shadow: 3px 3px 0px #ffb6c1; z-index: 15; transition: 0.1s; user-select: none;
-    }
-    .scattered-btn:active { transform: translate(3px, 3px); box-shadow: none; }
-    
-    .btn-home  { top: 50px; left: 450px; transform: rotate(8deg); background: #ffe4e1;}
-    .btn-diary { top: 150px; left: 520px; transform: rotate(-6deg); background: #e6e6fa;}
-    .btn-char  { top: 250px; left: 500px; transform: rotate(12deg); background: #f0f8ff;}
-    .btn-shop  { top: 380px; left: 480px; transform: rotate(-8deg); background: #fffacd;}
-    .btn-write { top: 480px; left: 400px; transform: rotate(4deg); background: #ffc0cb; font-size: 16px; border: 3px solid #d81b60;}
-
-    #custom-tooltip {
-        position: absolute; display: none; z-index: 9999999; background: #fff; border: 2px solid #8a2be2; border-radius: 10px;
-        padding: 8px 12px; font-size: 12px; font-weight: bold; color: #8a2be2; box-shadow: 3px 3px 0px rgba(138, 43, 226, 0.3); pointer-events: none; white-space: nowrap;
-    }
-
-    /* 🌸 팝업창 공통 */
-    .cute-popup {
-        position: absolute; display: none; background: rgba(255, 255, 255, 0.95);
-        border: 2px solid #9370db; border-radius: 15px; box-shadow: 5px 5px 0px rgba(147, 112, 219, 0.4); overflow: hidden; width: 450px;
-    }
-    .cute-titlebar {
-        background: #dda0dd; color: #fff; padding: 10px 15px; font-weight: bold; font-size: 14px;
-        display: flex; justify-content: space-between; align-items: center; user-select: none; cursor: grab;
-    }
-    .cute-titlebar:active { cursor: grabbing; }
-    .cute-title-btns span { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: #fff; margin-left: 5px; cursor: pointer; border: 1px solid #8a2be2; }
-    .cute-body { padding: 20px; max-height: 65vh; overflow-y: auto; }
-
-    #write-window { width: 800px; top: 100px; left: 100px; }
-    #board-window { width: 600px; top: 80px; left: 150px; }
-    #ai-window { width: 320px; top: 200px; left: 600px; }
-    #shop-window { width: 380px; top: 150px; left: 300px; }
-    #music-window { width: 350px; top: 30px; left: 600px; display: block; }
-    #profile-window { width: 450px; top: 100px; left: 250px;}
-
-    /* 🐾 시메지 펫 */
-    #shimeji-room {
-        position: absolute; top: 250px; left: 200px; z-index: 12; text-align: center; cursor: grab; 
-        transition: top 1.5s ease-in-out, left 1.5s ease-in-out;
-    }
-    #shimeji-room:active { cursor: grabbing; transition: none; }
-    #pet-bubble { background: #fff; border: 2px solid #8a2be2; border-radius: 10px; padding: 6px; font-size: 12px; color: #8a2be2; font-weight: bold; margin-bottom: 5px; opacity:0; transition: opacity 0.3s;}
-    
-    #pet-image { 
-        width: 100px; height: 100px; object-fit: contain; filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.2));
-        transform: scaleX(var(--flip, 1)); 
-    }
-    @keyframes bounce { 0%, 100% { transform: translateY(0) scaleX(var(--flip, 1)); } 50% { transform: translateY(-20px) scaleX(var(--flip, 1)); } }
-    .is-walking { animation: bounce 0.3s infinite; }
-
-    /* 음악 플레이어 */
-    .player-controls { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px;}
-    .ctrl-btn { background: #fff; border: 2px solid #dda0dd; border-radius: 5px; cursor: pointer; font-size: 16px; padding: 5px 15px; color: #8a2be2; font-weight:bold; box-shadow: 2px 2px 0px #dda0dd;}
-    .ctrl-btn:active { transform: translate(2px,2px); box-shadow:none;}
-    .music-info { font-size: 13px; color: #8a2be2; font-weight: bold; overflow: hidden; white-space: nowrap; text-align:center; background:#f3e5f5; padding:5px; border-radius:5px;}
-
-    /* 폼 요소 */
-    .input-row { display: flex; flex-direction: column; margin-bottom: 12px; }
-    .input-row label { font-size: 13px; color: #8a2be2; font-weight: bold; margin-bottom: 5px; }
-    .cute-input { padding: 8px; border: 2px solid #dda0dd; border-radius: 5px; font-family: 'Galmuri9'; outline: none; }
-    .btn-action { font-family: 'Galmuri9'; font-size: 13px; padding: 6px 15px; cursor: pointer; border: 2px solid #9370db; border-radius: 8px; background: #fff; color: #8a2be2; font-weight: bold; box-shadow: 2px 2px 0px #9370db;}
-    .btn-action:active { transform:translate(2px,2px); box-shadow:none; }
-
-    .chat-body { height: 220px; background: #fff; border: 2px dashed #dda0dd; overflow-y: auto; padding: 10px; font-size: 13px; border-radius: 10px;}
-    .msg-row { margin-bottom: 10px; line-height: 1.5; }
-    .msg-ai { color: #8a2be2; font-weight: bold;}
-    .msg-me { text-align: right; color: #4a148c; }
-    .msg-sys { text-align: center; color: #ff69b4; font-size: 11px; }
-  </style>
-</head>
-<body id="main-body">
-
-  <div id="custom-tooltip">말풍선</div>
-
-  <div class="messy-canvas" id="desktop-area">
-    
-    <div class="iso-room-container" data-tooltip="가구를 사면 배치됩니다!">
-        <img id="main-visual-img" src="https://cdn.pixabay.com/photo/2021/08/25/20/42/field-6574455_1280.png" class="iso-room-img">
-        <div id="room-items-layer"></div>
-    </div>
-
-    <button class="scattered-btn btn-home" onclick="openPopup('profile-window')" data-tooltip="배경과 BGM 설정">🛠️ 방 꾸미기</button>
-    <button class="scattered-btn btn-diary" onclick="openBoard('diary')" data-tooltip="비밀스런 흑역사 보관소">📓 비밀 일기</button>
-    <button class="scattered-btn btn-char" onclick="openBoard('character')" data-tooltip="나의 또 다른 자아들">✨ 캐릭터 덱</button>
-    <button class="scattered-btn btn-shop" onclick="openPopup('shop-window')" data-tooltip="돈을 낭비해 방을 꾸며라!">🛒 수상한 자판기</button>
-    <button class="scattered-btn btn-write" onclick="openWrite()" data-tooltip="폴더 안의 사진도 직접 첨부 가능!">✏️ 글쓰기</button>
-
-    <div id="shimeji-room" data-tooltip="더블 클릭하면 이리저리 돌아다닙니다!">
-        <div id="pet-bubble">심심해!</div>
-        <img id="pet-image" src="https://raw.githubusercontent.com/shimeji-ee/shimeji-ee.github.io/master/img/shime1.png" onclick="toggleChat()" ondblclick="toggleRoaming()">
-        <div style="font-size: 10px; color:#d81b60; font-weight:bold; margin-top:5px; text-shadow:1px 1px #fff;" id="roam-status">상태: [대기 중]</div>
-    </div>
-
-    <div id="music-window" class="cute-popup">
-        <div class="cute-titlebar" id="music-drag">📻 Cassette.exe <div class="cute-title-btns"><span onclick="closePopup('music-window')"></span></div></div>
-        <div class="cute-body" style="padding:15px; text-align:center;">
-            <div class="player-controls">
-                <button class="ctrl-btn" onclick="prevTrack()" data-tooltip="이전 곡">⏮</button>
-                <button class="ctrl-btn" id="play-btn" onclick="togglePlay()" data-tooltip="재생/정지">▶</button>
-                <button class="ctrl-btn" onclick="nextTrack()" data-tooltip="다음 곡">⏭</button>
-            </div>
-            <marquee class="music-info" scrollamount="4" id="now-playing-text">BGM 불러오는 중...</marquee>
-        </div>
-    </div>
-
-    <div id="board-window" class="cute-popup">
-        <div class="cute-titlebar" id="board-drag"><span id="board-title">🎀 Board</span> <div class="cute-title-btns"><span onclick="closePopup('board-window')"></span></div></div>
-        <div class="cute-body" id="page-content">데이터를 불러오는 중...</div>
-    </div>
-
-    <div id="write-window" class="cute-popup">
-        <div class="cute-titlebar" id="write-drag">📝 Editor.exe <div class="cute-title-btns"><span onclick="closePopup('write-window')"></span></div></div>
-        <div class="cute-body">
-            <div class="input-row" style="flex-direction:row; align-items:center; gap:10px; justify-content:space-between;">
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <label style="margin:0;">게시판</label>
-                    <select id="post-category" class="cute-input" style="width: 120px;"><option value="diary">비밀 일기장</option><option value="character">캐릭터 덱</option></select>
-                </div>
-                <div>
-                    <label for="local-img-upload" class="btn-action" style="cursor:pointer; background:#e6e6fa;">🖼️ 내 PC 사진 넣기</label>
-                    <input type="file" id="local-img-upload" accept="image/*" style="display:none;" onchange="insertLocalImageToEditor(this)">
-                </div>
-            </div>
-            <div class="input-row"><input type="text" id="post-title" class="cute-input" placeholder="제목..."></div>
-            <textarea id="post-content"></textarea>
-            <div style="text-align: right; margin-top: 15px;"><button class="btn-action" onclick="savePost()">발행하기</button></div>
-        </div>
-    </div>
-
-    <div id="ai-window" class="cute-popup">
-        <div class="cute-titlebar" id="ai-drag">💬 나루 (AI) <div class="cute-title-btns"><span onclick="closePopup('ai-window')"></span></div></div>
-        <div class="cute-body">
-          <div class="chat-body" id="chat-log"><div class="msg-row msg-ai">나루: 냥! </div></div>
-          <div style="display:flex; gap:5px; margin-top:10px;">
-              <input type="text" id="ai-input" class="cute-input" style="flex:1;" onkeypress="if(event.key==='Enter') sendMsg()">
-              <button class="btn-action" onclick="sendMsg()">전송</button>
-          </div>
-        </div>
-    </div>
-
-    <div id="profile-window" class="cute-popup">
-        <div class="cute-titlebar" id="profile-drag">🛠️ Setting <div class="cute-title-btns"><span onclick="closePopup('profile-window')"></span></div></div>
-        <div class="cute-body">
-            <div class="input-row"><label>바탕화면 무늬</label><input type="file" id="edit-bg-file" class="cute-input"></div>
-            <div class="input-row"><label>바탕화면 크기: <span id="bg-size-val">100</span>%</label><input type="range" id="edit-bg-size" min="10" max="300" value="100" oninput="document.getElementById('bg-size-val').innerText=this.value"></div>
-            <hr style="border:1px dashed #dda0dd;">
-            <div class="input-row"><label>내 방 이미지</label><input type="file" id="edit-main-file" class="cute-input"></div>
-            <div class="input-row"><label>펫 이미지</label><input type="file" id="edit-pet-file" class="cute-input"></div>
-            <div class="input-row"><label>BGM 셔플 리스트 (유튜브 ID)</label><textarea id="edit-bgm" class="cute-input" rows="2" placeholder="VDMiHYgQKLE, jfKfPfyJRdk"></textarea></div>
-            <div style="text-align: right;"><button class="btn-action" onclick="saveProfile()">저장 및 적용</button></div>
-        </div>
-    </div>
-
-    <div id="shop-window" class="cute-popup">
-        <div class="cute-titlebar" id="shop-drag">🛒 수상한 자판기 <div class="cute-title-btns"><span onclick="closePopup('shop-window')"></span></div></div>
-        <div class="cute-body" style="text-align:center;">
-            <h3 style="color:#8a2be2; margin:0 0 10px 0;">보유 포인트: <span id="my-money">0</span> P</h3>
-            <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:15px;">
-                <button class="btn-action" style="padding:10px; background:#fff0f5;" onclick="buyItem('오리', '🦆', 100)">🦆오리(100P)</button>
-                <button class="btn-action" style="padding:10px; background:#e6e6fa;" onclick="buyItem('화분', '🌵', 200)">🌵화분(200P)</button>
-                <button class="btn-action" style="padding:10px; background:#f0f8ff;" onclick="buyItem('곰인형', '🧸', 300)">🧸인형(300P)</button>
-                <button class="btn-action" style="padding:10px; background:#fffacd;" onclick="buyItem('게임기', '🎮', 500)">🎮게임기(500P)</button>
-            </div>
-            <div style="text-align:right;"><button class="btn-action" style="font-size:10px; padding:2px 5px;" onclick="clearRoomItems()">가구 싹 버리기</button></div>
-        </div>
-    </div>
-
-  </div>
-
-  <div id="yt-player-container" style="display:none;"></div>
-
-  <script>
-    const SB_URL = "https://kzgbqpodvpuoqovfsyrm.supabase.co";
-    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6Z2JxcG9kdnB1b3FvdmZzeXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3OTQ2NzYsImV4cCI6MjA3OTM3MDY3Nn0.5cFaJg_TqqhV5ZSlQJg84c9f5zp_DyRCpkPhBP5wunU"; 
-    const OPENROUTER_KEY = "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"; 
-    let sbClient = null;
-    if (window.supabase) sbClient = window.supabase.createClient(SB_URL, SB_KEY);
-
-    CKEDITOR.replace('post-content', { height: 250, language: 'ko', removeButtons: 'About', versionCheck: false });
-    let currentEditId = null;
-    let globalPostsData = []; 
-
-    function insertLocalImageToEditor(input) {
-        const file = input.files[0]; if(!file) return;
-        if(file.size > 2 * 1024 * 1024) { alert("크윽... 사진 용량이 2MB가 넘는다!"); return; } 
-        const reader = new FileReader();
-        reader.onload = function(e) { CKEDITOR.instances['post-content'].insertHtml(`<img src="${e.target.result}" style="max-width:100%; border-radius:10px;">`); input.value = ''; };
-        reader.readAsDataURL(file);
-    }
-
-    const tooltip = document.getElementById('custom-tooltip');
-    document.addEventListener('mousemove', (e) => {
-        const target = e.target.closest('[data-tooltip]');
-        if (target) { tooltip.style.display = 'block'; tooltip.style.left = (e.pageX + 15) + 'px'; tooltip.style.top = (e.pageY + 15) + 'px'; tooltip.innerText = target.getAttribute('data-tooltip'); } 
-        else { tooltip.style.display = 'none'; }
-    });
-
-    let highestZ = 100;
-    function makeDraggable(winId, dragId) {
-        const win = document.getElementById(winId); const dragArea = document.getElementById(dragId);
-        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-        win.onmousedown = () => { win.style.zIndex = ++highestZ; };
-        dragArea.onmousedown = (e) => { e.preventDefault(); pos3 = e.clientX; pos4 = e.clientY; document.onmouseup = closeDrag; document.onmousemove = elementDrag; };
-        function elementDrag(e) { e.preventDefault(); pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; pos3 = e.clientX; pos4 = e.clientY; win.style.top = (win.offsetTop - pos2) + "px"; win.style.left = (win.offsetLeft - pos1) + "px"; }
-        function closeDrag() { document.onmouseup = null; document.onmousemove = null; }
-    }
-    
-    ['write-window','board-window','ai-window','profile-window','shop-window','music-window','shimeji-room'].forEach(id => {
-        makeDraggable(id, id === 'shimeji-room' ? id : id.replace('window', 'drag'));
-    });
-
-    function openPopup(id) { document.getElementById(id).style.display = 'block'; document.getElementById(id).style.zIndex = ++highestZ; }
-    function closePopup(id) { document.getElementById(id).style.display = 'none'; }
-
-    let myMoney = parseInt(localStorage.getItem('myPoints') || '1000');
-    let roomItems = JSON.parse(localStorage.getItem('myRoomItems') || '[]');
-
-    function updateMoneyDisplay() { document.getElementById('my-money').innerText = myMoney; localStorage.setItem('myPoints', myMoney); }
-    function earnPoints(amount) { myMoney += amount; updateMoneyDisplay(); }
-    updateMoneyDisplay();
-
-    function buyItem(name, icon, price) {
-        if (myMoney < price) { alert("돈이 모자라... 글을 써서 벌어오든가!"); return; }
-        myMoney -= price; updateMoneyDisplay();
-        const newItem = { icon: icon, x: Math.floor(Math.random() * 80) + 10, y: Math.floor(Math.random() * 80) + 10 };
-        roomItems.push(newItem); localStorage.setItem('myRoomItems', JSON.stringify(roomItems)); renderRoomItems();
-    }
-    function renderRoomItems() {
-        const layer = document.getElementById('room-items-layer'); layer.innerHTML = '';
-        roomItems.forEach(item => { const el = document.createElement('div'); el.className = 'room-item'; el.style.left = item.x + '%'; el.style.top = item.y + '%'; el.innerText = item.icon; layer.appendChild(el); });
-    }
-    function clearRoomItems() { roomItems = []; localStorage.setItem('myRoomItems', '[]'); renderRoomItems(); }
-    renderRoomItems();
-
-    let tempBgBase64 = null, tempMainBase64 = null, tempPetBase64 = null;
-    let currentPlaylist = [];
-    function handleFile(id, callback) { document.getElementById(id).addEventListener('change', function(e) { const file = e.target.files[0]; if(!file) return; if(file.size > 3 * 1024 * 1024) return alert("사진이 너무 큽니다!"); const r = new FileReader(); r.onload = evt => callback(evt.target.result); r.readAsDataURL(file); }); }
-    handleFile('edit-bg-file', res => tempBgBase64 = res); handleFile('edit-main-file', res => tempMainBase64 = res); handleFile('edit-pet-file', res => tempPetBase64 = res);
-
-    function loadProfile() {
-        const saved = JSON.parse(localStorage.getItem('collageSettingsV4')) || {};
-        if(saved.bg) document.body.style.backgroundImage = `url(${saved.bg})`;
-        document.body.style.backgroundSize = (saved.bgSize || 100) + '%';
-        document.getElementById('edit-bg-size').value = saved.bgSize || 100; document.getElementById('bg-size-val').innerText = saved.bgSize || 100;
-        if(saved.main) document.getElementById('main-visual-img').src = saved.main;
-        
-        // 🔴 펫 이미지 로드 시 기본 시메지 경로 보장
-        document.getElementById('pet-image').src = saved.pet || 'https://raw.githubusercontent.com/shimeji-ee/shimeji-ee.github.io/master/img/shime1.png';
-        
-        currentPlaylist = (saved.bgm || 'VDMiHYgQKLE').split(',').map(s => s.trim()).filter(s => s);
-        tempBgBase64 = saved.bg || ''; tempMainBase64 = saved.main || ''; tempPetBase64 = saved.pet || '';
-    }
-    function saveProfile() {
-        try { localStorage.setItem('collageSettingsV4', JSON.stringify({ bg: tempBgBase64, bgSize: document.getElementById('edit-bg-size').value, main: tempMainBase64, pet: tempPetBase64, bgm: document.getElementById('edit-bgm').value || 'VDMiHYgQKLE' })); } 
-        catch(e) { alert("사진 용량이 너무 큽니다!!"); return; }
-        loadProfile(); closePopup('profile-window'); if(player && player.loadVideoById) loadMusicPlayer();
-    }
-
-    let player = null; let trackIndex = 0; let isPlayerReady = false;
-    let tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
-
-    window.onYouTubeIframeAPIReady = function() {
-        if(currentPlaylist.length === 0) return;
-        trackIndex = Math.floor(Math.random() * currentPlaylist.length);
-        player = new YT.Player('yt-player-container', {
-            height: '0', width: '0', videoId: currentPlaylist[trackIndex],
-            events: {
-                'onReady': () => { isPlayerReady = true; document.getElementById('now-playing-text').innerText = "🎵 재생버튼을 눌러주세요"; },
-                'onStateChange': onPlayerStateChange, 'onError': nextTrack
-            }
-        });
-    }
-    function loadMusicPlayer() { if(!isPlayerReady || currentPlaylist.length === 0) return; trackIndex = Math.floor(Math.random() * currentPlaylist.length); player.loadVideoById(currentPlaylist[trackIndex]); }
-    
-    function onPlayerStateChange(event) {
-        if(event.data === YT.PlayerState.ENDED) nextTrack();
-        if(event.data === YT.PlayerState.PLAYING) { 
-            document.getElementById('play-btn').innerText = '⏸'; 
-            let videoTitle = player.getVideoData().title;
-            document.getElementById('now-playing-text').innerText = "🎵 " + (videoTitle || currentPlaylist[trackIndex]); 
-        }
-        if(event.data === YT.PlayerState.PAUSED) { document.getElementById('play-btn').innerText = '▶'; }
-    }
-    function togglePlay() { if(!isPlayerReady) return; if(player.getPlayerState() === YT.PlayerState.PLAYING) player.pauseVideo(); else player.playVideo(); }
-    function nextTrack() { if(!isPlayerReady) return; trackIndex = (trackIndex + 1) % currentPlaylist.length; player.loadVideoById(currentPlaylist[trackIndex]); }
-    function prevTrack() { if(!isPlayerReady) return; trackIndex = (trackIndex - 1 + currentPlaylist.length) % currentPlaylist.length; player.loadVideoById(currentPlaylist[trackIndex]); }
-
-    let isRoaming = false; let roamInterval;
-    function showBubble(text) {
-        const bubble = document.getElementById('pet-bubble');
-        bubble.innerText = text; bubble.style.opacity = '1';
-        setTimeout(() => { bubble.style.opacity = '0'; }, 3000);
-    }
-    
-    setInterval(() => { if(Math.random() > 0.5) showBubble(["뒹굴뒹굴...", "배고파...", "놀아줘!", "포인트나 벌어와!"][Math.floor(Math.random() * 4)]); }, 8000);
-
-    function toggleRoaming() {
-        isRoaming = !isRoaming;
-        const status = document.getElementById('roam-status');
-        const petRoom = document.getElementById('shimeji-room');
-        const petImg = document.getElementById('pet-image');
-        
-        let currentX = petRoom.offsetLeft;
-        
-        if(isRoaming) {
-            status.innerText = "상태: [뽈뽈뽈 돌아다님]";
-            roamInterval = setInterval(() => {
-                const randX = Math.floor(Math.random() * (window.innerWidth - 150));
-                const randY = Math.floor(Math.random() * (window.innerHeight - 150));
-                
-                if(randX < currentX) petImg.style.setProperty('--flip', -1); 
-                else petImg.style.setProperty('--flip', 1); 
-                currentX = randX;
-
-                petImg.classList.add('is-walking');
-                petRoom.style.left = randX + 'px'; petRoom.style.top = randY + 'px';
-                
-                setTimeout(() => { petImg.classList.remove('is-walking'); }, 1500);
-            }, 3000);
-        } else {
-            status.innerText = "상태: [대기 중]"; clearInterval(roamInterval); petImg.classList.remove('is-walking');
-        }
-    }
-
-    /* 🔴 400 에러를 없애기 위해 가장 안정적인 Mistral AI 모델로 변경 */
-    async function callAI(text) {
-        try {
-            const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                method: "POST", headers: { "Authorization": `Bearer ${OPENROUTER_KEY}`, "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    "model": "mistralai/mistral-7b-instruct:free", 
-                    "messages": [{"role": "system", "content": "너는 다마고치 펫 '나루'야. 한국어로 귀엽게 반말로 대답해줘."}, {"role": "user", "content": text}]
-                })
-            });
-            const data = await res.json();
-            if(data.choices) return data.choices[0].message.content;
-        } catch(e) { return null; }
-        return null;
-    }
-
-    function toggleChat() { openPopup('ai-window'); }
-    async function sendMsg() {
-      const input = document.getElementById('ai-input'); const log = document.getElementById('chat-log');
-      const text = input.value.trim(); if(!text) return;
-      log.innerHTML += `<div class="msg-row msg-me">${text}</div>`; input.value = ''; log.scrollTop = log.scrollHeight;
-      
-      const loadingId = "load-" + Date.now();
-      log.innerHTML += `<div id="${loadingId}" class="msg-row msg-ai">나루: (생각 중...)</div>`; log.scrollTop = log.scrollHeight;
-      
-      const reply = await callAI(text);
-      document.getElementById(loadingId).remove();
-
-      if(reply) {
-          log.innerHTML += `<div class="msg-row msg-ai">나루: ${reply}</div>`;
-          showBubble(reply); 
-      } else {
-          log.innerHTML += `<div class="msg-sys">※ 무료 AI 서버 접속 실패...!!</div>`;
-      }
-      log.scrollTop = log.scrollHeight;
-    }
-
-    function openBoard(type) { document.getElementById('board-title').innerText = type === 'diary' ? '📓 Diary' : '✨ Character'; document.getElementById('page-content').innerHTML = `불러오는 중...`; openPopup('board-window'); loadPosts(type); }
-    function openWrite() { currentEditId = null; document.getElementById('post-title').value = ''; CKEDITOR.instances['post-content'].setData(''); openPopup('write-window'); }
-    
-    async function savePost() {
-      if (!sbClient) return;
-      const category = document.getElementById('post-category').value; const title = document.getElementById('post-title').value; const content = CKEDITOR.instances['post-content'].getData();
-      if(!title || !content.trim()) return alert("빈칸을 채워...!!");
-
-      let err;
-      if (currentEditId) err = (await sbClient.from('posts').update({ title, content, category }).eq('id', currentEditId)).error;
-      else { err = (await sbClient.from('posts').insert([{ title, content, category }])).error; if(!err) earnPoints(100); }
-      if(err) alert("실패...!!"); else { closePopup('write-window'); loadPosts(category); }
-    }
-
-    async function deletePost(id, category) { if(!confirm("지운다...?")) return; await sbClient.from('posts').delete().eq('id', id); loadPosts(category); }
-    
-    function editPost(id) {
-        const post = globalPostsData.find(p => p.id === id);
-        if(!post) return;
-        currentEditId = id; document.getElementById('post-category').value = post.category; document.getElementById('post-title').value = post.title;
-        CKEDITOR.instances['post-content'].setData(post.content); openPopup('write-window');
-    }
-
-    async function loadPosts(categoryType) {
-      if (!sbClient) return;
-      const { data, error } = await sbClient.from('posts').select('*').eq('category', categoryType).order('created_at', { ascending: false });
-      const list = document.getElementById('page-content');
-      if(error || data.length === 0) { list.innerHTML = "<div style='color:#8a2be2;'>텅 비었다...</div>"; return; }
-
-      globalPostsData = data; 
-      let html = '';
-      data.forEach(p => {
-        const dateStr = new Date(p.created_at).toLocaleString();
-        html += `
-          <div style="margin-bottom: 20px; border: 2px solid #dda0dd; border-radius:15px; overflow:hidden; background:rgba(255,255,255,0.8);">
-            <div style="background: #f3e5f5; padding: 10px 15px; font-weight: bold; color: #8a2be2; display:flex; justify-content:space-between; align-items:center;">
-                📝 ${p.title} 
-                <div>
-                    <button class="btn-action" style="padding:2px 8px; font-size:11px;" onclick="editPost('${p.id}')">수정</button>
-                    <button class="btn-action" style="padding:2px 8px; font-size:11px;" onclick="deletePost('${p.id}', '${p.category}')">삭제</button>
-                </div>
-            </div>
-            <div style="padding:15px;"><div style="font-size:11px; color:#aaa; margin-bottom:10px;">${dateStr}</div><div style="font-size:13px; line-height: 1.6;">${p.content}</div></div>
-          </div>`;
-      });
-      list.innerHTML = html;
-    }
+    /* 게시판 */
+    function openBoard(type) { document.getElementById('board-title').innerText = type === 'diary' ? '📓 Diary' : '✨ Character'; document.getElementById('page-content').innerHTML = `불러오는 중...`; openPopup('board-window'); loadPosts(type); } function openWrite() { currentEditId = null; document.getElementById('post-title').value = ''; CKEDITOR.instances['post-content'].setData(''); openPopup('write-window'); } async function savePost() { if (!sbClient) return; const category = document.getElementById('post-category').value; const title = document.getElementById('post-title').value; const content = CKEDITOR.instances['post-content'].getData(); if(!title || !content.trim()) return alert("빈칸을 채워라!"); let err; if (currentEditId) err = (await sbClient.from('posts').update({ title, content, category }).eq('id', currentEditId)).error; else { err = (await sbClient.from('posts').insert([{ title, content, category }])).error; if(!err) earnPoints(100); } if(err) alert("실패!"); else { closePopup('write-window'); loadPosts(category); } } async function deletePost(id, category) { if(!confirm("지운다...?")) return; await sbClient.from('posts').delete().eq('id', id); loadPosts(category); } function editPost(id) { const post = globalPostsData.find(p => p.id === id); if(!post) return; currentEditId = id; document.getElementById('post-category').value = post.category; document.getElementById('post-title').value = post.title; CKEDITOR.instances['post-content'].setData(post.content); openPopup('write-window'); } async function loadPosts(categoryType) { if (!sbClient) return; const { data, error } = await sbClient.from('posts').select('*').eq('category', categoryType).order('created_at', { ascending: false }); const list = document.getElementById('page-content'); if(error || data.length === 0) { list.innerHTML = "<div style='color:#d81b60;'>텅 비었다...</div>"; return; } globalPostsData = data; let html = ''; data.forEach(p => { const dateStr = new Date(p.created_at).toLocaleString(); html += `<div style="margin-bottom: 20px; border: 2px dashed #ffb6c1; border-radius:15px; overflow:hidden; background:rgba(255,255,255,0.9);"><div style="background: #ffe4e1; padding: 10px 15px; font-weight: bold; color: #d81b60; display:flex; justify-content:space-between; align-items:center;">📝 ${p.title} <div><button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="editPost('${p.id}')">수정</button><button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="deletePost('${p.id}', '${p.category}')">삭제</button></div></div><div style="padding:15px;"><div style="font-size:11px; color:#aaa; margin-bottom:10px;">${dateStr}</div><div style="font-size:13px; line-height: 1.6;">${p.content}</div></div></div>`; }); list.innerHTML = html; }
 
     loadProfile();
   </script>
 </body>
-
 </html>
