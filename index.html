@@ -2,148 +2,125 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>The Ultimate DIY Nostalgia</title>
+  <title>The Interactive Nostalgia</title>
   <link href="https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 
   <style>
     /* === 🩸 기본 설정 === */
-    body { background-color: #000; color: #ccc; font-family: 'Galmuri9', '궁서', serif; margin: 0; padding: 0; overflow: hidden; cursor: crosshair; }
+    body { background-color: #000; color: #ccc; font-family: 'Galmuri9', '궁서', serif; margin: 0; padding: 0; overflow: hidden; cursor: crosshair; user-select: none; }
     #world-container { position: absolute; top: 0; left: 80px; width: calc(100vw - 80px); height: 100vh; overflow: hidden; }
     .world-view { display: none; width: 100%; height: 100%; position: relative; }
     .world-view.active { display: block; }
 
-    /* === 💻 좌측 시스템 메뉴바 === */
-    #left-taskbar { position: fixed; top: 0; left: 0; width: 80px; height: 100vh; background: #1a1a1a; border-right: 4px solid #000; display: flex; flex-direction: column; align-items: center; padding-top: 30px; z-index: 1000; }
-    .task-icon { width: 60px; margin-bottom: 25px; text-align: center; cursor: pointer; font-size: 10px; color: #888; transition: 0.2s; display: flex; flex-direction: column; align-items: center;}
-    .task-block { width: 30px; height: 30px; background: #555; border: 3px solid #000; margin-bottom: 5px; transition: 0.2s; display: flex; justify-content: center; align-items: center; color: #000; font-weight: bold; font-size: 8px;}
-    .task-icon:hover { color: #fff; } .task-icon:hover .task-block { background: #f1c40f; transform: scale(1.1); color:#000; }
+    /* === 💻 좌측 메뉴바 === */
+    #left-taskbar { position: fixed; top: 0; left: 0; width: 80px; height: 100vh; background: #111; border-right: 2px solid #333; display: flex; flex-direction: column; align-items: center; padding-top: 30px; z-index: 9999; }
+    .task-icon { width: 60px; margin-bottom: 25px; text-align: center; cursor: pointer; font-size: 10px; color: #888; transition: 0.2s; }
+    .task-icon div { font-size: 24px; margin-bottom: 5px; filter: grayscale(1); transition: 0.2s;}
+    .task-icon:hover { color: #fff; } .task-icon:hover div { filter: grayscale(0); transform: scale(1.1); }
 
     /* =========================================
-       [차원 1] 로비: 노란장판 지옥
+       [차원 1] 주인의 설계도: 포인트 앤 클릭 룸
        ========================================= */
-    #view-room { background: linear-gradient(to bottom, #eee 0%, #ddd 50%, #dcb35a 50%, #b28936 100%); }
-    
-    .diy-obj { position: absolute; z-index: 10; pointer-events: none; filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.4)); object-fit: contain; }
-    .obj-window { top: 8%; left: 35%; width: 220px; height: 220px; }
-    .obj-closet { bottom: 40%; right: 8%; width: 160px; height: 300px; }
-    .obj-bedding { bottom: 8%; left: 8%; width: 400px; height: 200px; z-index: 20; }
-    .obj-mold { position: absolute; bottom: 45%; left: 5%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 70%); z-index: 1; pointer-events: none; mix-blend-mode: multiply; }
-    
-    .light-switch { position: absolute; top: 30%; left: 3%; width: 35px; height: 55px; background: #ddd; border: 3px solid #555; cursor: pointer; z-index: 100; box-shadow: 3px 3px 5px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
-    .switch-knob { width: 15px; height: 30px; background: #fff; border: 2px solid #777; transition: 0.1s;}
-    .light-switch:active .switch-knob { transform: translateY(5px); }
-    @keyframes flicker { 0%, 100% { filter: brightness(1); } 10%, 25% { filter: brightness(0.1); } 15% { filter: brightness(1.2); } }
-    .room-flicker { animation: flicker 0.6s linear; }
+    #view-room { 
+        /* 노을 + 꽃무늬 벽지와 노란장판 바닥 완벽 구현 */
+        background: linear-gradient(to bottom, rgba(139, 0, 0, 0.8) 0%, rgba(210, 105, 30, 0.8) 50%, #dcb35a 50%, #b28936 100%),
+                    url('https://www.transparenttextures.com/patterns/floral-pattern.png');
+        background-size: auto;
+        position: relative; transition: filter 0.3s ease;
+    }
+    /* 전등 꺼짐 상태 (오버레이) */
+    #room-darkness { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); pointer-events: none; z-index: 900; transition: 0.3s; opacity: 0; }
+    .is-dark #room-darkness { opacity: 1; }
 
-    .main-pic-container { position:absolute; top:12%; left:5%; width:28%; height:42%; background:#000; border:5px solid #4e342e; z-index:15; transform:rotate(-2deg); overflow:hidden; box-shadow: 10px 10px 20px rgba(0,0,0,0.5); }
-    #main-visual-img { width:100%; height:100%; object-fit:cover; background: #222; }
+    /* 💡 기믹 1: 전등 */
+    #scene-light { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 150px; height: 60px; background: rgba(255,255,255,0.8); border-radius: 50%; box-shadow: 0 0 50px #fff; cursor: pointer; z-index: 1000; border: 4px solid #555; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 5px; color: #000; font-size: 12px; font-weight: bold;}
+    #scene-light:active { background: #fff; }
+
+    /* 🐦‍⬛ 기믹 2: 전봇대와 까마귀 */
+    #scene-pole { position: absolute; top: 20%; left: 10%; width: 20px; height: 300px; background: #222; border-left: 5px solid #111; z-index: 10;}
+    #scene-wire { position: absolute; top: 25%; left: -5%; width: 60%; height: 2px; background: #000; z-index: 9; transform: rotate(2deg);}
+    .crow { position: absolute; top: -20px; font-size: 24px; cursor: pointer; transition: 1s cubic-bezier(0.25, 1, 0.5, 1); z-index: 15;}
+    #crow1 { left: 20%; } #crow2 { left: 30%; } #crow3 { left: 40%; }
+    .crow.fly { transform: translate(500px, -500px) scale(2); opacity: 0; pointer-events: none; }
+
+    /* 👤 기믹 3: 캐릭터 그림자 (누르면 채팅) */
+    #scene-character { position: absolute; bottom: 30%; left: 45%; width: 100px; height: 250px; background: #222; border-radius: 50px 50px 10px 10px; cursor: pointer; z-index: 50; filter: drop-shadow(10px 10px 0px rgba(0,0,0,0.5)); transition: 0.1s; display: flex; justify-content: center; align-items: center; color: #fff;}
+    #scene-character:hover { transform: scale(1.05); background: #111; }
+    #scene-character:active { transform: scale(0.95); }
+
+    /* 🪟 기믹 4: 물이 쏟아지는 창문 (누르면 이동) */
+    #scene-window { position: absolute; top: 20%; right: 15%; width: 250px; height: 300px; border: 15px solid #5d4037; background: rgba(255, 200, 200, 0.4); cursor: pointer; z-index: 20; box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 10px 10px 0px rgba(0,0,0,0.3); overflow: visible; display: flex; justify-content: center; align-items: center; font-size: 20px; color: #fff; text-shadow: 2px 2px #000;}
+    #scene-window:hover { filter: brightness(1.2); }
+    /* 창문 안의 화로 */
+    #window-pot { position: absolute; bottom: 10px; left: 20px; width: 80px; height: 60px; background: #3e2723; border-radius: 10px; border: 3px solid #000; }
+    /* 쏟아지는 물 */
+    #waterfall { position: absolute; bottom: -200px; right: 20px; width: 150px; height: 200px; background: rgba(100, 150, 255, 0.6); animation: flow 1s infinite linear; pointer-events: none;}
+    @keyframes flow { 0% { background-position: 0 0; } 100% { background-position: 0 100px; } }
+    /* 바닥의 물웅덩이 */
+    #water-puddle { position: absolute; bottom: -220px; right: -50px; width: 300px; height: 50px; background: rgba(100, 150, 255, 0.6); border-radius: 50%; transform: scaleY(0.5); pointer-events: none;}
+
+    /* 🪴 기믹 5: 깨지는 화분들 */
+    .scene-pot { position: absolute; cursor: pointer; z-index: 30; transition: 0.2s; display: flex; flex-direction: column; align-items: center; text-shadow: 2px 2px 0px rgba(0,0,0,0.5);}
+    .scene-pot .plant { font-size: 60px; margin-bottom: -15px; z-index: 31; }
+    .scene-pot .base { width: 80px; height: 80px; background: #f5f5dc; border-radius: 10px 10px 40px 40px; border: 3px solid #ccc; z-index: 32; box-shadow: inset -10px -10px 0px rgba(0,0,0,0.1);}
+    #pot1 { bottom: 40%; left: 25%; }
+    #pot2 { bottom: 30%; right: 40%; }
+    .scene-pot.broken .plant { display: none; }
+    .scene-pot.broken .base { background: transparent; border: none; box-shadow: none; font-size: 50px; }
+
+    /* 🛏️ 거대 이불 (게시판/일기장 역할) */
+    #scene-bed { position: absolute; bottom: 5%; left: 5%; width: 40%; height: 25%; background: #f48fb1; border-radius: 20px; border: 5px solid #d81b60; z-index: 40; box-shadow: 15px 15px 0px rgba(0,0,0,0.2); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 24px; color: #fff; font-weight: bold; text-shadow: 2px 2px 0px #000; transform: perspective(500px) rotateX(20deg); transition: 0.2s;}
+    #scene-bed:hover { transform: perspective(500px) rotateX(20deg) translateY(-10px); background: #ff4081; }
+    #scene-pillow { position: absolute; top: 10%; left: -5%; width: 120px; height: 60px; background: #fff; border-radius: 30px; border: 3px solid #ccc; box-shadow: 5px 5px 0px rgba(0,0,0,0.1); }
 
     /* =========================================
-       [차원 2] 기차역 (춘천행) 
+       [차원 2] 기차역 
        ========================================= */
     #view-station { background: linear-gradient(to bottom, #1a2a6c, #b21f1f, #fdbb2d); overflow: hidden; }
-    .station-fog { position: absolute; width: 200%; height: 100%; background: repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.1) 10px, transparent 10px, transparent 20px); opacity: 0.3; animation: fogMove 80s linear infinite; pointer-events: none; filter: blur(5px);}
-    @keyframes fogMove { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-    .chimney { position: absolute; bottom: 35%; right: 20%; width: 60px; height: 200px; background: #34495e; border: 4px solid #2c3e50; }
-    .smoke { position: absolute; top: -20px; left: 50%; width: 20px; height: 20px; background: rgba(200,200,200,0.5); border: 2px solid rgba(255,255,255,0.3); animation: smokeRise 5s infinite; }
-    @keyframes smokeRise { 0% { transform: translate(-50%, 0) scale(1) rotate(0deg); opacity: 0.7; } 100% { transform: translate(80px, -250px) scale(4) rotate(180deg); opacity: 0; } }
-    .train-block { position: absolute; bottom: 18%; left: -600px; z-index: 50; animation: trainRun 25s linear infinite; animation-delay: 3s;}
-    @keyframes trainRun { 0% { left: -600px; } 100% { left: 120%; } }
-    .man-block { position: absolute; bottom: 15%; left: 40%; opacity: 0.6; animation: manWalk 20s ease-in-out infinite;}
-    @keyframes manWalk { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(60px); } }
     .railroad { position:absolute; bottom:0; width:100%; height:150px; background:repeating-linear-gradient(90deg, #111 0, #111 20px, transparent 20px, transparent 60px), #3e2723; border-top:8px solid #2c3e50; transform:perspective(500px) rotateX(45deg); }
+    .btn-post { position: absolute; bottom: 12%; right: 12%; font-size: 60px; cursor: pointer; transition: 0.2s; z-index: 100; text-shadow: 5px 5px 0px #000;}
+    .btn-post:hover { transform: scale(1.1); }
 
     /* =========================================
        [차원 3] 아쿠아리움 
        ========================================= */
     #view-aqua { background: linear-gradient(to bottom, #001f3f, #0074d9); overflow: hidden; }
-    .aqua-block { position: absolute; pointer-events: none; z-index: 5; animation: floatSwim linear infinite; filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.6));}
+    .aqua-obj { position: absolute; z-index: 5; animation: floatSwim linear infinite; font-size: 80px; filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.6)); pointer-events: none;}
     @keyframes floatSwim { 0% { transform: translateX(0) rotate(5deg); } 100% { transform: translateX(120vw) rotate(-5deg); } }
 
-    /* === 🎬 버튼 및 픽셀 블록 공통 스타일 === */
-    .obj-btn {
-        position: absolute; background: transparent; border: none; 
-        color: #fff; font-family: 'Galmuri9'; font-weight: bold;
-        display: flex; flex-direction: column; align-items: center; cursor: pointer;
-        z-index: 150 !important; transition: 0.2s; text-shadow: 2px 2px 0px #000; outline: none;
-    }
-    .obj-btn .code-pixel-block { transition: 0.1s; }
-    .obj-btn:hover .code-pixel-block { transform: scale(1.15) rotate(5deg); }
-    .obj-btn:active { transform: scale(0.9); }
-
-    /* 📌 기본 대체제: 사용자가 그림을 올리기 전까지 보여지는 '빈 상자' */
-    .code-pixel-block {
-        display: flex; justify-content: center; align-items: center; text-align: center; 
-        font-size: 10px; color: #fff; font-weight: bold; border: 4px solid #000; box-shadow: 4px 4px 0px rgba(0,0,0,0.5); 
-        image-rendering: pixelated; overflow: hidden; word-break: break-all; padding: 2px;
-    }
-    
-    /* 각 상자별 기본 크기와 색상 */
-    .cp-diary { width: 40px; height: 50px; background: #27ae60; } 
-    .cp-char  { width: 50px; height: 35px; background: #2980b9; } 
-    .cp-review{ width: 55px; height: 35px; background: #c0392b; } 
-    .cp-write { width: 20px; height: 60px; background: #f1c40f; color:#000;} 
-    .cp-verify{ width: 40px; height: 40px; background: #e67e22; border-radius: 50%; } 
-    .cp-shop  { width: 45px; height: 55px; background: #8e44ad; } 
-    .cp-post  { width: 60px; height: 80px; background: #c0392b; border: 4px solid #7f1d1d;} 
-    .cp-train { width: 120px; height: 50px; background: #34495e; border: 4px solid #2c3e50;} 
-    .cp-man   { width: 30px; height: 60px; background: #7f8c8d; } 
-    .cp-fish  { width: 60px; height: 30px; background: #3498db; border-radius: 30px;} 
-    .cp-game  { width: 80px; height: 80px; background: #16a085; border: 4px solid #0e6655;} 
-    .cp-gear  { width: 40px; height: 40px; background: #95a5a6; border-radius: 50%;} 
-
-    /* 버튼 위치 배치 */
-    .btn-diary  { top: 55%; left: 45%; } 
-    .btn-char   { top: 75%; left: 30%; } 
-    .btn-review { top: 60%; left: 68%; } 
-    .btn-write  { top: 82%; left: 52%; } 
-    .btn-verify { top: 18%; right: 12%; } 
-    .btn-shop   { top: 78%; left: 82%; } 
-    .btn-setting{ bottom: 5%; right: 5%; } 
-    .btn-post   { bottom: 12%; right: 12%; }
-
-    /* === 💻 팝업창 공통 디자인 === */
-    .cute-popup { position: absolute; display: none; background: rgba(15,15,15,0.98); border: 4px solid #000; box-shadow: 15px 15px 0px rgba(0,0,0,0.7); overflow: hidden; width: 450px; color: #ddd; z-index: 2000; image-rendering: pixelated; }
-    .cute-titlebar { background: #333; color: #fff; padding: 10px; font-size: 12px; border-bottom: 4px solid #000; display: flex; justify-content: space-between; align-items: center; cursor: grab; }
-    .cute-body { padding: 15px; max-height: 65vh; overflow-y: auto; background: #222;}
-    .close-x { cursor: pointer; color: #fff; background: #c0392b; padding: 2px 6px; border: 2px solid #000; font-weight: bold;}
+    /* =========================================
+       팝업창 공통 디자인 
+       ========================================= */
+    .cute-popup { position: absolute; display: none; background: rgba(15,15,15,0.95); border: 4px solid #fff; box-shadow: 15px 15px 0px rgba(0,0,0,0.7); overflow: hidden; width: 450px; color: #ddd; z-index: 2000; }
+    .cute-titlebar { background: #fff; color: #000; padding: 10px; font-size: 14px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; cursor: grab; }
+    .cute-body { padding: 15px; max-height: 60vh; overflow-y: auto; background: #222;}
+    .close-x { cursor: pointer; color: #fff; background: #c0392b; padding: 2px 8px; border: 2px solid #000; font-weight: bold;}
     .close-x:hover { background: #ff0000; }
-    .cute-input { width: 100%; padding: 8px; margin-bottom: 10px; background: #000; border: 3px solid #555; color: #fff; font-family: 'Galmuri9'; box-sizing: border-box; outline: none;}
+    
     .btn-action { background: #333; color: #fff; border: 3px solid #000; padding: 8px 15px; font-family: 'Galmuri9'; cursor: pointer; transition: 0.1s; box-shadow: 2px 2px 0 #000;}
     .btn-action:hover { background: #f1c40f; color: #000;}
     .btn-action:active { transform: translate(2px, 2px); box-shadow: none;}
+    .cute-input { width: 100%; padding: 8px; margin-bottom: 10px; background: #000; border: 2px solid #555; color: #fff; font-family: 'Galmuri9'; box-sizing: border-box; outline: none;}
 
-    /* 설정창 탭 메뉴 */
-    .setup-tabs { display: flex; border-bottom: 2px solid #555; margin-bottom: 10px; }
-    .setup-tab { padding: 5px 10px; cursor: pointer; background: #111; border: 1px solid #555; border-bottom: none; margin-right: 5px; color: #888; font-size: 11px;}
-    .setup-tab.active { background: #f1c40f; color: #000; font-weight: bold; border-color: #f1c40f; }
-    .setup-content { display: none; }
-    .setup-content.active { display: block; }
-    .file-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px dashed #444; padding-bottom: 5px;}
-    .file-row label { font-size: 11px; color: #ccc; }
-    .file-row input[type="file"] { width: 180px; font-size: 10px; color: #f1c40f;}
+    /* 메신저 채팅창 */
+    #chat-log { height: 250px; overflow-y: auto; background: #000; border: 3px solid #555; padding: 10px; font-size: 13px; line-height: 1.5; }
+    .msg-row { margin-bottom: 10px; padding: 8px; border-radius: 5px; width: fit-content; max-width: 80%; }
+    .msg-me { background: #2980b9; color: #fff; float: right; clear: both; border: 2px solid #1a5276;}
+    .msg-ai { background: #c0392b; color: #fff; float: left; clear: both; border: 2px solid #7b241c;}
 
-    /* 게시판 리스트 */
+    /* 게시판 */
     .post-item { margin-bottom: 10px; border: 3px solid #000; background: #333; color: #ccc;}
     .post-header { padding: 10px 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 3px solid #000;}
     .post-header:hover { background: #444; color: #fff; }
     .post-content-area { padding: 15px; display: none; background: #222; font-size: 12px; line-height: 1.6; border-top: 3px solid #000;}
 
-    /* 돌고래 & 시메지 */
-    #dolphin-game-area { width: 300px; height: 350px; background: #001a1a; border: 6px solid #004d40; margin: 0 auto; position: relative; overflow: hidden; }
-    .ring { width: 24px; height: 24px; border: 6px solid; border-radius: 50%; position: absolute; box-shadow: 3px 3px 0px rgba(0,0,0,0.5);}
-    .post { width: 14px; height: 130px; background: #5d4037; border: 3px solid #3e2723; position: absolute; bottom: 0; box-shadow: 4px 0 0px rgba(0,0,0,0.5);}
-    #dolphin-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:100; color:#fff;}
-    #shimeji-room { position: absolute; bottom: 22%; right: 8%; z-index: 999; text-align: center; cursor: grab; transition: top 1s, left 1s; }
-    .css-pet { width: 60px; height: 60px; background: #fff; border: 4px solid #000; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #000; box-shadow: 5px 5px 0px rgba(0,0,0,0.5); cursor: pointer; background-size: contain; background-repeat: no-repeat; background-position: center; font-size: 12px;}
-    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-    .is-walking { animation: bounce 0.3s infinite; }
-    
+    /* 기타 유틸 */
     #item-drop-zone { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; overflow: hidden;}
-    .dropped-item { position: absolute; font-size: 20px; filter: drop-shadow(3px 3px 0px #000); animation: itemFall 0.8s forwards; }
+    .dropped-item { position: absolute; font-size: 40px; filter: drop-shadow(3px 3px 0px #000); animation: itemFall 0.5s forwards; }
     @keyframes itemFall { 0% { transform: translateY(-100px) rotate(-360deg); opacity:0; } 100% { transform: translateY(0) rotate(0deg); opacity:1; } }
+
   </style>
 </head>
 <body id="main-body">
@@ -151,119 +128,75 @@
   <div id="world-container">
       
       <div id="view-room" class="world-view active">
-          <div id="item-drop-zone"></div>
-          
-          <img id="diy-window" class="diy-obj obj-window" alt="🪟">
-          <img id="diy-closet" class="diy-obj obj-closet" alt="🚪">
-          <img id="diy-bedding" class="diy-obj obj-bedding" alt="🛏️">
-          <div class="obj-mold"></div>
-          
-          <div class="light-switch" onclick="flickerRoom()"> <div class="switch-knob"></div> </div>
+          <div id="room-darkness"></div> <div id="item-drop-zone"></div>
 
-          <div class="main-pic-container">
-              <img id="main-visual-img" alt="🖼️">
+          <div id="scene-light" onclick="toggleLight()">딸깍! (전등)</div>
+
+          <div id="scene-pole"></div>
+          <div id="scene-wire">
+              <div class="crow" id="crow1" onclick="flyCrow(this)">🐦‍⬛</div>
+              <div class="crow" id="crow2" onclick="flyCrow(this)">🐦‍⬛</div>
+              <div class="crow" id="crow3" onclick="flyCrow(this)">🐦‍⬛</div>
           </div>
 
-          <button class="obj-btn btn-diary" onclick="openBoard('diary')">
-              <div class="code-pixel-block cp-diary" id="icon-diary">일기장</div>
-              <span style="color:#2ecc71;">비밀 일기</span>
-          </button>
-          
-          <button class="obj-btn btn-char" onclick="openBoard('character')">
-              <div class="code-pixel-block cp-char" id="icon-char">신분증</div>
-              <span style="color:#3498db;">캐릭터 덱</span>
-          </button>
-          
-          <button class="obj-btn btn-review" onclick="openBoard('review')">
-              <div class="code-pixel-block cp-review" id="icon-review">비디오</div>
-              <span style="color:#e74c3c;">목격담</span>
-          </button>
-          
-          <button class="obj-btn btn-write" onclick="openWrite()">
-              <div class="code-pixel-block cp-write" id="icon-write">펜</div>
-              <span style="color:#f1c40f;">기록하라</span>
-          </button>
-          
-          <button class="obj-btn btn-verify" onclick="openPopup('captcha-window')">
-              <div class="code-pixel-block cp-verify" id="icon-verify">알약</div>
-              <span style="color:#e67e22;">보안 인증</span>
-          </button>
-          
-          <button class="obj-btn btn-shop" onclick="openPopup('shop-window')">
-              <div class="code-pixel-block cp-shop" id="icon-shop">봉투</div>
-              <span style="color:#9b59b6;">암시장</span>
-          </button>
-          
-          <button class="obj-btn btn-setting" onclick="openPopup('profile-window')">
-              <div class="code-pixel-block cp-gear" id="icon-gear">설정</div>
-          </button>
+          <div id="scene-window" onclick="switchWorld('view-station')">
+              <div id="window-pot">♨️</div>
+              <div id="waterfall"></div>
+              <div id="water-puddle"></div>
+              <span style="z-index: 25;">다른 창으로 이동</span>
+          </div>
+
+          <div class="scene-pot" id="pot1" onclick="breakPot(this)">
+              <div class="plant">🌿</div><div class="base"></div>
+          </div>
+          <div class="scene-pot" id="pot2" onclick="breakPot(this)">
+              <div class="plant">🌵</div><div class="base"></div>
+          </div>
+
+          <div id="scene-character" onclick="openPopup('ai-window')">
+              말걸기
+          </div>
+
+          <div id="scene-bed" onclick="openBoard('diary')">
+              <div id="scene-pillow"></div>
+              침대 (비밀 일기장)
+          </div>
+
+          <button class="btn-action" style="position:absolute; bottom:20px; right:20px; z-index: 100;" onclick="openPopup('profile-window')">⚙️ 설정</button>
+          <button class="btn-action" style="position:absolute; bottom:20px; right:120px; z-index: 100;" onclick="openPopup('shop-window')">🛒 암시장</button>
       </div>
 
       <div id="view-station" class="world-view">
           <div class="station-fog"></div>
-          <div style="position:absolute; top:25%; width:100%; text-align:center; color:#fff; font-size:28px; font-weight:bold; text-shadow: 4px 4px 0px #000;">춘천행 기차는 떠나고...</div>
+          <div style="position:absolute; top:20%; width:100%; text-align:center; color:#fff; font-size:32px; font-weight:bold; text-shadow: 4px 4px 0px #000;">춘천가는 기차는...</div>
           
-          <div class="chimney">
+          <div class="chimney" style="left: 10%;">
               <div class="smoke" style="animation-delay:0s;"></div>
-              <div class="smoke" style="animation-delay:1.5s;"></div>
-          </div>
-          
-          <div class="train-block">
-              <div class="code-pixel-block cp-train" id="icon-train">기차</div>
-          </div>
-          <div class="man-block">
-               <div class="code-pixel-block cp-man" id="icon-man">행인</div>
+              <div class="smoke" style="animation-delay:2s;"></div>
           </div>
           
           <div class="railroad"></div>
 
-          <button class="obj-btn btn-post" onclick="openBoard('guestbook')">
-              <div class="code-pixel-block cp-post" id="icon-post">우체통</div>
-              <span style="color:#ffeb3b;">추억의 우체통</span>
-          </button>
+          <div class="btn-post" onclick="openBoard('guestbook')" style="position:absolute; bottom: 15%; right: 15%; z-index: 100;">
+              📮<br><span style="font-size:16px; color:#ffeb3b; font-family:'Galmuri9'; font-weight:bold; background:rgba(0,0,0,0.5); padding:5px;">추억의 우체통</span>
+          </div>
       </div>
 
       <div id="view-aqua" class="world-view">
-          <div class="aqua-block" style="top:20%; left:-15%; animation-duration:20s;">
-               <div class="code-pixel-block cp-fish" id="icon-fish1">물고기1</div>
-          </div>
-          <div class="aqua-block" style="top:55%; right:-15%; transform:scaleX(-1); animation-direction:reverse; animation-duration:30s;">
-               <div class="code-pixel-block cp-fish" style="background:#e74c3c;" id="icon-fish2">물고기2</div>
-          </div>
+          <div class="aqua-obj" style="top:20%; left:-15%; animation-duration:20s;">🦈</div>
+          <div class="aqua-obj" style="top:55%; right:-15%; transform:scaleX(-1); animation-direction:reverse; animation-duration:30s;">🐋</div>
           
-          <button class="obj-btn" style="top:50%; left:50%; transform:translate(-50%,-50%);" onclick="openPopup('dolphin-window')">
-              <div class="code-pixel-block cp-game" id="icon-game">오락기</div>
-              <span style="font-size:20px; color:#00bcd4;">심해 오락기</span>
+          <button class="btn-action" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) scale(2); z-index:100; background:#001f3f; color:#00bcd4; border-color:#00bcd4;" onclick="openPopup('dolphin-window')">
+              🕹️ 심해 오락기
           </button>
       </div>
 
-      <div id="shimeji-room">
-          <div id="pet-bubble" style="background:#fff; border:3px solid #000; padding:4px; font-size:11px; opacity:0; transition:0.3s; margin-bottom:5px; color:#000; font-weight:bold;">밥 줘...</div>
-          <div id="pet-image" class="css-pet" onclick="openPopup('ai-window')" ondblclick="toggleRoaming()">( º ▲ º )</div>
-      </div>
-
-  </div>
-
-  <div id="left-taskbar">
-      <div class="task-icon" onclick="switchWorld('view-room')"><div class="task-block" style="background:#dcb35a;">방</div>Room</div>
-      <div class="task-icon" onclick="switchWorld('view-station')"><div class="task-block" style="background:#34495e;">역</div>Station</div>
-      <div class="task-icon" onclick="switchWorld('view-aqua')"><div class="task-block" style="background:#3498db;">물</div>Aqua</div>
+  </div> <div id="left-taskbar">
+      <div class="task-icon" onclick="switchWorld('view-room')"><div>🏠</div>Room</div>
+      <div class="task-icon" onclick="switchWorld('view-station')"><div>🚂</div>Station</div>
+      <div class="task-icon" onclick="switchWorld('view-aqua')"><div>🌊</div>Aqua</div>
       <hr style="width:50%; border-color:#333; margin:15px 0;">
-      <div class="task-icon" onclick="openPopup('music-window')"><div class="task-block" style="background:#c0392b;">음악</div>Music</div>
-      <div class="task-icon" onclick="openPopup('ai-window')"><div class="task-block" style="background:#27ae60;">톡</div>Chat</div>
-  </div>
-
-  <div id="captcha-window" class="cute-popup">
-      <div class="cute-titlebar"><span>⚠️ SECURITY</span><span class="close-x" onclick="closePopup('captcha-window')">X</span></div>
-      <div class="cute-body" style="text-align:center;">
-          <p>따뜻한 장판 색을 고르시오.</p>
-          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:5px;">
-              <div class="code-pixel-block" style="height:60px; background:#f1c40f; cursor:pointer; color:#000;" onclick="this.style.background='#fff'">노랑</div>
-              <div class="code-pixel-block" style="height:60px; background:#dcb35a; cursor:pointer; color:#000;" onclick="this.style.background='#fff'">장판색</div>
-              <div class="code-pixel-block" style="height:60px; background:#b28936; cursor:pointer; color:#000;" onclick="this.style.background='#fff'">똥색</div>
-          </div>
-          <button class="btn-action" style="margin-top:15px; width:100%;" onclick="closePopup('captcha-window')">인증 완료</button>
-      </div>
+      <div class="task-icon" onclick="openPopup('music-window')"><div>📻</div>Music</div>
   </div>
 
   <div id="music-window" class="cute-popup">
@@ -276,8 +209,14 @@
       </div>
   </div>
 
-  <div id="board-window" class="cute-popup">
-      <div class="cute-titlebar"><span id="board-title">🎀 Board</span><span class="close-x" onclick="closePopup('board-window')">X</span></div>
+  <div id="board-window" class="cute-popup" style="width: 600px;">
+      <div class="cute-titlebar">
+          <span id="board-title">🎀 Board</span>
+          <div>
+              <button class="btn-action" style="padding: 2px 10px; margin-right:10px;" onclick="openWrite()">✏️ 쓰기</button>
+              <span class="close-x" onclick="closePopup('board-window')">X</span>
+          </div>
+      </div>
       <div class="cute-body" id="page-content">로딩 중...</div>
   </div>
 
@@ -299,7 +238,9 @@
   <div id="ai-window" class="cute-popup">
       <div class="cute-titlebar"><span>💬 MESSENGER</span><span class="close-x" onclick="closePopup('ai-window')">X</span></div>
       <div class="cute-body">
-          <div id="chat-log" style="height:200px; overflow-y:auto; background:#000; border:3px solid #555; padding:10px; font-size:12px;"></div>
+          <div id="chat-log">
+              <div class="msg-row msg-ai">나루: 불 좀 켜줘... 화분 깨지 마...</div>
+          </div>
           <div style="display:flex; gap:5px; margin-top:10px;">
               <input type="text" id="ai-input" class="cute-input" style="margin:0;" onkeypress="if(event.key==='Enter')sendMsg()">
               <button class="btn-action" onclick="sendMsg()">전송</button>
@@ -331,51 +272,20 @@
               <div class="post" style="left:60px;"></div><div class="post" style="right:60px;"></div>
               <div class="ring" id="ring0" style="border-color:#ff0000;"></div><div class="ring" id="ring1" style="border-color:#00ff00;"></div><div class="ring" id="ring2" style="border-color:#0000ff;"></div><div class="ring" id="ring3" style="border-color:#ffff00;"></div><div class="ring" id="ring4" style="border-color:#ff00ff;"></div>
           </div>
-          <div style="display:flex; justify-content:space-between; margin-top:10px;"><button class="btn-action" onclick="pushRings('left')">◀ L</button><button class="btn-action" onclick="pushRings('right')">R ▶</button></div>
+          <div style="display:flex; justify-content:space-between; margin-top:10px;">
+              <button class="btn-action" onclick="pushRings('left')">◀ L</button>
+              <button class="btn-action" onclick="pushRings('right')">R ▶</button>
+          </div>
           <div id="d-score" style="text-align:center; font-weight:bold; margin-top:10px; color:#f1c40f;">🏆 0개</div>
       </div>
   </div>
 
-  <div id="profile-window" class="cute-popup" style="width: 500px;">
-      <div class="cute-titlebar"><span>⚙️ SETUP (모든 이미지 교체 가능)</span><span class="close-x" onclick="closePopup('profile-window')">X</span></div>
+  <div id="profile-window" class="cute-popup">
+      <div class="cute-titlebar"><span>⚙️ SETUP</span><span class="close-x" onclick="closePopup('profile-window')">X</span></div>
       <div class="cute-body">
-          <p style="font-size:11px; color:#f1c40f; margin-top:0;">※ 파일을 첨부하면 제가 알아서 초소형 화질로 압축해서 용량 에러를 막습니다!! 여러 장 맘껏 올리십시오!!</p>
-          
-          <div class="setup-tabs">
-              <div class="setup-tab active" onclick="switchTab(1)">가구/배경</div>
-              <div class="setup-tab" onclick="switchTab(2)">로비 버튼</div>
-              <div class="setup-tab" onclick="switchTab(3)">기차/바다</div>
-          </div>
-
-          <div id="setup-tab-1" class="setup-content active">
-              <div class="file-row"><label>🪟 창문</label><input type="file" id="fi-window"></div>
-              <div class="file-row"><label>🚪 옷장</label><input type="file" id="fi-closet"></div>
-              <div class="file-row"><label>🛏️ 이불</label><input type="file" id="fi-bedding"></div>
-              <div class="file-row"><label>🖼️ 액자</label><input type="file" id="fi-main"></div>
-              <div class="file-row"><label>🐾 펫</label><input type="file" id="fi-pet"></div>
-              <div class="file-row" style="margin-top:10px;"><label>🎵 BGM ID</label><input type="text" id="fi-bgm" class="cute-input" style="width:150px; margin:0;" placeholder="유튜브 ID"></div>
-          </div>
-
-          <div id="setup-tab-2" class="setup-content">
-              <div class="file-row"><label>📓 일기 버튼</label><input type="file" id="fi-diary"></div>
-              <div class="file-row"><label>🪪 캐릭터 버튼</label><input type="file" id="fi-char"></div>
-              <div class="file-row"><label>📼 목격담 버튼</label><input type="file" id="fi-review"></div>
-              <div class="file-row"><label>🖋️ 기록 버튼</label><input type="file" id="fi-write"></div>
-              <div class="file-row"><label>💊 인증 버튼</label><input type="file" id="fi-verify"></div>
-              <div class="file-row"><label>🛍️ 암시장 버튼</label><input type="file" id="fi-shop"></div>
-              <div class="file-row"><label>⚙️ 설정 버튼</label><input type="file" id="fi-gear"></div>
-          </div>
-
-          <div id="setup-tab-3" class="setup-content">
-              <div class="file-row"><label>🚂 기차</label><input type="file" id="fi-train"></div>
-              <div class="file-row"><label>🚶 행인</label><input type="file" id="fi-man"></div>
-              <div class="file-row"><label>📮 우체통</label><input type="file" id="fi-post"></div>
-              <div class="file-row"><label>🐟 물고기 1</label><input type="file" id="fi-fish1"></div>
-              <div class="file-row"><label>🐠 물고기 2</label><input type="file" id="fi-fish2"></div>
-              <div class="file-row"><label>🕹️ 오락기</label><input type="file" id="fi-game"></div>
-          </div>
-
-          <div style="text-align:right; margin-top:15px;"><button class="btn-action" onclick="saveAllImages()">저장 및 적용하기</button></div>
+          <p style="font-size:11px; color:#ccc;">※ BGM 유튜브 ID를 입력하세요.</p>
+          <div style="margin-bottom:10px;">🎵 BGM ID: <input type="text" id="edit-bgm" class="cute-input" placeholder="VDMiHYgQKLE"></div>
+          <div style="text-align:right;"><button class="btn-action" onclick="saveProfile()">적용</button></div>
       </div>
   </div>
 
@@ -390,136 +300,45 @@
     if (window.supabase) sbClient = window.supabase.createClient(SB_URL, SB_KEY);
     CKEDITOR.replace('post-content', { height: 200, language: 'ko', removeButtons: 'About', versionCheck: false });
 
-    /* 오디오 버그 방지 완료 */
+    // 🔊 사운드 시스템
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playClickSound() { if(audioCtx.state === 'suspended') audioCtx.resume(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'square'; osc.frequency.setValueAtTime(600, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1); }
     function playPopupSound() { if(audioCtx.state === 'suspended') audioCtx.resume(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(300, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(600, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.001, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.05); gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1); }
-    document.addEventListener('click', (e) => { if(e.target.closest('button') || e.target.closest('.task-icon') || e.target.closest('.light-switch')) playClickSound(); });
+    document.addEventListener('click', (e) => { if(e.target.closest('button') || e.target.closest('.task-icon') || e.target.closest('.light-switch') || e.target.closest('.scene-pot')) playClickSound(); });
 
+    // 🖱️ 상호작용 기믹들
     function switchWorld(vid) { document.querySelectorAll('.world-view').forEach(e => e.classList.remove('active')); document.getElementById(vid).classList.add('active'); playPopupSound(); }
-    function flickerRoom() { const r = document.getElementById('view-room'); r.classList.remove('room-flicker'); void r.offsetWidth; r.classList.add('room-flicker'); }
+    function toggleLight() { document.getElementById('view-room').classList.toggle('is-dark'); }
+    function flyCrow(el) { el.classList.add('fly'); setTimeout(() => el.classList.remove('fly'), 5000); }
+    function breakPot(el) { 
+        if(!el.classList.contains('broken')) {
+            el.classList.add('broken');
+            el.querySelector('.base').innerText = '💥';
+            setTimeout(() => { el.classList.remove('broken'); el.querySelector('.base').innerText = '';}, 3000);
+        }
+    }
+
+    // 🪟 팝업 제어
     function openPopup(id) { playPopupSound(); const el = document.getElementById(id); el.style.display = 'block'; el.style.zIndex = ++highestZ; }
     function closePopup(id) { document.getElementById(id).style.display = 'none'; }
-
     function makeDraggable(winId) { 
         const win = document.getElementById(winId); const dragArea = win.querySelector('.cute-titlebar'); if(!dragArea) return;
-        let p1=0, p2=0, p3=0, p4=0; 
-        win.onmousedown = () => win.style.zIndex = ++highestZ; 
+        let p1=0, p2=0, p3=0, p4=0; win.onmousedown = () => win.style.zIndex = ++highestZ; 
         dragArea.onmousedown = (e) => { e.preventDefault(); p3=e.clientX; p4=e.clientY; document.onmouseup = () => { document.onmouseup=null; document.onmousemove=null; }; document.onmousemove = (e) => { e.preventDefault(); p1=p3-e.clientX; p2=p4-e.clientY; p3=e.clientX; p4=e.clientY; win.style.top=(win.offsetTop-p2)+"px"; win.style.left=(win.offsetLeft-p1)+"px"; }; }; 
     }
-    ['write-window','board-window','ai-window','profile-window','shop-window','music-window','dolphin-window', 'captcha-window'].forEach(makeDraggable);
-    const shimeji = document.getElementById('shimeji-room'); shimeji.onmousedown = () => { shimeji.style.zIndex = ++highestZ; }; shimeji.ondragstart = () => false;
+    ['write-window','board-window','ai-window','profile-window','shop-window','music-window','dolphin-window'].forEach(makeDraggable);
 
-    /* 탭 변경 */
-    function switchTab(num) {
-        document.querySelectorAll('.setup-tab').forEach(e => e.classList.remove('active'));
-        document.querySelectorAll('.setup-content').forEach(e => e.classList.remove('active'));
-        document.querySelectorAll('.setup-tab')[num-1].classList.add('active');
-        document.getElementById('setup-tab-'+num).classList.add('active');
-    }
-
-    /* 🔴 Canvas 자동 압축기 (이게 있어야 용량 안 터짐) */
-    function compressImage(file, callback) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                let w = img.width; let h = img.height;
-                // 최대 너비 200px로 확 줄여서 압축
-                if (w > 200) { h *= 200/w; w = 200; }
-                canvas.width = w; canvas.height = h;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, w, h);
-                // webp 형식으로 화질 70% 압축 (엄청 가벼워짐)
-                callback(canvas.toDataURL('image/webp', 0.7));
-            }
-            img.src = e.target.result;
-        }
-        reader.readAsDataURL(file);
-    }
-
-    /* 이미지 데이터 저장용 그릇 */
-    const imageKeys = ['window','closet','bedding','main','pet','diary','char','review','write','verify','shop','gear','train','man','post','fish1','fish2','game'];
-    let customImages = {};
-
-    // 1. 파일 올릴 때마다 자동 압축해서 변수에 보관
-    imageKeys.forEach(key => {
-        const input = document.getElementById('fi-' + key);
-        if(input) {
-            input.addEventListener('change', e => {
-                const file = e.target.files[0]; if(!file) return;
-                compressImage(file, (base64) => {
-                    customImages[key] = base64;
-                    input.style.color = "#2ecc71"; // 올리면 색상 바뀜
-                });
-            });
-        }
-    });
-
-    // 2. 저장 버튼 누를 때 로컬 스토리지에 박아넣음
-    function saveAllImages() {
-        customImages['bgm'] = document.getElementById('fi-bgm').value;
-        try {
-            localStorage.setItem('ultimateRoomData', JSON.stringify(customImages));
-            alert("저장 완료!");
-        } catch(e) {
-            alert("저장 실패! 여전히 용량이 큽니다.");
-        }
-        applyImagesToUI();
-        closePopup('profile-window');
-    }
-
-    // 3. 페이지 켤 때 & 저장할 때 UI 껍데기를 진짜 사진으로 바꾸는 마법
-    function applyImagesToUI() {
-        const saved = JSON.parse(localStorage.getItem('ultimateRoomData')) || {};
-        customImages = saved; // 동기화
-        
-        // 가구 및 액자
-        if(saved.window) document.getElementById('diy-window').src = saved.window;
-        if(saved.closet) document.getElementById('diy-closet').src = saved.closet;
-        if(saved.bedding) document.getElementById('diy-bedding').src = saved.bedding;
-        if(saved.main) document.getElementById('main-visual-img').src = saved.main;
-        
-        // 펫
-        const petEl = document.getElementById('pet-image');
-        if(saved.pet) { petEl.style.backgroundImage = `url(${saved.pet})`; petEl.innerText = ''; } 
-        else { petEl.style.backgroundImage = 'none'; petEl.innerText = '( º ▲ º )'; }
-
-        // 버튼 아이콘들 (핵심)
-        const btnKeys = ['diary','char','review','write','verify','shop','gear','train','man','post','fish1','fish2','game'];
-        btnKeys.forEach(k => {
-            if(saved[k]) {
-                const iconDiv = document.getElementById('icon-' + k);
-                if(iconDiv) {
-                    // 원래 있던 CSS 껍데기 박살내고 이미지만 딱 남김
-                    iconDiv.style.background = 'transparent';
-                    iconDiv.style.border = 'none';
-                    iconDiv.style.boxShadow = 'none';
-                    iconDiv.innerHTML = `<img src="${saved[k]}" style="width:100%; height:100%; object-fit:contain; filter:drop-shadow(3px 3px 0 rgba(0,0,0,0.8));">`;
-                }
-            }
-        });
-
-        currentPlaylist = (saved.bgm || 'VDMiHYgQKLE').split(',').map(x=>x.trim()).filter(x=>x);
-        document.getElementById('fi-bgm').value = saved.bgm || '';
-        if(player && player.loadVideoById && currentPlaylist.length > 0) loadMusicPlayer();
-    }
-
-    /* 시작할 때 무조건 적용 */
-    applyImagesToUI();
-
-
-    /* 게시판 기능 */
-    let globalPostsData = [];
+    // 📝 게시판 기능
     async function openBoard(type) { 
         let title = '🎀 Board';
-        if(type==='diary') title = '📓 비밀 일기'; else if(type==='character') title = '✨ 캐릭터 덱'; else if(type==='review') title = '🎬 목격담'; else if(type==='guestbook') title = '📮 추억의 방명록';
-        document.getElementById('board-title').innerText = title; document.getElementById('page-content').innerHTML = '로딩 중...'; openPopup('board-window'); 
-        if (!sbClient) { document.getElementById('page-content').innerHTML = 'DB 연결 오류...'; return; }
+        if(type==='diary') title = '📓 비밀 일기'; else if(type==='character') title = '✨ 캐릭터 덱'; else if(type==='review') title = '🎬 목격담'; else if(type==='guestbook') title = '📮 방명록';
+        document.getElementById('board-title').innerText = title; 
+        document.getElementById('post-category').value = type; // 글쓰기 기본 카테고리 설정
+        document.getElementById('page-content').innerHTML = '로딩 중...'; openPopup('board-window'); 
+        if (!sbClient) { document.getElementById('page-content').innerHTML = 'DB 에러...'; return; }
         const {data, error} = await sbClient.from('posts').select('*').eq('category', type).order('created_at',{ascending:false});
         if(error || !data || data.length === 0) { document.getElementById('page-content').innerHTML = '텅 비어있다...'; return; }
-        globalPostsData = data; let htmlStr = ''; 
+        let htmlStr = ''; 
         data.forEach(p => { 
             const dateStr = new Date(p.created_at).toLocaleDateString();
             htmlStr += `<div class="post-item"><div class="post-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'"><span>📑 ${p.title} <small style="color:#888;">${dateStr}</small></span></div><div class="post-content-area">${p.content}</div></div>`; 
@@ -535,70 +354,69 @@
         earnPoints(100); closePopup('write-window'); openBoard(category); 
     }
 
-    /* 돌고래 아케이드 */
+    // 💬 메신저 (오류 원천 차단된 비상 통신망)
+    async function sendMsg() { 
+        const i = document.getElementById('ai-input'), l = document.getElementById('chat-log'), t = i.value.trim(); 
+        if(!t) return; 
+        l.innerHTML += `<div class="msg-row msg-me">${t}</div>`; i.value = ''; l.scrollTop = l.scrollHeight; 
+        
+        // 로딩 메시지
+        const loadId = 'load-' + Date.now();
+        l.innerHTML += `<div id="${loadId}" class="msg-row msg-ai">나루: ...</div>`; l.scrollTop = l.scrollHeight;
+        
+        try {
+            const res = await fetch("https://openrouter.ai/api/v1/chat/completions", { 
+                method:"POST", headers:{"Authorization":`Bearer ${OPENROUTER_KEY}`,"Content-Type":"application/json"}, 
+                body:JSON.stringify({ "model":"mistralai/mistral-7b-instruct:free", "messages":[{"role":"system","content":"피폐한 노란장판 룸의 흑막이다. 짧고 기괴하게 반말로 대답해라."},{"role":"user","content":t}] }) 
+            }); 
+            const d = await res.json(); 
+            document.getElementById(loadId).remove();
+            if(d.choices && d.choices.length > 0) {
+                l.innerHTML += `<div class="msg-row msg-ai">나루: ${d.choices[0].message.content}</div>`; 
+            } else {
+                throw new Error("Empty response");
+            }
+        } catch(e) { 
+            // 🔴 서버가 죽었을 때 절대 터지지 않는 '비상 대사' 출력
+            document.getElementById(loadId).remove();
+            const fallbacks = ["피곤해...", "창문 밖을 봐...", "까마귀가 울어...", "장판이 차가워...", "화분이나 깨..."];
+            const reply = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+            l.innerHTML += `<div class="msg-row msg-ai">나루: ${reply}</div>`; 
+        }
+        l.scrollTop = l.scrollHeight; 
+    }
+
+    // 🛒 암시장 및 포인트
+    let cash = parseInt(localStorage.getItem('pts')||'1000'); let roomItems = JSON.parse(localStorage.getItem('roomItems')||'[]');
+    function uCash() { document.getElementById('my-money').innerText = cash+' P'; localStorage.setItem('pts', cash); }
+    function earnPoints(a) { cash+=a; uCash(); } uCash();
+    function buyItem(n, icon, p) { if(cash<p) return alert("자금 부족..."); cash-=p; uCash(); const x = Math.floor(Math.random()*80)+10; const y = Math.floor(Math.random()*30)+50; roomItems.push({ icon: icon, x: x, y: y }); localStorage.setItem('roomItems', JSON.stringify(roomItems)); renderRoomItems(); }
+    function renderRoomItems() { const layer = document.getElementById('item-drop-zone'); layer.innerHTML=''; roomItems.forEach(item => { const el = document.createElement('div'); el.className='dropped-item'; el.style.left=item.x+'%'; el.style.top=item.y+'%'; el.innerText=item.icon; layer.appendChild(el); }); }
+    function clearRoomItems() { roomItems=[]; localStorage.setItem('roomItems','[]'); renderRoomItems(); } renderRoomItems();
+
+    // 🐬 돌고래 아케이드
     const rings = [document.getElementById('ring0'),document.getElementById('ring1'),document.getElementById('ring2'),document.getElementById('ring3'),document.getElementById('ring4')];
     let rState = [], dTime=30, dScore=0, dState='ready', dTimer=null, gameLoop=null;
     function resetRings() { rState = rings.map((r,i) => ({ x: 40+(i*50), y: 300, vy:0, vx:0, stuck:false, scored:false })); rings.forEach((r,i) => { r.style.top='300px'; r.style.left=rState[i].x+'px'; }); }
     function startDolphinGame() { dState='playing'; dTime=30; dScore=0; document.getElementById('d-score').innerText='🏆 0개'; document.getElementById('dolphin-overlay').style.display='none'; resetRings(); if(dTimer) clearInterval(dTimer); dTimer=setInterval(()=>{ dTime--; if(dTime<=0) endGame(false); }, 1000); if(!gameLoop) loop(); }
-    function loop() { 
-        if(dState!=='playing') return; 
-        rState.forEach((s,i) => { 
-            if(s.stuck) return; 
-            s.vy+=0.35; s.y+=s.vy; s.x+=s.vx; s.vx*=0.96; 
-            if(s.y>300){ s.y=300; s.vy*=-0.5; } if(s.x<10||s.x>270) s.vx*=-0.8; 
-            if(s.y>170 && s.y<240 && s.vy>0){ 
-                if(Math.abs(s.x-60)<15 || Math.abs(s.x-240)<15){ 
-                    s.stuck=true; s.y=250-(dScore*10); s.x=Math.abs(s.x-60)<15?60:240; 
-                    if(!s.scored){ s.scored=true; dScore++; document.getElementById('d-score').innerText=`🏆 ${dScore}개`; } 
-                } 
-            } 
-            rings[i].style.top=s.y+'px'; rings[i].style.left=s.x+'px'; 
-        }); 
-        if(dScore>=5) { endGame(true); return; } gameLoop=requestAnimationFrame(loop); 
-    }
+    function loop() { if(dState!=='playing') return; rState.forEach((s,i) => { if(s.stuck) return; s.vy+=0.35; s.y+=s.vy; s.x+=s.vx; s.vx*=0.96; if(s.y>300){ s.y=300; s.vy*=-0.5; } if(s.x<10||s.x>270) s.vx*=-0.8; if(s.y>170 && s.y<240 && s.vy>0){ if(Math.abs(s.x-60)<15 || Math.abs(s.x-240)<15){ s.stuck=true; s.y=250-(dScore*10); s.x=Math.abs(s.x-60)<15?60:240; if(!s.scored){ s.scored=true; dScore++; document.getElementById('d-score').innerText=`🏆 ${dScore}개`; } } } rings[i].style.top=s.y+'px'; rings[i].style.left=s.x+'px'; }); if(dScore>=5) { endGame(true); return; } gameLoop=requestAnimationFrame(loop); }
     function pushRings(dir) { if(dState==='playing') { rState.forEach(s => { if(!s.stuck){ s.vy = -Math.random()*8-3; s.vx += (dir==='left'?1:-1)*(Math.random()*4+2); } }); } }
     function endGame(win) { dState='over'; clearInterval(dTimer); cancelAnimationFrame(gameLoop); gameLoop=null; document.getElementById('dolphin-overlay').style.display='flex'; document.getElementById('dolphin-msg').innerText = win ? '✨ SUCCESS ✨\n+100P' : 'FAILED\nGAME OVER'; document.getElementById('dolphin-start-btn').innerText = '▶ RETRY'; if(win) earnPoints(100); }
 
-    /* 암시장 */
-    let cash = parseInt(localStorage.getItem('pts')||'1000'); let roomItems = JSON.parse(localStorage.getItem('roomItems')||'[]');
-    function uCash() { document.getElementById('my-money').innerText = cash+' P'; localStorage.setItem('pts', cash); }
-    function earnPoints(a) { cash+=a; uCash(); } uCash();
-    function buyItem(n, icon, p) { if(cash<p) return alert("자금 부족..."); cash-=p; uCash(); const x = Math.floor(Math.random()*80)+10; const y = Math.floor(Math.random()*30)+60; roomItems.push({ icon: icon, x: x, y: y }); localStorage.setItem('roomItems', JSON.stringify(roomItems)); renderRoomItems(); }
-    function renderRoomItems() { const layer = document.getElementById('item-drop-zone'); layer.innerHTML=''; roomItems.forEach(item => { const el = document.createElement('div'); el.className='dropped-item code-pixel-block'; el.style.left=item.x+'%'; el.style.top=item.y+'%'; el.innerText=item.icon; el.style.background = '#8e44ad'; layer.appendChild(el); }); }
-    function clearRoomItems() { roomItems=[]; localStorage.setItem('roomItems','[]'); renderRoomItems(); } renderRoomItems();
-
-    /* AI 펫 */
-    async function sendMsg() { 
-        const i = document.getElementById('ai-input'), l = document.getElementById('chat-log'), t = i.value.trim(); if(!t) return; 
-        l.innerHTML += `<div class="msg-row msg-me">${t}</div>`; i.value = ''; l.scrollTop = l.scrollHeight; 
-        try {
-            const res = await fetch("https://openrouter.ai/api/v1/chat/completions", { method:"POST", headers:{"Authorization":`Bearer ${OPENROUTER_KEY}`,"Content-Type":"application/json"}, body:JSON.stringify({ "model":"mistralai/mistral-7b-instruct:free", "messages":[{"role":"system","content":"피폐한 다마고치 펫이다. 반말로 짧게 대답해라."},{"role":"user","content":t}] }) }); 
-            const d = await res.json(); 
-            if(d.choices && d.choices.length > 0) {
-                l.innerHTML += `<div class="msg-row msg-ai">나루: ${d.choices[0].message.content}</div>`; 
-                const bubble = document.getElementById('pet-bubble'); bubble.innerText = d.choices[0].message.content; bubble.style.opacity = '1'; setTimeout(() => bubble.style.opacity = '0', 3000);
-            }
-        } catch(e) { l.innerHTML += `<div style="color:#f00; font-size:10px; text-align:center;">통신 오류...</div>`; }
-        l.scrollTop = l.scrollHeight; 
-    }
-    let isRoaming = false; let roamInterval;
-    function toggleRoaming() { 
-        isRoaming = !isRoaming; const petRoom = document.getElementById('shimeji-room'); const petImg = document.getElementById('pet-image'); 
-        if(isRoaming) { roamInterval = setInterval(() => { petImg.classList.add('is-walking'); petRoom.style.left = Math.floor(Math.random()*80) + '%'; petRoom.style.bottom = Math.floor(Math.random()*30) + '%'; setTimeout(() => petImg.classList.remove('is-walking'), 1500); }, 3000); } else { clearInterval(roamInterval); petImg.classList.remove('is-walking'); } 
-    }
-
-    /* 유튜브 음악기 */
-    let player = null; let trackIndex = 0; let isPlayerReady = false; 
-    let tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
-    window.onYouTubeIframeAPIReady = function() { 
-        if(currentPlaylist.length === 0) return; 
-        player = new YT.Player('yt-player-container', { height: '0', width: '0', videoId: currentPlaylist[trackIndex], events: { 'onReady': () => { isPlayerReady = true; document.getElementById('now-playing-text').innerText = "Tape Ready"; }, 'onStateChange': onPlayerStateChange, 'onError': nextTrack } }); 
-    }
+    // 🎵 설정 및 BGM
+    let currentPlaylist=[];
+    function loadProfile() { const s = JSON.parse(localStorage.getItem('interactiveRoomV1')) || {}; currentPlaylist = (s.bgm||'VDMiHYgQKLE').split(',').map(x=>x.trim()).filter(x=>x); document.getElementById('edit-bgm').value = s.bgm || ''; }
+    function saveProfile() { localStorage.setItem('interactiveRoomV1', JSON.stringify({ bgm:document.getElementById('edit-bgm').value })); loadProfile(); closePopup('profile-window'); if(player && player.loadVideoById) loadMusicPlayer(); }
+    
+    let player = null; let trackIndex = 0; let isPlayerReady = false; let tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
+    window.onYouTubeIframeAPIReady = function() { if(currentPlaylist.length === 0) return; player = new YT.Player('yt-player-container', { height: '0', width: '0', videoId: currentPlaylist[trackIndex], events: { 'onReady': () => { isPlayerReady = true; document.getElementById('now-playing-text').innerText = "Tape Ready"; }, 'onStateChange': onPlayerStateChange, 'onError': nextTrack } }); }
     function loadMusicPlayer() { if(!isPlayerReady || currentPlaylist.length === 0) return; player.loadVideoById(currentPlaylist[trackIndex]); }
     function onPlayerStateChange(event) { if(event.data === YT.PlayerState.ENDED) nextTrack(); if(event.data === YT.PlayerState.PLAYING) { document.getElementById('now-playing-text').innerText = "▶ " + (player.getVideoData().title || "Playing..."); } }
     function togglePlay() { if(!isPlayerReady) return; if(player.getPlayerState() === YT.PlayerState.PLAYING) player.pauseVideo(); else player.playVideo(); } 
     function nextTrack() { if(!isPlayerReady) return; trackIndex = (trackIndex + 1) % currentPlaylist.length; player.loadVideoById(currentPlaylist[trackIndex]); } 
     function prevTrack() { if(!isPlayerReady) return; trackIndex = (trackIndex - 1 + currentPlaylist.length) % currentPlaylist.length; player.loadVideoById(currentPlaylist[trackIndex]); }
+
+    loadProfile();
   </script>
 </body>
 </html>
