@@ -2,437 +2,347 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>나의 레트로 데스크탑</title>
+  <title>The Interactive Nostalgia</title>
   <link href="https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 
   <style>
-    /* === 🪟 레트로 OS 기본 설정 === */
-    body { margin: 0; padding: 0; overflow: hidden; font-family: 'Galmuri9', monospace; background-color: #008080; /* 고전적인 청록색 배경 */ user-select: none; cursor: default; }
+    /* === 🩸 기본 설정 === */
+    body { background-color: #f4f1eb; color: #333; font-family: 'Galmuri9', sans-serif; margin: 0; padding: 0; overflow: hidden; user-select: none; display: flex; }
+
+    /* === 🥑 좌측 메뉴바 (레퍼런스 & 아보카도 감성) === */
+    #sidebar { 
+        width: 120px; height: 100vh; background: #fff; border-right: 2px dashed #d1c8b8; 
+        display: flex; flex-direction: column; align-items: center; padding-top: 50px; box-shadow: 2px 0 15px rgba(0,0,0,0.03); z-index: 100;
+    }
+    .menu-btn { 
+        width: 80px; margin-bottom: 25px; padding: 15px 0; text-align: center; cursor: pointer; 
+        font-size: 13px; font-weight: bold; color: #888; background: #faf9f5; border: 1px solid #eae5d9; border-radius: 12px;
+        transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+    .menu-btn div { font-size: 24px; margin-bottom: 8px; transition: 0.2s; }
+    .menu-btn:hover { background: #fff0f5; color: #d81b60; border-color: #f8bbd0; transform: translateY(-3px); box-shadow: 0 6px 12px rgba(216,27,96,0.1); }
+    .menu-btn:hover div { transform: scale(1.1); }
+
+    /* === 🖼️ 우측 메인 공간 === */
+    #main-stage {
+        flex-grow: 1; height: 100vh; display: flex; justify-content: center; align-items: center; background: #fdfdfc; position: relative;
+    }
+
+    /* =========================================
+       [차원 1] 🩸 진짜 HTML 요소로 조립된 '고정 비율' 기믹 룸
+       (투명 블록 꼼수 제거. 절대 안 깨짐)
+       ========================================= */
+    #room-frame {
+        width: 100%; max-width: 900px; aspect-ratio: 16 / 10; /* 고정 비율 프레임 */
+        background: #000; position: relative; overflow: hidden; border: 8px solid #fff; 
+        border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); transition: filter 0.3s ease;
+    }
+
+    /* 벽지 (노을 + 꽃무늬) */
+    .room-wall {
+        position: absolute; top: 0; left: 0; width: 100%; height: 60%;
+        background: linear-gradient(to bottom, rgba(139, 0, 0, 0.9), rgba(210, 105, 30, 0.8)), url('https://www.transparenttextures.com/patterns/floral-pattern.png');
+    }
+    /* 노란 장판 (바닥) */
+    .room-floor {
+        position: absolute; bottom: 0; left: 0; width: 100%; height: 40%;
+        background: linear-gradient(to bottom, #cda043, #9e7a2f); border-top: 2px solid #8b5a2b;
+    }
+
+    /* 전등 (기믹) */
+    .gimmick-light {
+        position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 15%; height: 12%; 
+        background: rgba(255,255,255,0.9); border-radius: 50%; border: 3px solid #555;
+        box-shadow: 0 0 50px #fff, 0 0 20px #ffeb3b; cursor: pointer; display: flex; justify-content: center; align-items: flex-end; 
+        padding-bottom: 5px; font-size: 11px; font-weight: bold; color: #333; z-index: 50;
+    }
+    .gimmick-light:active { transform: translateX(-50%) scale(0.95); }
+
+    /* 어둠 효과 */
+    #room-darkness { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); pointer-events: none; opacity: 0; transition: 0.3s; z-index: 40; }
+    #room-frame.is-dark #room-darkness { opacity: 1; }
+
+    /* 사선 빛 효과 */
+    .light-beam {
+        position: absolute; top: 15%; right: 10%; width: 50%; height: 85%;
+        background: linear-gradient(120deg, rgba(255,200,150,0.3) 0%, rgba(255,100,50,0.1) 40%, transparent 70%);
+        clip-path: polygon(100% 0, 100% 40%, 0 100%, 0 60%); pointer-events: none; mix-blend-mode: screen; z-index: 5;
+    }
+
+    /* 전봇대와 까마귀 (좌측 배치) */
+    .gimmick-pole { position: absolute; top: 10%; left: 15%; width: 3%; height: 60%; background: #222; z-index: 10; border-radius: 5px; }
+    .gimmick-wire { position: absolute; top: 25%; left: 0; width: 50%; height: 2px; background: #111; z-index: 9; transform: rotate(3deg); }
+    .gimmick-crow { position: absolute; font-size: 1.5rem; cursor: pointer; transition: 1s cubic-bezier(0.25, 1, 0.5, 1); z-index: 15; filter: drop-shadow(2px 2px 0 #000); }
+    .gimmick-crow.fly { transform: translate(300px, -300px) scale(2); opacity: 0; pointer-events: none; }
+
+    /* 창문 (우측 배치) - 진짜 div 박스 */
+    .gimmick-window {
+        position: absolute; top: 15%; right: 10%; width: 25%; height: 45%; 
+        border: 12px solid #5d4037; background: rgba(255, 200, 200, 0.6); cursor: pointer; z-index: 20; 
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 10px 10px 0px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: center; align-items: center; 
+        color: #fff; text-shadow: 1px 1px #000; font-size: 14px; font-weight: bold; border-radius: 5px;
+    }
+    .gimmick-window:hover { filter: brightness(1.2); }
+    .window-pot { width: 50px; height: 40px; background: #3e2723; border-radius: 5px; border: 2px solid #000; margin-bottom: 10px; font-size: 20px; display:flex; justify-content:center; align-items:center; }
     
-    /* 바탕화면 배경 패턴 (타일) */
-    #desktop-background {
-        position: absolute; top: 0; left: 0; width: 100%; height: calc(100vh - 30px);
-        background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAIklEQVQYV2NkYGD4D8SMQIwXgLCIAGwAkwOyAmwAKCgAABQYBAJoU6ACAAAAAElFTkSuQmCC'); /* 간단한 도트 패턴 */
-        background-repeat: repeat;
-        z-index: 0;
-    }
-
-    /* === 🖥️ 바탕화면 아이콘 === */
-    .desktop-icon {
-        position: absolute; width: 64px; text-align: center; color: #fff; font-size: 11px; cursor: pointer;
-        text-shadow: 1px 1px 0 #000; display: flex; flex-direction: column; align-items: center;
-    }
-    .desktop-icon img { width: 32px; height: 32px; margin-bottom: 5px; image-rendering: pixelated; }
-    .desktop-icon:hover { background-color: rgba(0, 0, 128, 0.3); border: 1px dotted #fff; }
-
-    /* === 📼 하단 작업표시줄 === */
-    #taskbar {
-        position: absolute; bottom: 0; left: 0; width: 100%; height: 28px;
-        background: #c0c0c0; border-top: 2px solid #fff; display: flex; align-items: center; padding: 0 2px; box-sizing: border-box; z-index: 9999;
-    }
-    #start-button {
-        display: flex; align-items: center; height: 22px; padding: 0 5px; margin-right: 5px;
-        background: #c0c0c0; border-top: 2px solid #fff; border-left: 2px solid #fff; border-right: 2px solid #000; border-bottom: 2px solid #000;
-        font-weight: bold; cursor: pointer; box-shadow: inset 1px 1px #dfdfdf;
-    }
-    #start-button img { width: 16px; height: 16px; margin-right: 3px; }
-    #start-button:active { border-top: 2px solid #000; border-left: 2px solid #000; border-right: 2px solid #fff; border-bottom: 2px solid #fff; box-shadow: none; padding-top: 2px; padding-left: 7px; }
-    
-    .taskbar-divider { width: 2px; height: 20px; background: #808080; border-right: 1px solid #fff; margin: 0 5px; }
-    
-    #clock { margin-left: auto; padding: 0 10px; background: #c0c0c0; border: 2px inset; height: 20px; display: flex; align-items: center; font-size: 11px; }
-
-    /* === 🔲 레트로 창문 (윈도우) 스타일 === */
-    .retro-window {
-        position: absolute; background: #c0c0c0; border-top: 2px solid #fff; border-left: 2px solid #fff; border-right: 2px solid #000; border-bottom: 2px solid #000;
-        box-shadow: 1px 1px 0 #000; display: none; flex-direction: column; overflow: hidden;
-    }
-    .window-titlebar {
-        background: navy; color: #fff; padding: 2px 5px; font-weight: bold; font-size: 12px;
-        display: flex; justify-content: space-between; align-items: center; cursor: grab;
-    }
-    .window-titlebar.active { background: navy; }
-    .window-titlebar.inactive { background: #808080; color: #c0c0c0; }
-    
-    .window-controls { display: flex; gap: 2px; }
-    .win-btn {
-        width: 16px; height: 14px; background: #c0c0c0; border-top: 1px solid #fff; border-left: 1px solid #fff; border-right: 1px solid #000; border-bottom: 1px solid #000;
-        font-size: 9px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: #000;
-    }
-    .win-btn:active { border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #fff; border-bottom: 1px solid #fff; padding-top: 1px; padding-left: 1px; }
-    .win-btn.close-btn { font-weight: bold; }
-
-    .window-content {
-        flex-grow: 1; position: relative; overflow: auto;
-        background: #fff; border: 2px inset #c0c0c0; margin: 2px;
-    }
-
-    /* === 🏠 [핵심] 창문 안의 인터랙티브 룸 === */
-    #room-window-content {
-        /* 이곳이 방의 컨테이너가 됩니다. 절대 좌표의 기준점 */
-        position: relative; width: 100%; height: 100%; overflow: hidden;
-        /* 초기 배경 (스케치 업로드 전) */
-        background: linear-gradient(to bottom, #8b0000, #d2691e);
-        background-size: cover; background-position: center;
-    }
-
-    /* --- 방 안의 기믹들 (위치와 스타일은 그대로 유지하되, 부모가 바뀜) --- */
-    /* 어둠 오버레이 */
-    #room-darkness { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); pointer-events: none; z-index: 90; transition: 0.3s; opacity: 0; }
-    .is-dark #room-darkness { opacity: 1; }
-    /* 전등 스위치 (투명 영역) */
-    #scene-light-switch { position: absolute; top: 0; left: 40%; width: 20%; height: 15%; cursor: pointer; z-index: 100; }
-    
-    /* 까마귀와 전깃줄 */
-    #scene-wire { position: absolute; top: 20%; left: -5%; width: 60%; height: 2px; background: #000; z-index: 10; transform: rotate(5deg); }
-    .crow { position: absolute; top: -20px; font-size: 24px; cursor: pointer; z-index: 11; transition: 1s; }
-    .crow.fly { transform: translate(500px, -500px) scale(2); opacity: 0; }
-
-    /* 창문 (투명 클릭 영역) */
-    #scene-window-click { position: absolute; top: 15%; right: 10%; width: 25%; height: 40%; cursor: pointer; z-index: 20; }
-    /* 창문에서 쏟아지는 물 (장식) */
-    #waterfall-deco { position: absolute; bottom: -20%; right: 12%; width: 20%; height: 60%; background: linear-gradient(to bottom, rgba(100,150,255,0.5), rgba(100,150,255,0.8)); animation: flow 1s infinite linear; pointer-events: none; z-index: 15; }
+    /* 쏟아지는 물줄기 */
+    .waterfall { position: absolute; top: 100%; right: 10%; width: 80%; height: 60vh; background: linear-gradient(to bottom, rgba(100, 150, 255, 0.4), rgba(100, 150, 255, 0.8)); animation: flow 1s infinite linear; pointer-events: none; }
     @keyframes flow { 0% { background-position: 0 0; } 100% { background-position: 0 100px; } }
 
-    /* 캐릭터 (투명 클릭 영역) */
-    #scene-character-click { position: absolute; bottom: 30%; left: 40%; width: 15%; height: 35%; cursor: pointer; z-index: 50; }
-
-    /* 화분들 */
-    .scene-pot { position: absolute; cursor: pointer; z-index: 30; font-size: 50px; transition: 0.2s; }
-    .scene-pot.broken { transform: translateY(30px) rotate(45deg) scale(0.8); opacity: 0.7; }
-
-    /* 침대 (투명 클릭 영역) */
-    #scene-bed-click { position: absolute; bottom: 0; left: 5%; width: 40%; height: 30%; cursor: pointer; z-index: 40; transform: perspective(500px) rotateX(20deg); }
-
-    /* === 📝 게시판 및 기타 창 스타일 === */
-    .post-item { border: 2px inset #c0c0c0; background: #fff; margin-bottom: 5px; padding: 5px; font-size: 12px; }
-    .post-header { font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; }
-    .post-header:hover { background: #000080; color: #fff; }
-    .post-content-area { display: none; padding-top: 5px; border-top: 1px dotted #000; }
-    
-    .retro-input, .retro-select, .retro-textarea {
-        width: 100%; box-sizing: border-box; border: 2px inset #c0c0c0; background: #fff; font-family: 'Galmuri9'; padding: 3px; margin-bottom: 5px; font-size: 12px;
+    /* 캐릭터 그림자 */
+    .gimmick-character {
+        position: absolute; bottom: 35%; left: 45%; width: 12%; height: 40%; 
+        background: #111; border-radius: 50px 50px 10px 10px; cursor: pointer; z-index: 25; 
+        box-shadow: 10px 10px 0 rgba(0,0,0,0.5); transition: 0.2s; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 12px;
+        background-size: contain; background-repeat: no-repeat; background-position: center;
     }
-    .retro-textarea { height: 200px; resize: none; }
-    
-    .retro-button {
-        background: #c0c0c0; border-top: 2px solid #fff; border-left: 2px solid #fff; border-right: 2px solid #000; border-bottom: 2px solid #000;
-        padding: 2px 10px; font-family: 'Galmuri9'; font-size: 12px; cursor: pointer;
-    }
-    .retro-button:active { border-top: 2px solid #000; border-left: 2px solid #000; border-right: 2px solid #fff; border-bottom: 2px solid #fff; padding: 3px 9px 1px 11px; }
+    .gimmick-character:hover { transform: scale(1.05) translateY(-5px); }
 
-    /* 업로드 박스 */
-    .upload-group { border: 2px groove #c0c0c0; padding: 5px; margin-bottom: 5px; background: #dfdfdf; }
-    .upload-label { font-size: 11px; margin-bottom: 3px; display: block; }
+    /* 깨지는 화분 */
+    .gimmick-pot { position: absolute; cursor: pointer; z-index: 30; transition: 0.2s; display: flex; flex-direction: column; align-items: center; filter: drop-shadow(5px 5px 0px rgba(0,0,0,0.3));}
+    .gimmick-pot .plant { font-size: 3rem; margin-bottom: -15px; z-index: 31; transition: 0.3s; }
+    .gimmick-pot .base { width: 60px; height: 60px; background: #e0e0e0; border-radius: 10px 10px 30px 30px; border: 3px solid #888; z-index: 32; }
+    .gimmick-pot.broken .plant { opacity: 0; transform: translateY(30px) rotate(45deg); pointer-events: none; }
+    .gimmick-pot.broken .base { background: transparent; border: none; box-shadow: none; font-size: 40px; line-height: 60px; }
+
+    /* 거대 이불 (게시판 버튼) - 좌측 하단 */
+    .gimmick-bed {
+        position: absolute; bottom: 5%; left: 5%; width: 35%; height: 35%; 
+        background: #f48fb1; border-radius: 20px 20px 0 0; border: 5px solid #d81b60; z-index: 35; 
+        box-shadow: 15px 15px 0px rgba(0,0,0,0.3); cursor: pointer; display: flex; justify-content: center; align-items: center; 
+        font-size: 1.5rem; color: #fff; font-weight: bold; text-shadow: 2px 2px 0px #000; transition: 0.3s;
+        background-size: cover; background-position: center;
+    }
+    .gimmick-bed:hover { transform: translateY(-10px); filter: brightness(1.1); }
+    .bed-pillow { position: absolute; top: 10%; left: 10%; width: 40%; height: 25%; background: #fff; border-radius: 20px; border: 3px solid #ccc; transform: rotate(5deg); }
+
+
+    /* =========================================
+       🎀 아보카도 감성 UI (팝업창 및 메뉴)
+       ========================================= */
+    .cute-popup { position: absolute; display: none; background: #fff; border: 1px solid #eee; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); overflow: hidden; width: 550px; color: #444; z-index: 2000; }
+    .cute-titlebar { background: #fff; color: #888; padding: 15px 20px; font-size: 13px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; cursor: grab; border-bottom: 1px solid #f0f0f0; letter-spacing: 1px;}
+    .cute-body { padding: 25px; max-height: 65vh; overflow-y: auto; background: #faf9f7;}
+    
+    .cute-body::-webkit-scrollbar { width: 8px; }
+    .cute-body::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 10px; }
+    
+    .close-x { cursor: pointer; color: #bbb; font-size: 16px; transition: 0.2s; }
+    .close-x:hover { color: #d81b60; }
+    
+    .btn-action { background: #fff; color: #666; border: 1px solid #ddd; border-radius: 20px; padding: 8px 18px; font-family: 'Galmuri9'; font-size: 12px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02);}
+    .btn-action:hover { background: #fff0f5; color: #d81b60; border-color: #f8bbd0; transform: translateY(-1px);}
+    .btn-action:active { transform: translateY(1px); box-shadow: none;}
+    
+    .cute-input { width: 100%; padding: 12px; margin-bottom: 15px; background: #fff; border: 1px solid #e5e5e5; border-radius: 10px; color: #555; font-family: 'Galmuri9'; box-sizing: border-box; outline: none; transition: 0.2s;}
+    .cute-input:focus { border-color: #f8bbd0; box-shadow: 0 0 0 3px rgba(248, 187, 208, 0.2); }
+
+    .post-item { margin-bottom: 15px; background: #fff; border-radius: 12px; border: 1px solid #eee; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
+    .post-header { padding: 15px 20px; font-weight: normal; color: #555; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;}
+    .post-header:hover { background: #fafafa; color: #d81b60; }
+    .post-content-area { padding: 20px; display: none; background: #fff; font-size: 13px; line-height: 1.8; color: #666; border-top: 1px dashed #eee;}
+    
+    .upload-box { background: #fff; padding: 15px; border: 1px dashed #ccc; border-radius: 12px; margin-bottom: 15px; text-align: center; }
 
   </style>
 </head>
 <body>
 
-  <div id="desktop-background"></div>
-
-  <div class="desktop-icon" style="top: 20px; left: 20px;" onclick="openWindow('room-window')">
-      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgBAMAAACBVGfHAAAAKlBMVEUAAAD///8zMzNEREQAAACZmZkzMzOZZmZmZmZERAARERERERGIiIgRERH1c2WJAAAADXRSTlMABgcICQ4PEBITFBcZ8YOwAAAAgklEQVQoz2NgwA0YQhgwmLyBCEYwExkYmEwZGBg5jICInI2BgYk1BKoAJs4QxGACF2eIZDABKTAyBDGIALmMDJEMIQwOYAWCDCEMoQwhDGEgYogC6jIEM4QwaICljIEKjKACJlABJmMDM0OQEYgBFZgYjIwgE5jAjElA2QkMAAAq+R116c1nLAAAAABJRU5ErkJggg==">
-      내 방으로 가기
-  </div>
-  <div class="desktop-icon" style="top: 100px; left: 20px;" onclick="alert('비워도 비워도... 가득 차 있다...')">
-      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgBAMAAACBVGfHAAAAIVBMVEUAAAD///8RERERERGIiIgAAACZmZkzMzMzMzNERERERAAdXU0DAAAACnRSTlMABgcICQ4PEBMX6t74kQAAAGdJREFUKM9jYCAdsMYwYDATGhiYjBkYGLkZGIgYWBkYmFhBIs7cQALODJAIJ7g4I5gA1WUIYTAyBDOEMEQAhYwMQQwwC6QYQhiCGUIYjEEixlABCyMjaICZMYgB1WAEMaACZgYGAGV5IXkS56W0AAAAAElFTkSuQmCC">
-      휴지통
+  <div id="sidebar">
+      <div class="menu-btn" onclick="location.reload()"><div>🏠</div>Room</div>
+      <div class="menu-btn" onclick="openBoard('diary')"><div>📖</div>Diary</div>
+      <div class="menu-btn" onclick="openPopup('config-window')"><div>⚙️</div>Setup</div>
   </div>
 
-  <div id="room-window" class="retro-window" style="width: 800px; height: 600px; top: 50px; left: 100px;">
-      <div class="window-titlebar">
-          <span id="room-window-title">🏠 나의 작은 방 - Internet Explorer?</span>
-          <div class="window-controls">
-              <div class="win-btn">_</div>
-              <div class="win-btn">□</div>
-              <div class="win-btn close-btn" onclick="closeWindow('room-window')">X</div>
-          </div>
-      </div>
-      <div class="window-content" style="background: #000; overflow: hidden;">
-          
-          <div id="room-window-content">
-              <div id="room-darkness"></div>
-              
-              <div id="scene-light-switch" onclick="toggleLight()" title="전등 스위치"></div>
-              
-              <div id="scene-wire">
-                  <div class="crow" style="left: 30%;" onclick="flyCrow(this)">🐦‍⬛</div>
-                  <div class="crow" style="left: 50%;" onclick="flyCrow(this)">🐦‍⬛</div>
-              </div>
-              
-              <div id="scene-window-click" onclick="alert('창문 밖은... 아직 준비되지 않았다...')" title="창문"></div>
-              <div id="waterfall-deco"></div>
+  <div id="main-stage">
+      
+      <div id="room-frame">
+          <div class="room-wall"></div>
+          <div class="room-floor"></div>
+          <div class="light-beam"></div>
+          <div id="room-darkness"></div>
 
-              <div class="scene-pot" style="bottom: 25%; left: 30%;" onclick="breakPot(this)">🌿</div>
-              <div class="scene-pot" style="bottom: 40%; left: 20%;" onclick="breakPot(this)">🌵</div>
+          <div class="gimmick-light" onclick="toggleLight()">딸깍!</div>
 
-              <div id="scene-character-click" onclick="alert('... (말없이 바라본다)')" title="캐릭터"></div>
-              
-              <div id="scene-bed-click" onclick="openWindow('board-window'); openBoard('diary');" title="비밀 일기장 (침대)"></div>
+          <div class="gimmick-pole"></div>
+          <div class="gimmick-wire"></div>
+          <div class="gimmick-crow" style="top: 20%; left: 20%;" onclick="flyCrow(this)">🐦‍⬛</div>
+          <div class="gimmick-crow" style="top: 21%; left: 35%;" onclick="flyCrow(this)">🐦‍⬛</div>
 
+          <div class="gimmick-window" onclick="alert('다른 창으로 이동... 준비 중...')">
+              <div class="window-pot">♨️</div>
+              <span>창문 밖<br>알 수 없음</span>
+              <div class="waterfall"></div>
           </div>
 
+          <div class="gimmick-pot" style="bottom: 25%; left: 35%;" onclick="breakPot(this)">
+              <div class="plant">🌿</div><div class="base"></div>
+          </div>
+          <div class="gimmick-pot" style="bottom: 45%; left: 20%;" onclick="breakPot(this)">
+              <div class="plant">🌵</div><div class="base"></div>
+          </div>
+
+          <div id="char-element" class="gimmick-character" onclick="alert('캐릭터 대사...')">말걸기</div>
+
+          <div id="bed-element" class="gimmick-bed" onclick="openBoard('diary')">
+              <div class="bed-pillow"></div>
+              <span>비밀 일기장</span>
+          </div>
       </div>
+
   </div>
 
-  <div id="board-window" class="retro-window" style="width: 600px; height: 500px; top: 80px; left: 150px;">
-      <div class="window-titlebar">
-          <span id="board-title">📖 비밀 일기장</span>
-          <div class="window-controls">
-              <div class="win-btn close-btn" onclick="closeWindow('board-window')">X</div>
+  <div id="board-window" class="cute-popup" style="top: 10%; left: 20%;">
+      <div class="cute-titlebar">
+          <span id="board-title">DIARY & BOARD</span>
+          <div style="display:flex; align-items:center; gap:15px;">
+              <button class="btn-action" onclick="openWrite()">글쓰기</button>
+              <span class="close-x" onclick="closePopup('board-window')">✖</span>
           </div>
       </div>
-      <div class="window-content" style="display: flex; flex-direction: column;">
-          <div style="padding: 5px; background: #c0c0c0; border-bottom: 2px groove #fff;">
-              <button class="retro-button" onclick="openWindow('write-window')">✏️ 새 글 쓰기</button>
-              <select class="retro-select" style="width: auto; margin-left: 10px;" onchange="openBoard(this.value)">
-                  <option value="diary">비밀 일기</option>
-                  <option value="guestbook">방명록</option>
-              </select>
-          </div>
-          <div id="board-list" style="flex-grow: 1; padding: 10px; overflow-y: auto; background: #fff;">
-              로딩 중...
-          </div>
+      <div class="cute-body" id="page-content">
+          <div style="text-align:center; padding: 40px; color:#bbb;">수파베이스 연결 대기중...</div>
       </div>
   </div>
 
-  <div id="write-window" class="retro-window" style="width: 500px; height: 550px; top: 100px; left: 200px;">
-      <div class="window-titlebar">
-          <span>📝 글 작성</span>
-          <div class="window-controls">
-              <div class="win-btn close-btn" onclick="closeWindow('write-window')">X</div>
-          </div>
-      </div>
-      <div class="window-content" style="padding: 10px;">
-          <select id="post-category" class="retro-select">
+  <div id="write-window" class="cute-popup" style="top: 15%; left: 25%;">
+      <div class="cute-titlebar"><span>새 글 작성</span><span class="close-x" onclick="closePopup('write-window')">✖</span></div>
+      <div class="cute-body">
+          <select id="post-category" class="cute-input" style="width: 150px;">
               <option value="diary">비밀 일기</option>
               <option value="guestbook">방명록</option>
           </select>
-          <input type="text" id="post-title" class="retro-input" placeholder="제목을 입력하십시오...">
+          <input type="text" id="post-title" class="cute-input" placeholder="제목을 입력하세요...">
           
-          <div class="upload-group">
-              <span class="upload-label">📼 비디오 테이프 삽입 (Supabase Storage)</span>
-              <div style="display: flex; gap: 5px;">
-                  <input type="file" id="video-file" class="retro-input" accept="video/*" style="flex-grow: 1;">
-                  <button class="retro-button" id="btn-vid-upload" onclick="uploadVideoToSupabase()">삽입</button>
+          <div class="upload-box">
+              <span style="color:#888; font-size:12px;">🎥 영상 간편 첨부 (Supabase Storage)</span><br>
+              <div style="display:flex; gap:10px; justify-content:center; margin-top:10px; align-items:center;">
+                  <input type="file" id="video-file" accept="video/*" style="font-size:11px; color:#666;">
+                  <button class="btn-action" id="btn-vid-upload" onclick="uploadVideoToSupabase()">본문에 삽입</button>
               </div>
           </div>
 
-          <textarea id="post-content" class="retro-textarea"></textarea>
-          <div style="text-align: right; margin-top: 10px;">
-              <button class="retro-button" onclick="savePost()">💾 저장하기</button>
-          </div>
+          <textarea id="post-content"></textarea>
+          <div style="text-align:right; margin-top:20px;"><button class="btn-action" style="background:#fff0f5; color:#d81b60; border-color:#f8bbd0;" onclick="savePost()">기록하기</button></div>
       </div>
   </div>
 
-  <div id="config-window" class="retro-window" style="width: 400px; height: 450px; top: 60px; left: 60px;">
-      <div class="window-titlebar">
-          <span>💻 내 컴퓨터 (설정)</span>
-          <div class="window-controls">
-              <div class="win-btn close-btn" onclick="closeWindow('config-window')">X</div>
-          </div>
+  <div id="config-window" class="cute-popup" style="width: 400px; top: 20%; right: 10%;">
+      <div class="cute-titlebar"><span>SETTING</span><span class="close-x" onclick="closePopup('config-window')">✖</span></div>
+      <div class="cute-body">
+          <p style="font-size:12px; color:#888; text-align:center; margin-bottom:20px;">각 파트의 이미지를 직접 갈아 끼우십시오.</p>
+          <div style="margin-bottom:15px; font-size:12px; color:#555;">🖼️ 전체 룸 배경 <input type="file" accept="image/*" class="cute-input" style="margin-top:5px; padding:8px;" onchange="handleImageUpload(event, 'bg')"></div>
+          <div style="margin-bottom:15px; font-size:12px; color:#555;">👤 캐릭터 <input type="file" accept="image/*" class="cute-input" style="margin-top:5px; padding:8px;" onchange="handleImageUpload(event, 'char')"></div>
+          <div style="margin-bottom:15px; font-size:12px; color:#555;">🛏️ 침대 <input type="file" accept="image/*" class="cute-input" style="margin-top:5px; padding:8px;" onchange="handleImageUpload(event, 'bed')"></div>
+          <div style="text-align:center; margin-top:20px; border-top:1px dashed #eee; padding-top:20px;"><button class="btn-action" onclick="resetImages()">초기화</button></div>
       </div>
-      <div class="window-content" style="padding: 15px;">
-          <p style="text-align: center; margin-top: 0;">방의 모습을 변경합니다.</p>
-          
-          <div class="upload-group">
-              <span class="upload-label">🖼️ 벽지 교체 (전체 배경)</span>
-              <input type="file" class="retro-input" accept="image/*" onchange="handleImageUpload(event, 'bg')">
-          </div>
-          <div class="upload-group">
-              <span class="upload-label">👤 주인 교체 (캐릭터)</span>
-              <input type="file" class="retro-input" accept="image/*" onchange="handleImageUpload(event, 'char')">
-          </div>
-          <div class="upload-group">
-              <span class="upload-label">🛏️ 이불 교체 (침대)</span>
-              <input type="file" class="retro-input" accept="image/*" onchange="handleImageUpload(event, 'bed')">
-          </div>
-
-          <div style="text-align: center; margin-top: 20px;">
-              <button class="retro-button" onclick="resetImages()">⚠️ 초기화 (복구)</button>
-          </div>
-      </div>
-  </div>
-
-  <div id="taskbar">
-      <div id="start-button" onclick="openWindow('config-window')">
-          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAFklEQVQYV2NkYGD4z4AHsGCRMJIQAABm4gIEd8651AAAAABJRU5ErkJggg==">
-          시작
-      </div>
-      <div class="taskbar-divider"></div>
-      <div id="clock">오전 12:00</div>
   </div>
 
   <script>
-    // === 🪟 윈도우 OS 시스템 ===
-    let highestZ = 100;
-    let activeWindow = null;
+    let highestZ = 3000;
+    
+    // 수파베이스 DB 
+    const SB_URL = "https://kzgbqpodvpuoqovfsyrm.supabase.co";
+    const SB_KEY = "sb_publishable_pdqE1Sc-4PSv3LQM9IsBcA_xJWeZwW-";
+    let sbClient = window.supabase ? window.supabase.createClient(SB_URL, SB_KEY) : null;
+    
+    CKEDITOR.replace('post-content', { height: 200, language: 'ko', removeButtons: 'About', versionCheck: false, toolbarCanCollapse: true });
 
-    function openWindow(id) {
-        const win = document.getElementById(id);
-        win.style.display = 'flex';
-        win.style.zIndex = ++highestZ;
-        setActiveWindow(win);
-        if(id === 'write-window' && !CKEDITOR.instances['post-content']) {
-             CKEDITOR.replace('post-content', { height: 300, language: 'ko', toolbarCanCollapse: true, resize_enabled: false });
-        }
-    }
-
-    function closeWindow(id) {
-        document.getElementById(id).style.display = 'none';
-    }
-
-    function setActiveWindow(win) {
-        if (activeWindow) {
-            activeWindow.querySelector('.window-titlebar').classList.remove('active');
-            activeWindow.querySelector('.window-titlebar').classList.add('inactive');
-        }
-        win.querySelector('.window-titlebar').classList.remove('inactive');
-        win.querySelector('.window-titlebar').classList.add('active');
-        activeWindow = win;
-    }
-
-    // 창 드래그 기능 (레트로 스타일)
-    function makeDraggable(winId) {
-        const win = document.getElementById(winId);
-        const titleBar = win.querySelector('.window-titlebar');
-        let isDragging = false;
-        let offsetX, offsetY;
-
-        win.onmousedown = () => {
-            win.style.zIndex = ++highestZ;
-            setActiveWindow(win);
-        };
-
-        titleBar.onmousedown = (e) => {
-            if (e.target.classList.contains('win-btn')) return; // 버튼 클릭 시 드래그 방지
-            isDragging = true;
-            offsetX = e.clientX - win.offsetLeft;
-            offsetY = e.clientY - win.offsetTop;
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
-        };
-
-        function onMouseMove(e) {
-            if (!isDragging) return;
-            win.style.left = (e.clientX - offsetX) + 'px';
-            win.style.top = (e.clientY - offsetY) + 'px';
-        }
-
-        function onMouseUp() {
-            isDragging = false;
-            document.removeEventListener('mousemove', onMouseMove);
-            document.removeEventListener('mouseup', onMouseUp);
-        }
-    }
-    ['room-window', 'board-window', 'write-window', 'config-window'].forEach(makeDraggable);
-
-    // 시계 작동
-    setInterval(() => {
-        const now = new Date();
-        let hours = now.getHours();
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const ampm = hours >= 12 ? '오후' : '오전';
-        hours = hours % 12; hours = hours ? hours : 12;
-        document.getElementById('clock').innerText = `${ampm} ${hours}:${minutes}`;
-    }, 1000);
-
-
-    // === 🏠 방 안의 상호작용 (기존 코드 유지) ===
-    function toggleLight() { document.getElementById('room-window-content').classList.toggle('is-dark'); }
+    // 🪟 기믹 스크립트
+    function openPopup(id) { const el = document.getElementById(id); el.style.display = 'block'; el.style.zIndex = ++highestZ; }
+    function closePopup(id) { document.getElementById(id).style.display = 'none'; }
+    function toggleLight() { document.getElementById('room-frame').classList.toggle('is-dark'); }
     function flyCrow(el) { el.classList.add('fly'); setTimeout(() => el.classList.remove('fly'), 5000); }
     function breakPot(el) { 
         if(!el.classList.contains('broken')) {
-            el.classList.add('broken'); setTimeout(() => el.classList.remove('broken'), 4000);
+            el.classList.add('broken'); el.querySelector('.base').innerText = '💥';
+            setTimeout(() => { el.classList.remove('broken'); el.querySelector('.base').innerText = '';}, 4000);
         }
     }
 
-    // === 🖼️ 이미지 커스텀 (설정 창) ===
-    function handleImageUpload(event, target) {
+    // 드래그 마술
+    function makeDraggable(winId) { 
+        const win = document.getElementById(winId); const dragArea = win.querySelector('.cute-titlebar'); if(!dragArea) return;
+        let p1=0, p2=0, p3=0, p4=0; win.onmousedown = () => win.style.zIndex = ++highestZ; 
+        dragArea.onmousedown = (e) => { e.preventDefault(); p3=e.clientX; p4=e.clientY; document.onmouseup = () => { document.onmouseup=null; document.onmousemove=null; }; document.onmousemove = (e) => { e.preventDefault(); p1=p3-e.clientX; p2=p4-e.clientY; p3=e.clientX; p4=e.clientY; win.style.top=(win.offsetTop-p2)+"px"; win.style.left=(win.offsetLeft-p1)+"px"; }; }; 
+    }
+    ['config-window', 'board-window', 'write-window'].forEach(makeDraggable);
+
+    // 🖼️ 이미지 커스텀 로직
+    function handleImageUpload(event, targetElement) {
         const file = event.target.files[0]; if(!file) return;
         const reader = new FileReader();
         reader.onload = function(e) {
             const dataUrl = e.target.result;
-            let saved = JSON.parse(localStorage.getItem('retroRoomImgs')) || {};
-            saved[target] = dataUrl;
-            localStorage.setItem('retroRoomImgs', JSON.stringify(saved));
-            applyImages();
+            let saved = JSON.parse(localStorage.getItem('myRoomFinalImgs')) || {};
+            if(targetElement === 'bg') { document.getElementById('room-frame').style.backgroundImage = `url(${dataUrl})`; document.getElementById('room-frame').style.backgroundSize = 'cover'; saved.bg = dataUrl; } 
+            else if(targetElement === 'char') { const charEl = document.getElementById('char-element'); charEl.style.backgroundImage = `url(${dataUrl})`; charEl.innerHTML = ''; charEl.style.backgroundColor = 'transparent'; charEl.style.boxShadow = 'none'; saved.char = dataUrl; } 
+            else if(targetElement === 'bed') { const bedEl = document.getElementById('bed-element'); bedEl.style.backgroundImage = `url(${dataUrl})`; bedEl.style.backgroundColor = 'transparent'; bedEl.innerHTML = ''; bedEl.style.border = 'none'; bedEl.style.boxShadow = 'none'; saved.bed = dataUrl; }
+            localStorage.setItem('myRoomFinalImgs', JSON.stringify(saved));
         };
         reader.readAsDataURL(file);
     }
-    function applyImages() {
-        const saved = JSON.parse(localStorage.getItem('retroRoomImgs')) || {};
-        if(saved.bg) document.getElementById('room-window-content').style.backgroundImage = `url(${saved.bg})`;
-        if(saved.char) document.getElementById('scene-character-click').style.backgroundImage = `url(${saved.char})`;
-        if(saved.bed) document.getElementById('scene-bed-click').style.backgroundImage = `url(${saved.bed})`;
+    function loadSavedImages() {
+        const saved = JSON.parse(localStorage.getItem('myRoomFinalImgs')) || {};
+        if(saved.bg) { document.getElementById('room-frame').style.backgroundImage = `url(${saved.bg})`; document.getElementById('room-frame').style.backgroundSize = 'cover'; }
+        if(saved.char) { const charEl = document.getElementById('char-element'); charEl.style.backgroundImage = `url(${saved.char})`; charEl.innerHTML = ''; charEl.style.backgroundColor = 'transparent'; charEl.style.boxShadow = 'none'; }
+        if(saved.bed) { const bedEl = document.getElementById('bed-element'); bedEl.style.backgroundImage = `url(${saved.bed})`; bedEl.style.backgroundColor = 'transparent'; bedEl.innerHTML = ''; bedEl.style.border = 'none'; bedEl.style.boxShadow = 'none'; }
     }
-    function resetImages() { localStorage.removeItem('retroRoomImgs'); location.reload(); }
+    function resetImages() { localStorage.removeItem('myRoomFinalImgs'); location.reload(); }
 
-    // === 📡 수파베이스 연동 (게시판 & 영상) ===
-    const SB_URL = "https://kzgbqpodvpuoqovfsyrm.supabase.co";
-    const SB_KEY = "sb_publishable_pdqE1Sc-4PSv3LQM9IsBcA_xJWeZwW-";
-    let sb = window.supabase ? window.supabase.createClient(SB_URL, SB_KEY) : null;
-
-    async function openBoard(type) {
-        document.getElementById('board-title').innerText = type === 'diary' ? '📖 비밀 일기장' : '명록';
-        const list = document.getElementById('board-list');
-        list.innerHTML = '데이터를 읽어오는 중...';
-        if(!sb) return list.innerHTML = 'DB 연결 실패.';
+    // 📝 수파베이스 게시판
+    async function openBoard(type) { 
+        document.getElementById('board-title').innerText = type==='diary' ? 'SECRET DIARY' : 'GUEST BOOK'; 
+        document.getElementById('post-category').value = type; 
+        const list = document.getElementById('page-content');
+        list.innerHTML = '<div style="text-align:center; padding: 40px; color:#bbb;">기억을 불러오는 중...</div>'; 
+        openPopup('board-window'); 
         
-        const { data, error } = await sb.from('posts').select('*').eq('category', type).order('created_at', {ascending:false});
-        if(error || !data || data.length === 0) return list.innerHTML = '아직 아무것도 없다...';
-
+        if (!sbClient) return list.innerHTML = '<div style="text-align:center; padding: 40px; color:#bbb;">DB 에러...</div>';
+        const {data, error} = await sbClient.from('posts').select('*').eq('category', type).order('created_at',{ascending:false});
+        if(error || !data || data.length === 0) return list.innerHTML = '<div style="text-align:center; padding: 40px; color:#bbb;">아직 작성된 글이 없습니다.</div>';
+        
         list.innerHTML = data.map(p => `
             <div class="post-item">
-                <div class="post-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block'">
-                    <span>📄 ${p.title}</span>
-                    <small>${new Date(p.created_at).toLocaleDateString()}</small>
+                <div class="post-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'">
+                    <span>📝 ${p.title}</span> <span style="font-size:11px; color:#aaa;">${new Date(p.created_at).toLocaleDateString()}</span>
                 </div>
                 <div class="post-content-area">${p.content}</div>
             </div>
         `).join('');
     }
-
-    async function savePost() {
-        if(!sb) return alert('DB 연결 끊김.');
-        const title = document.getElementById('post-title').value;
-        const content = CKEDITOR.instances['post-content'].getData();
-        const category = document.getElementById('post-category').value;
-        if(!title.trim()) return alert('제목이 비었다.');
-        
-        await sb.from('posts').insert([{ title, content, category }]);
-        closeWindow('write-window');
-        openBoard(category);
-        document.getElementById('post-title').value = '';
-        CKEDITOR.instances['post-content'].setData('');
+    
+    function openWrite() { document.getElementById('post-title').value = ''; CKEDITOR.instances['post-content'].setData(''); openPopup('write-window'); }
+    
+    async function savePost() { 
+        if(!sbClient) return;
+        const category = document.getElementById('post-category').value; const title = document.getElementById('post-title').value; const content = CKEDITOR.instances['post-content'].getData();
+        if(!title.trim()) return alert("제목을 ~ 적어라...");
+        await sbClient.from('posts').insert([{title, content, category}]); 
+        closePopup('write-window'); openBoard(category); 
     }
 
+    // 🎥 수파베이스 영상 업로드
     async function uploadVideoToSupabase() {
         const file = document.getElementById('video-file').files[0];
-        if(!file || !sb) return alert('파일이 없거나 DB 연결 실패.');
+        if(!file || !sbClient) return alert("영상을 ~ 골라라...!");
         const btn = document.getElementById('btn-vid-upload');
-        btn.innerText = '삽입 중...'; btn.disabled = true;
+        btn.innerText = "업로드 중..."; btn.disabled = true;
 
         const fileName = Date.now() + '_' + file.name;
-        const { error } = await sb.storage.from('videos').upload(fileName, file);
-        if(error) { alert('업로드 실패 (videos 버킷 확인 필요)'); btn.innerText='삽입'; btn.disabled=false; return; }
+        const { error } = await sbClient.storage.from('videos').upload(fileName, file);
+        if(error) { alert("업로드 실패..."); btn.innerText = "본문에 삽입"; btn.disabled = false; return; }
+
+        const { data } = sbClient.storage.from('videos').getPublicUrl(fileName);
+        CKEDITOR.instances['post-content'].insertHtml(`<p style="text-align:center;"><video src="${data.publicUrl}" controls style="max-width:100%; border-radius:8px;"></video></p><p><br></p>`);
         
-        const { data } = sb.storage.from('videos').getPublicUrl(fileName);
-        const html = `<p style="text-align:center; border: 2px inset #c0c0c0; padding: 5px; background: #000;"><video src="${data.publicUrl}" controls style="max-width:100%;"></video></p><p><br></p>`;
-        CKEDITOR.instances['post-content'].insertHtml(html);
-        btn.innerText = '완료';
-        setTimeout(()=>{ btn.innerText='삽입'; btn.disabled=false; document.getElementById('video-file').value=''; }, 2000);
+        btn.innerText = "삽입 완료!";
+        setTimeout(() => { btn.innerText = "본문에 삽입"; btn.disabled = false; document.getElementById('video-file').value = ''; }, 2000);
     }
 
-    // 초기화
-    window.onload = () => {
-        applyImages();
-        // 처음에 방 창문을 열어둠
-        openWindow('room-window');
-    };
+    window.onload = loadSavedImages;
   </script>
 </body>
 </html>
