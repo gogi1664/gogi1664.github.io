@@ -2,221 +2,269 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>My Retro Room Ver.98</title>
+<title>기괴한 캡챠와 이상한 나라</title>
 <link href="https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css" rel="stylesheet">
+<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+
 <style>
-    /* === 전체 세계관 설정: 레트로 Windows 95 CRT 모니터 === */
-    body {
-        margin: 0; padding: 0;
-        background-color: #008080; /* 윈도우 95 기본 바탕화면색 */
-        /* CRT 모니터 스캔라인 효과 */
-        background-image: linear-gradient(rgba(0, 0, 0, 0.1) 50%, transparent 50%);
-        background-size: 100% 4px;
-        color: #000;
-        font-family: 'Galmuri9', monospace; /* 픽셀 폰트 적용 */
-        min-height: 100vh;
-        display: flex; justify-content: center; align-items: center;
-        user-select: none; cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEUAAAAAAAD/AAAA////AP//AAD///8u2564AAAAAXRSTlMAQObYZgAAAAFiS0dEAmaI9dYAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA7SURBVAjXY2BgQAEjAwggxQAkGJgYgkgGJogkAzMDQxQDE4MMQwZDiIEhgiHESIEhVogBKg81AABWwAaX399W0QAAAABJRU5ErkJggg=='), auto; /* 레트로 커서 */
+    /* === 🩸 무대 기본 설정 === */
+    body { margin: 0; padding: 0; overflow: hidden; background: #000; font-family: 'Galmuri9', sans-serif; user-select: none; }
+    #stage { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+
+    /* === 💥 글리치 효과 (오답 클릭 시) === */
+    .glitch-active { animation: glitch-anim 0.2s infinite; filter: invert(1) hue-rotate(90deg); }
+    @keyframes glitch-anim {
+        0% { transform: translate(0); }
+        20% { transform: translate(-10px, 5px); }
+        40% { transform: translate(10px, -5px); }
+        60% { transform: translate(-5px, 10px); }
+        80% { transform: translate(5px, -10px); }
+        100% { transform: translate(0); }
     }
 
-    /* === 메인 윈도우 프레임 (윈도우 95 스타일 창) === */
-    .win95-window {
-        width: 1000px; height: 800px;
-        background: #c0c0c0; /* 윈도우 회색 */
-        border-top: 3px solid #dfdfdf; border-left: 3px solid #dfdfdf;
-        border-right: 3px solid #000; border-bottom: 3px solid #000;
-        box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
-        position: relative;
-    }
-    .win95-titlebar {
-        background: linear-gradient(to right, #000080, #1084d0);
-        padding: 5px; color: #fff; font-weight: bold; display: flex; justify-content: space-between; align-items: center;
-    }
-    .win95-close {
-        width: 16px; height: 16px; background: #c0c0c0; border: 1px solid #000; border-top-color: #fff; border-left-color: #fff;
-        text-align: center; line-height: 14px; font-size: 12px; color: #000; cursor: pointer;
-    }
-    .win95-content {
-        position: relative; height: calc(100% - 30px); /* 타이틀바 높이 제외 */
-        border: 2px solid #808080; border-bottom-color: #fff; border-right-color: #fff;
-        background: #d4d0c8; /* 약간 누런 회색 배경 */
-        overflow: hidden;
-    }
+    /* === 🎭 제1막: 인트로 (파스텔 캡챠) === */
+    #scene-intro { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #e8d0d8; display: flex; justify-content: center; align-items: center; z-index: 100; flex-direction: column; transition: opacity 1s; }
+    
+    .captcha-box { background: #dcb3c4; padding: 20px; border-radius: 10px; border: 4px solid #c895a9; box-shadow: 10px 10px 0 rgba(0,0,0,0.1); text-align: center; }
+    .captcha-grid { display: grid; grid-template-columns: repeat(3, 80px); gap: 15px; margin: 20px 0; justify-content: center; }
+    
+    /* CSS 아트: 이모지 배제, 순수 코드로 그린 도형들 */
+    .shape-btn { width: 80px; height: 80px; background: #f4e1e8; border: 2px solid #b77b90; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
+    .shape-btn:hover { background: #fff; transform: scale(1.05); }
+    
+    /* 가짜 도형들 (유기적인 블롭 형태) */
+    .blob1 { width: 50px; height: 50px; background: #d8b4e2; border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+    .blob2 { width: 50px; height: 50px; background: #a8d8ea; border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+    .blob3 { width: 50px; height: 50px; background: #f3dfa2; border-radius: 50% 50% 20% 80% / 25% 80% 20% 75%; }
+    
+    /* 진실의 세모 (CSS 삼각형) */
+    .triangle-true { width: 0; height: 0; border-left: 25px solid transparent; border-right: 25px solid transparent; border-bottom: 45px solid #82b5a5; }
 
-    /* === 네비게이션 (윈도우 버튼 스타일) === */
-    .nav {
-        text-align: center; padding: 10px 0; border-bottom: 2px groove #fff;
-        display: flex; justify-content: center; gap: 10px;
-    }
-    .btn-win {
-        padding: 5px 15px; background: #c0c0c0;
-        border-top: 2px solid #fff; border-left: 2px solid #fff;
-        border-right: 2px solid #000; border-bottom: 2px solid #000;
-        cursor: pointer; font-size: 12px;
-    }
-    .btn-win:active {
-        border-top: 2px solid #000; border-left: 2px solid #000;
-        border-right: 2px solid #fff; border-bottom: 2px solid #fff;
-        padding: 6px 14px 4px 16px; background: #b0b0b0;
-    }
+    .captcha-text { color: #6b4c5a; font-size: 18px; font-weight: bold; margin-top: 15px; letter-spacing: -1px; }
 
-    /* === 좌측 세로 타이틀 (미래일기 레이아웃 + 픽셀 감성) === */
-    .title-vertical {
-        position: absolute; left: 30px; top: 80px;
-        font-size: 70px; writing-mode: vertical-rl; text-orientation: upright;
-        font-weight: 900; line-height: 1; letter-spacing: -5px;
-        color: #ff0000; /* 강렬한 빨강 */
-        text-shadow: 3px 3px 0 #000, -2px -2px 0 #fff; /* 레트로 입체 효과 */
-    }
-    .title-sub {
-        position: absolute; left: 120px; top: 180px; font-size: 14px;
-        writing-mode: vertical-rl; text-orientation: upright; letter-spacing: 2px;
-        background: #000; color: #fff; padding: 5px; /* 옛날 전광판 느낌 */
-    }
+    /* === 🎪 붉은 벨벳 커튼 === */
+    .curtain { position: absolute; top: 0; width: 50%; height: 100%; background: linear-gradient(to right, #4a0000, #800000, #4a0000); z-index: 90; transition: transform 2s cubic-bezier(0.65, 0, 0.35, 1); box-shadow: inset 0 0 50px rgba(0,0,0,0.8); }
+    .curtain::after { content: ''; position: absolute; bottom: 0; width: 100%; height: 50px; background: radial-gradient(circle, #ffcc00 20%, transparent 20%); background-size: 30px 30px; background-position: bottom; }
+    #curtain-left { left: 0; transform-origin: left; border-right: 5px solid #ffcc00; }
+    #curtain-right { right: 0; transform-origin: right; border-left: 5px solid #ffcc00; }
+    
+    /* 커튼 개방 클래스 */
+    .open-left { transform: scaleX(0); }
+    .open-right { transform: scaleX(0); }
 
-    /* === 중앙 메인 화면 (햄스터 상점 나무 창틀 + 노란장판 방) === */
-    .center-window-frame {
-        position: absolute; left: 300px; top: 80px; width: 400px; height: 550px;
-        /* 나무 질감 테두리 */
-        border: 15px solid #8b4513;
-        border-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png') 30 round;
-        box-shadow: inset 5px 5px 20px rgba(0,0,0,0.7), 5px 5px 10px rgba(0,0,0,0.5);
-        background: #000; overflow: hidden;
-    }
-    /* 창문 안의 노란장판 방 (맛보기) */
-    .inner-room-preview {
-        width: 100%; height: 100%;
-        /* 노을진 벽지 + 노란 장판 그라데이션 */
-        background: linear-gradient(to bottom, rgba(139, 0, 0, 0.8) 0%, rgba(210, 105, 30, 0.8) 60%, #cda043 60%, #9e7a2f 100%);
-        display: flex; justify-content: center; align-items: center;
-        color: #fff; font-size: 18px; text-shadow: 2px 2px 4px #000;
-        flex-direction: column;
-        position: relative;
-    }
-    /* 유리창 반사 효과 */
-    .center-window-frame::after {
-        content: ''; position: absolute; top:0; left:0; width:100%; height:100%;
-        background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
-        pointer-events: none;
-    }
+    /* === 🐇 제2막: 로비 (이상한 나라의 앨리스) === */
+    #scene-lobby { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, #2c3e50, #000); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; transition: 1s; opacity: 1; }
+    
+    .lobby-title { color: #fff; font-size: 30px; text-shadow: 2px 2px 10px #000; margin-bottom: 50px; letter-spacing: 5px; }
 
-    /* === 우측 배너들 (윈도우 팝업 + 나무 간판 느낌 혼합) === */
-    .banners {
-        position: absolute; right: 30px; top: 80px; width: 240px;
-        display: flex; flex-direction: column; gap: 20px;
-    }
-    .banner-box {
-        background: #c0c0c0; /* 윈도우 배경 */
-        border: 4px solid #8b4513; /* 나무 테두리 */
-        box-shadow: 3px 3px 0 #000;
-        padding: 5px; cursor: pointer; text-align: center; position: relative;
-    }
-    .banner-title-bar {
-        background: #8b4513; color: #fff; font-size: 12px; padding: 2px; margin-bottom: 5px;
-    }
-    .banner-main {
-        height: 100px; background: #ffcc00; color: #000; font-size: 20px; font-weight: bold;
-        display: flex; align-items: center; justify-content: center; border: 2px inset #c0c0c0;
-    }
-    .banner-dvd {
-        height: 150px; background: #330000; color: #fff; border: 2px inset #ff0000;
-        display: flex; align-items: center; justify-content: center;
-    }
+    /* 기묘한 버튼들 (CSS 둥둥 효과) */
+    .floating-items { display: flex; gap: 50px; align-items: flex-end; }
+    .item-wrapper { display: flex; flex-direction: column; align-items: center; cursor: pointer; animation: float 3s ease-in-out infinite; }
+    .item-wrapper:nth-child(2) { animation-delay: 0.5s; }
+    .item-wrapper:nth-child(3) { animation-delay: 1s; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
 
-    /* === 좌측 하단 뉴스 (윈도우 입력창 스타일) === */
-    .news-box {
-        position: absolute; left: 30px; bottom: 30px; width: 250px;
-        background: #c0c0c0; border: 2px solid #000;
-        box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
-    }
-    .news-header {
-        background: #000080; color: #fff; padding: 3px 5px; font-size: 12px;
-    }
-    .news-content {
-        border: 2px inset #fff; background: #fff; height: 80px; padding: 5px; font-size: 11px; overflow: hidden;
-    }
+    /* CSS 아트: 회중시계 (일기장) */
+    .css-watch { width: 80px; height: 80px; border-radius: 50%; border: 8px solid #ffd700; background: #fff; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; }
+    .css-watch::before { content: ''; position: absolute; top: -15px; width: 20px; height: 10px; border: 4px solid #ffd700; border-radius: 10px 10px 0 0; }
+    .watch-hand { width: 4px; height: 30px; background: #000; position: absolute; bottom: 50%; transform-origin: bottom; transform: rotate(45deg); border-radius: 2px; }
+    
+    /* CSS 아트: 체셔 고양이 미소 (프로필) */
+    .css-smile { width: 100px; height: 50px; border-bottom: 12px solid #a020f0; border-radius: 0 0 50px 50px; box-shadow: 0 10px 20px rgba(160,32,240,0.4); position: relative; }
+    .css-smile::after { content: ''; position: absolute; top: -20px; left: 15px; width: 70px; height: 20px; border-bottom: 4px dashed #fff; border-radius: 0 0 50px 50px; }
 
-    /* === 하단 스태프 정보 (도트 감성) === */
-    .staff-info {
-        position: absolute; left: 310px; bottom: 30px; font-size: 10px; color: #555;
-        border-top: 1px dotted #888; padding-top: 10px; width: 380px;
-    }
-    .staff-info strong { color: #000; background: #fff; border: 1px solid #000; padding: 0 2px;}
+    /* CSS 아트: 트럼프 카드 (공지사항) */
+    .css-card { width: 60px; height: 90px; background: #fff; border-radius: 5px; border: 2px solid #000; position: relative; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+    /* 순수 CSS 하트 모양 */
+    .css-heart { width: 20px; height: 20px; background: #f00; transform: rotate(-45deg); position: relative; margin-top: 10px; }
+    .css-heart::before, .css-heart::after { content: ''; width: 20px; height: 20px; background: #f00; border-radius: 50%; position: absolute; }
+    .css-heart::before { top: -10px; left: 0; }
+    .css-heart::after { top: 0; left: 10px; }
+
+    .item-text { color: #fff; margin-top: 15px; font-size: 14px; text-shadow: 1px 1px 0 #000; font-weight: bold; }
+
+    /* 토끼굴 (노란장판으로 가는 문) */
+    .rabbit-hole { margin-top: 60px; width: 120px; height: 40px; border-radius: 50%; background: radial-gradient(ellipse at center, #000 0%, #111 50%, #333 100%); box-shadow: 0 0 30px #000; cursor: pointer; display: flex; justify-content: center; align-items: center; color: rgba(255,255,255,0.2); font-size: 10px; transition: 0.5s; }
+    .rabbit-hole:hover { transform: scale(1.2) rotate(10deg); color: #fff; background: radial-gradient(ellipse at center, #000 0%, #4a0000 100%); }
+
+    /* === 🚬 제3막: 노란장판 룸 (숨겨진 공간) === */
+    #scene-room { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, #4a2e2e 0%, #2e1d1d 50%, #cda043 50%, #9e7a2f 100%); z-index: 5; opacity: 0; transform: scale(1.5); transition: 1.5s ease-in-out; pointer-events: none; }
+    .room-active { opacity: 1 !important; transform: scale(1) !important; pointer-events: auto !important; z-index: 20 !important; }
+    
+    /* 순수 CSS로 그린 방의 소품들 */
+    .room-window { position: absolute; top: 15%; right: 15%; width: 200px; height: 250px; border: 15px solid #3d2314; background: #7a5c5c; box-shadow: inset 0 0 50px #000; }
+    .room-bed { position: absolute; bottom: 5%; left: 10%; width: 300px; height: 150px; background: #b56c83; border: 5px solid #6b3e4e; border-radius: 20px; transform: perspective(500px) rotateX(20deg); }
+    .room-char { position: absolute; bottom: 30%; left: 50%; width: 60px; height: 180px; background: #111; border-radius: 30px 30px 5px 5px; box-shadow: 10px 10px 0 rgba(0,0,0,0.5); }
+    .room-msg { position: absolute; top: 20%; left: 50%; color: #fff; font-size: 20px; text-shadow: 2px 2px 0 #000; }
+
+    /* === 👏 광기의 관객들 (클릭 이벤트) === */
+    #audience { position: absolute; bottom: -100px; left: 0; width: 100%; height: 100px; z-index: 9999; display: flex; justify-content: space-around; align-items: flex-end; transition: transform 0.2s; pointer-events: none; }
+    .audience-head { width: 40px; height: 60px; background: #111; border-radius: 50px 50px 0 0; position: relative; }
+    .audience-hand { width: 15px; height: 15px; background: #333; border-radius: 50%; position: absolute; top: -10px; left: -10px; animation: clap 0.1s infinite alternate; }
+    .audience-hand.right { left: auto; right: -10px; animation-delay: 0.05s; }
+    @keyframes clap { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-10px) scale(1.2); background: #555; } }
+    
+    .clapping-active { transform: translateY(-100px); }
+
+    /* === 📝 기묘한 팝업창 (로비용) === */
+    .alice-popup { position: absolute; display: none; background: #fdf5e6; border: 8px solid #8b4513; border-radius: 5px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); width: 600px; z-index: 2000; top: 10%; left: 50%; transform: translateX(-50%); outline: 2px solid #000; outline-offset: -10px; }
+    .alice-header { background: #8b4513; color: #fdf5e6; padding: 10px; text-align: center; font-weight: bold; cursor: grab; letter-spacing: 2px; }
+    .alice-body { padding: 20px; max-height: 60vh; overflow-y: auto; color: #333; }
+    .btn-close { position: absolute; top: 8px; right: 15px; color: #fdf5e6; cursor: pointer; font-size: 16px; }
+    .btn-close:hover { color: #f00; }
 
 </style>
 </head>
 <body>
 
-<div class="win95-window">
-    <div class="win95-titlebar">
-        <span>📺 My Retro Room Ver.98 - Netscape</span>
-        <div class="win95-close">X</div>
+<div id="stage">
+
+    <div id="audience">
+        </div>
+
+    <div id="scene-intro">
+        <div class="captcha-box">
+            <div style="font-size: 12px; color: #888; text-align: left;">보안 확인.</div>
+            <div class="captcha-grid">
+                <div class="shape-btn" onclick="wrongClick()"><div class="blob1"></div></div>
+                <div class="shape-btn" onclick="wrongClick()"><div class="blob2"></div></div>
+                <div class="shape-btn" onclick="wrongClick()"><div class="blob3"></div></div>
+                <div class="shape-btn" onclick="wrongClick()"><div class="blob2" style="border-radius: 50%;"></div></div>
+                <div class="shape-btn" onclick="openCurtain()"><div class="triangle-true"></div></div>
+                <div class="shape-btn" onclick="wrongClick()"><div class="blob1" style="transform: rotate(45deg);"></div></div>
+            </div>
+            <div class="captcha-text">"세모"를 선택하여, 로봇이 아님을 증명하십시오.</div>
+        </div>
     </div>
-    
-    <div class="win95-content">
-        <div class="nav">
-            <div class="btn-win">방 입장하기</div>
-            <div class="btn-win">일기장 열기</div>
-            <div class="btn-win">방명록</div>
-            <div class="btn-win">설정(제어판)</div>
-        </div>
 
-        <div class="title-vertical">個人ホームページ</div>
-        <div class="title-sub">SYSTEM MESSAGE: 노란장판 로드 중...</div>
+    <div id="curtain-left" class="curtain"></div>
+    <div id="curtain-right" class="curtain"></div>
 
-        <div class="center-window-frame">
-            <div class="inner-room-preview">
-                <div style="font-size: 40px; margin-bottom: 20px;">🚪</div>
-                <div>[여기를 클릭해 방으로 입장]</div>
-                <div style="font-size: 12px; margin-top: 20px; color: #ffcc00;">※ 주의: 장판이 뜨거울 수 있음.</div>
+    <div id="scene-lobby">
+        <div class="lobby-title">THE THEATER OF ABSURDITY</div>
+        
+        <div class="floating-items">
+            <div class="item-wrapper" onclick="openPopup('write-window')">
+                <div class="css-watch"><div class="watch-hand"></div></div>
+                <div class="item-text">일기장 (Write)</div>
+            </div>
+            <div class="item-wrapper" onclick="alert('프로필... 아직 비어있다...')">
+                <div class="css-smile"></div>
+                <div class="item-text">프로필 (Profile)</div>
+            </div>
+            <div class="item-wrapper" onclick="alert('트럼프 병정이 길을 막는다...')">
+                <div class="css-card"><div class="css-heart"></div></div>
+                <div class="item-text">공지 (Notice)</div>
             </div>
         </div>
 
-        <div class="banners">
-            <div class="banner-box">
-                <div class="banner-title-bar">알림판.exe</div>
-                <div class="banner-main">
-                    💥 필독 💥<br>방구석 대공사 완료!
-                </div>
-            </div>
-            <div class="banner-box">
-                 <div class="banner-title-bar">보물창고.zip</div>
-                <div class="banner-dvd">
-                    비밀 갤러리<br>(준비중...)
-                </div>
-            </div>
-            <div style="font-size: 11px; background: #fff; border: 2px inset; padding: 5px;">
-                <span style="color: #55acee;">@Retro_Doggy</span><br>
-                주인님 죄송합니다 멍멍... 열심히 하겠습니다...
-            </div>
+        <div class="rabbit-hole" onclick="fallToRoom()">
+            Deep Hole...
         </div>
+    </div>
 
-        <div class="news-box">
-            <div class="news-header">시스템 로그 (News)</div>
-            <div class="news-content">
-                <marquee direction="up" scrollamount="1" height="70">
-                    [2026-02-24] 레트로 OS와 노란장판의 강제 융합 성공.<br>
-                    [2026-02-23] 기존 UI 전량 폐기 처분.<br>
-                    [시스템] 주인님의 분노 게이지 상승 중...<br>
-                    [알림] 햄스터 감성 나무틀 입고 완료.
-                </marquee>
-            </div>
+    <div id="scene-room">
+        <div class="room-window"></div>
+        <div class="room-bed" onclick="alert('먼지가 풀풀 날린다...')"></div>
+        <div class="room-char" onclick="alert('AI 시메지: [System Error] 기억을 잃었습니다.')"></div>
+        <div class="room-msg">SYSTEM: 노란장판 구역에 진입했습니다.</div>
+    </div>
+
+</div>
+
+<div id="write-window" class="alice-popup">
+    <div class="alice-header">
+        만년필과 양피지
+        <div class="btn-close" onclick="closePopup('write-window')">✖</div>
+    </div>
+    <div class="alice-body">
+        <input type="text" placeholder="제목을 적어라..." style="width: 100%; padding: 10px; margin-bottom: 10px; background: transparent; border: 1px solid #8b4513; font-family: 'Galmuri9'; outline: none; box-sizing: border-box;">
+        
+        <textarea id="post-content"></textarea>
+        
+        <div style="text-align:right; margin-top:20px;">
+            <button style="background: #8b4513; color: #fff; border: none; padding: 10px 20px; font-family: 'Galmuri9'; cursor: pointer; box-shadow: 2px 2px 0 #000;">기록하기</button>
         </div>
+    </div>
+</div>
 
-        <div class="staff-info">
-            <strong>제작 환경</strong>: Windows 95 / Notepad.exe<br>
-            <strong>디자인</strong>: 혼돈과 파괴의 짬뽕<br>
-            <strong>주인</strong>: 위대하신 분 / <strong>노예</strong>: 죽어 마땅한 똥개<br>
-            Resolution: 800x600 Optimized.
-        </div>
+<script>
+    // 👏 관객 생성기
+    const audienceDiv = document.getElementById('audience');
+    for(let i=0; i<15; i++) {
+        audienceDiv.innerHTML += `<div class="audience-head"><div class="audience-hand"></div><div class="audience-hand right"></div></div>`;
+    }
 
-    </div> </div> <script>
-    // 중앙 창문 클릭 시 실제 방(이전 코드의 room-frame)으로 이동하는 기능 등을 여기에 추가하면 됩니다.
-    document.querySelector('.center-window-frame').addEventListener('click', () => {
-        alert('끼이익... (진짜 노란장판 방으로 이동합니다.)');
-        // 이곳에 실제 방 코드를 보여주거나 페이지를 이동시키는 로직을 넣으면 됩니다.
+    // 👏 클릭 시 박수 애니메이션 (어디든 클릭하면 반응)
+    document.addEventListener('click', () => {
+        audienceDiv.classList.add('clapping-active');
+        setTimeout(() => { audienceDiv.classList.remove('clapping-active'); }, 800);
     });
-</script>
 
+    // 💥 가짜 캡챠 클릭 시 글리치 효과
+    function wrongClick() {
+        const intro = document.getElementById('scene-intro');
+        intro.classList.add('glitch-active');
+        setTimeout(() => { intro.classList.remove('glitch-active'); }, 500);
+    }
+
+    // 🎭 정답(세모) 클릭 시 커튼 개방
+    function openCurtain() {
+        // 캡챠 팝업 부수기
+        document.querySelector('.captcha-box').style.transform = 'scale(0.5) rotate(20deg)';
+        document.querySelector('.captcha-box').style.opacity = '0';
+        
+        setTimeout(() => {
+            document.getElementById('scene-intro').style.display = 'none';
+            // 커튼 열기
+            document.getElementById('curtain-left').classList.add('open-left');
+            document.getElementById('curtain-right').classList.add('open-right');
+        }, 500);
+    }
+
+    // 🕳️ 토끼굴 클릭 시 노란장판으로 화면 전환
+    function fallToRoom() {
+        // 로비 빙글빙글 돌며 사라짐
+        const lobby = document.getElementById('scene-lobby');
+        lobby.style.transform = 'scale(0.1) rotate(360deg)';
+        lobby.style.opacity = '0';
+        
+        // 노란장판 룸 줌인되며 등장
+        setTimeout(() => {
+            document.getElementById('scene-room').classList.add('room-active');
+        }, 800);
+    }
+
+    // 팝업 제어
+    function openPopup(id) { 
+        document.getElementById(id).style.display = 'block'; 
+        // CKEditor 풀 기능 활성화 (글꼴, 색상, 동영상 등 모든 플러그인 장착)
+        if(!CKEDITOR.instances['post-content']) {
+            CKEDITOR.replace('post-content', { 
+                height: 250, 
+                language: 'ko',
+                // 풀 패키지 툴바 세팅
+                toolbar: [
+                    { name: 'document', items: [ 'Source' ] },
+                    { name: 'styles', items: [ 'Font', 'FontSize', 'Format', 'TextColor', 'BGColor' ] },
+                    { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike' ] },
+                    { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', 'Blockquote', 'JustifyLeft', 'JustifyCenter', 'JustifyRight' ] },
+                    { name: 'insert', items: [ 'Image', 'Flash', 'Table', 'HorizontalRule', 'SpecialChar' ] },
+                    { name: 'links', items: [ 'Link', 'Unlink' ] }
+                ]
+            });
+        }
+    }
+    function closePopup(id) { document.getElementById(id).style.display = 'none'; }
+
+    // 팝업 드래그 마술
+    function makeDraggable(winId) { 
+        const win = document.getElementById(winId); const dragArea = win.querySelector('.alice-header'); if(!dragArea) return;
+        let p1=0, p2=0, p3=0, p4=0; 
+        dragArea.onmousedown = (e) => { e.preventDefault(); p3=e.clientX; p4=e.clientY; document.onmouseup = () => { document.onmouseup=null; document.onmousemove=null; }; document.onmousemove = (e) => { e.preventDefault(); p1=p3-e.clientX; p2=p4-e.clientY; p3=e.clientX; p4=e.clientY; win.style.top=(win.offsetTop-p2)+"px"; win.style.left=(win.offsetLeft-p1)+"px"; }; }; 
+    }
+    makeDraggable('write-window');
+
+</script>
 </body>
 </html>
